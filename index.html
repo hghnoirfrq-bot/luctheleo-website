@@ -48,8 +48,8 @@
         }
         
         #logo-container {
-            width: 300px;
-            height: 150px;
+            width: 300px; /* Adjusted size */
+            height: 150px; /* Adjusted size */
             margin: 0 auto 1rem;
             position: relative;
             display: flex;
@@ -65,53 +65,19 @@
         }
         
         @keyframes dying-neon {
-            /* Start with a long period of clarity */
             0%, 70% {
                 opacity: 1;
                 filter: blur(0.5px) brightness(1);
                 transform: scale(1);
             }
-            /* Start to fade and distort */
-            75% {
-                opacity: 0.7;
-                filter: blur(1px) brightness(0.8);
-            }
-            /* First flicker off */
-            80% {
-                opacity: 0.3;
-                transform: scale(1.02) translateX(-2px);
-            }
-            /* Briefly back on, but distorted */
-            81% {
-                opacity: 0.9;
-                filter: blur(0.5px) brightness(1.2);
-            }
-            /* Second flicker off */
-            82% {
-                opacity: 0.2;
-                transform: scale(0.98) translateX(2px);
-            }
-            /* Quick jitter while faint */
-            83% {
-                opacity: 0.4;
-                transform: translateX(-3px);
-            }
-            84% {
-                opacity: 0.2;
-                transform: translateX(3px);
-            }
-             /* Fading back in */
-            90% {
-                opacity: 0.8;
-                filter: blur(0.5px) brightness(1);
-                transform: scale(1);
-            }
-            /* Return to full clarity */
-            100% {
-                opacity: 1;
-                filter: blur(0.5px) brightness(1);
-                transform: scale(1);
-            }
+            75% { opacity: 0.7; filter: blur(1px) brightness(0.8); }
+            80% { opacity: 0.3; transform: scale(1.02) translateX(-2px); }
+            81% { opacity: 0.9; filter: blur(0.5px) brightness(1.2); }
+            82% { opacity: 0.2; transform: scale(0.98) translateX(2px); }
+            83% { opacity: 0.4; transform: translateX(-3px); }
+            84% { opacity: 0.2; transform: translateX(3px); }
+            90% { opacity: 0.8; filter: blur(0.5px) brightness(1); transform: scale(1); }
+            100% { opacity: 1; filter: blur(0.5px) brightness(1); transform: scale(1); }
         }
 
         header h1, header p {
@@ -120,13 +86,8 @@
             font-weight: 400;
             letter-spacing: 1px;
         }
-        header h1 {
-            font-size: 1.2rem;
-        }
-        header p {
-            font-size: 0.9rem;
-            color: var(--link-color);
-        }
+        header h1 { font-size: 1.2rem; }
+        header p { font-size: 0.9rem; color: var(--link-color); }
 
         main {
             flex-grow: 1;
@@ -170,10 +131,7 @@
             transform: scale(1.1);
         }
         
-        #anchor-nav .nav-link {
-            position: static;
-        }
-
+        #anchor-nav .nav-link { position: static; }
         .nav-link.anchor-link {
             font-weight: 700;
             color: var(--text-color);
@@ -197,6 +155,9 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            /* MOBILE FIX: Add padding to create a safe area from screen edges */
+            padding: 1rem;
+            box-sizing: border-box;
         }
 
         .modal-content {
@@ -204,9 +165,9 @@
             background-color: var(--bg-color);
             padding: 2rem;
             border-radius: 8px;
-            width: 90%;
+            width: 100%; /* Take up full width within the padded modal parent */
             max-width: 800px;
-            max-height: 90vh;
+            max-height: 100%; /* Take up full height within the padded modal parent */
             overflow-y: auto;
             color: var(--text-color);
             border: 1px solid #333;
@@ -223,30 +184,11 @@
             transition: color 0.3s ease;
         }
 
-        .modal-close:hover {
-            color: var(--hover-color);
-        }
-
-        .modal-body h2 {
-            font-family: var(--font-mono);
-            margin-top: 0;
-        }
-        
-        .modal-body h3 {
-            font-family: var(--font-mono);
-            color: var(--link-color);
-            font-weight: normal;
-        }
-
-        .modal-body p, .modal-body li {
-            line-height: 1.8;
-            font-size: 1rem;
-        }
-        
-        .modal-body a {
-            color: var(--hover-color);
-            text-decoration: underline;
-        }
+        .modal-close:hover { color: var(--hover-color); }
+        .modal-body h2 { font-family: var(--font-mono); margin-top: 0; }
+        .modal-body h3 { font-family: var(--font-mono); color: var(--link-color); font-weight: normal; }
+        .modal-body p, .modal-body li { line-height: 1.8; font-size: 1rem; }
+        .modal-body a { color: var(--hover-color); text-decoration: underline; }
 
         .modal-body .embed-container {
             position: relative;
@@ -276,8 +218,6 @@
     <div class="container">
         <header>
              <div id="logo-container">
-                <!-- USER: Replace the 'src' value below with the URL to your logo image or GIF -->
-                 <!--https://placehold.co/200x100/121212/E0E0E0?text=SIGNAL-->
                 <img class="logo-image" src="/img/ltl_logo.PNG" alt="LTL Logo">
              </div>
             <h1>LUCTHELEO | Audio.Alchemist</h1>
@@ -401,7 +341,7 @@
                 const item = contentData.find(d => d.id === contentId);
                 if (item) {
                     let finalContent = item.content;
-                    if (item.type === 'post' && !item.content.includes('`<h2>`')) {
+                    if (item.type === 'post' && !item.content.includes('<h2>')) {
                        finalContent = `<h2>${item.id}</h2>` + item.content;
                     }
                     modalBody.innerHTML = finalContent;
