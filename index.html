@@ -22,11 +22,11 @@
             margin: 0;
             padding: 0;
             width: 100%;
-            height: 100%;
             background-color: var(--bg-color);
             color: var(--text-color);
             font-family: var(--font-serif);
-            overflow: hidden;
+            /* MOBILE FIX: Allow vertical scrolling */
+            overflow-x: hidden;
         }
 
         .container {
@@ -34,7 +34,8 @@
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            height: 100vh;
+            /* MOBILE FIX: Allow container to grow beyond screen height */
+            min-height: 100vh;
             width: 100vw;
             padding: 2rem;
             box-sizing: border-box;
@@ -48,8 +49,8 @@
         }
         
         #logo-container {
-            width: 300px; /* Adjusted size */
-            height: 150px; /* Adjusted size */
+            width: 300px; 
+            height: 150px;
             margin: 0 auto 1rem;
             position: relative;
             display: flex;
@@ -112,6 +113,8 @@
         #dynamic-field {
             flex-grow: 1;
             position: relative;
+            /* MOBILE FIX: Set a minimum height but allow it to grow */
+            min-height: 60vh; 
         }
 
         .nav-link {
@@ -155,7 +158,6 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            /* MOBILE FIX: Add padding to create a safe area from screen edges */
             padding: 1rem;
             box-sizing: border-box;
         }
@@ -165,9 +167,9 @@
             background-color: var(--bg-color);
             padding: 2rem;
             border-radius: 8px;
-            width: 100%; /* Take up full width within the padded modal parent */
+            width: 100%; 
             max-width: 800px;
-            max-height: 100%; /* Take up full height within the padded modal parent */
+            max-height: 100%; 
             overflow-y: auto;
             color: var(--text-color);
             border: 1px solid #333;
@@ -218,7 +220,7 @@
     <div class="container">
         <header>
              <div id="logo-container">
-                <img class="logo-image" src="/img/ltl_logo.PNG" alt="LTL Logo">
+                <img class="logo-image" src="https://placehold.co/300x150/121212/E0E0E0?text=SIGNAL" alt="LTL Logo">
              </div>
             <h1>LUCTHELEO | Audio.Alchemist</h1>
             <p>Pleasantly lost...</p>
@@ -280,10 +282,17 @@
             function renderLinks() {
                 anchorNav.innerHTML = '';
                 dynamicField.innerHTML = '';
-                const fieldRect = dynamicField.getBoundingClientRect();
-                const placedRects = [];
                 
                 const allLinks = contentData.filter(item => (item.type === 'page' && !item.isAnchor) || item.type === 'post');
+
+                // MOBILE FIX: Dynamically set the height of the link field based on content amount
+                const baseHeight = 60; // Base height in vh
+                const extraHeightPerFiveLinks = 30; // Add this much vh for every 5 links
+                const dynamicHeight = baseHeight + (Math.floor(allLinks.length / 5) * extraHeightPerFiveLinks);
+                dynamicField.style.height = `${dynamicHeight}vh`;
+
+                const fieldRect = dynamicField.getBoundingClientRect();
+                const placedRects = [];
 
                 contentData.filter(item => item.isAnchor).forEach(anchor => {
                     const a = document.createElement('a');
