@@ -22,11 +22,10 @@
             margin: 0;
             padding: 0;
             width: 100%;
-            height: 100%;
             background-color: var(--bg-color);
             color: var(--text-color);
             font-family: var(--font-serif);
-            overflow: hidden;
+            overflow-x: hidden;
         }
 
         .container {
@@ -34,7 +33,7 @@
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             width: 100vw;
             padding: 2rem;
             box-sizing: border-box;
@@ -48,8 +47,8 @@
         }
         
         #logo-container {
-            width: 300px; /* Adjusted size */
-            height: 150px; /* Adjusted size */
+            width: 300px; 
+            height: 150px;
             margin: 0 auto 1rem;
             position: relative;
             display: flex;
@@ -111,11 +110,19 @@
 
         #dynamic-field {
             flex-grow: 1;
-            position: relative;
+            min-height: 60vh; 
+            /* NEW: Use Flexbox for a structured, non-floating layout */
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-content: center;
+            gap: 1.5rem 3rem;
+            padding: 2rem 0;
         }
 
         .nav-link {
-            position: absolute;
+            /* NEW: Changed from absolute to static positioning */
+            position: static;
             font-family: var(--font-mono);
             color: var(--link-color);
             text-decoration: none;
@@ -155,7 +162,6 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            /* MOBILE FIX: Add padding to create a safe area from screen edges */
             padding: 1rem;
             box-sizing: border-box;
         }
@@ -165,9 +171,9 @@
             background-color: var(--bg-color);
             padding: 2rem;
             border-radius: 8px;
-            width: 100%; /* Take up full width within the padded modal parent */
+            width: 100%; 
             max-width: 800px;
-            max-height: 100%; /* Take up full height within the padded modal parent */
+            max-height: 100%; 
             overflow-y: auto;
             color: var(--text-color);
             border: 1px solid #333;
@@ -268,22 +274,20 @@
                     dynamicField.innerHTML = '<p style="color:red; text-align:center;">Error: Could not load site content. Please ensure content.json is in the same directory and you are running this from a web server.</p>';
                 }
             }
-            
-            function rectsOverlap(rect1, rect2) {
-                const padding = 30; 
-                return !(rect1.right + padding < rect2.left ||
-                         rect1.left > rect2.right + padding ||
-                         rect1.bottom + padding < rect2.top ||
-                         rect1.top > rect2.bottom + padding);
+
+            function shuffle(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
             }
 
             function renderLinks() {
                 anchorNav.innerHTML = '';
                 dynamicField.innerHTML = '';
-                const fieldRect = dynamicField.getBoundingClientRect();
-                const placedRects = [];
                 
                 const allLinks = contentData.filter(item => (item.type === 'page' && !item.isAnchor) || item.type === 'post');
+                shuffle(allLinks); // Shuffle order to maintain randomness
 
                 contentData.filter(item => item.isAnchor).forEach(anchor => {
                     const a = document.createElement('a');
@@ -292,48 +296,14 @@
                     a.dataset.id = anchor.id;
                     anchorNav.appendChild(a);
                 });
-
+                
+                // NEW: Simply append the shuffled links. Flexbox handles all positioning.
                 allLinks.forEach(item => {
-                    let newRect;
-                    let attempts = 0;
-                    let hasCollision = true;
-
-                    const tempLink = document.createElement('a');
-                    tempLink.textContent = item.id;
-                    tempLink.className = 'nav-link';
-                    tempLink.style.visibility = 'hidden';
-                    dynamicField.appendChild(tempLink);
-                    const linkWidth = tempLink.offsetWidth;
-                    const linkHeight = tempLink.offsetHeight;
-                    dynamicField.removeChild(tempLink);
-                    
-                    if (fieldRect.width <= linkWidth || fieldRect.height <= linkHeight) return;
-
-                    while (hasCollision && attempts < 500) {
-                        const randomX = Math.random() * (fieldRect.width - linkWidth);
-                        const randomY = Math.random() * (fieldRect.height - linkHeight);
-                        
-                        newRect = {
-                            left: randomX,
-                            top: randomY,
-                            right: randomX + linkWidth,
-                            bottom: randomY + linkHeight,
-                        };
-
-                        hasCollision = placedRects.some(rect => rectsOverlap(rect, newRect));
-                        attempts++;
-                    }
-
-                    if (!hasCollision) {
-                        const a = document.createElement('a');
-                        a.textContent = item.id;
-                        a.className = 'nav-link';
-                        a.dataset.id = item.id;
-                        a.style.left = `${newRect.left}px`;
-                        a.style.top = `${newRect.top}px`;
-                        dynamicField.appendChild(a);
-                        placedRects.push(newRect);
-                    }
+                    const a = document.createElement('a');
+                    a.textContent = item.id;
+                    a.className = 'nav-link';
+                    a.dataset.id = item.id;
+                    dynamicField.appendChild(a);
                 });
             }
 
@@ -372,6 +342,7 @@
             
             initializeSite();
 
+            // Rerender links on resize to adjust flexbox layout
             let resizeTimeout;
             window.addEventListener('resize', () => {
                 clearTimeout(resizeTimeout);
