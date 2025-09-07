@@ -167,6 +167,11 @@
             white-space: nowrap;
             padding: 5px;
             user-select: none;
+            /* New rules to prevent text selection on mobile */
+            -webkit-user-select: none; /* Safari */
+            -moz-user-select: none;    /* Firefox */
+            -ms-user-select: none;     /* IE10+/Edge */
+            -webkit-touch-callout: none; /* iOS Safari */
         }
 
         .nav-link.dragging {
@@ -513,4 +518,5 @@
     </script>
 </body>
 </html>
+
 
