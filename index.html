@@ -414,10 +414,11 @@
 
             function setupDraggableLinks() {
                 let activeLink = null;
-                let offsetX, offsetY;
                 let isDragging = false;
                 let pressTimer;
-                let startX, startY;
+                
+                let startX, startY; // Pointer's starting position
+                let initialLinkLeft, initialLinkTop; // Link's starting position
 
                 function onPointerDown(e) {
                     const target = e.target.closest('.nav-link');
@@ -431,36 +432,34 @@
                         isDragging = true;
                         activeLink = target;
                         activeLink.classList.add('dragging');
-                        document.body.classList.add('no-scroll'); // Disable scrolling
+                        document.body.classList.add('no-scroll');
                         
-                        offsetX = e.clientX - activeLink.getBoundingClientRect().left;
-                        offsetY = e.clientY - activeLink.getBoundingClientRect().top;
+                        initialLinkLeft = activeLink.offsetLeft;
+                        initialLinkTop = activeLink.offsetTop;
                     }, 200);
                 }
 
                 function onPointerMove(e) {
-                    if (pressTimer) {
-                        const moveThreshold = 10; // Increased threshold
-                        const deltaX = Math.abs(e.clientX - startX);
-                        const deltaY = Math.abs(e.clientY - startY);
-                        if (deltaX > moveThreshold || deltaY > moveThreshold) {
-                            clearTimeout(pressTimer);
-                        }
+                    const moveThreshold = 10;
+                    if (pressTimer && (Math.abs(e.clientX - startX) > moveThreshold || Math.abs(e.clientY - startY) > moveThreshold)) {
+                        clearTimeout(pressTimer);
                     }
                     
                     if (!isDragging || !activeLink) return;
                     e.preventDefault();
 
-                    const fieldRect = dynamicField.getBoundingClientRect();
-                    // We need to account for the page's scroll position for accurate placement
-                    let x = e.clientX - fieldRect.left - offsetX + window.scrollX;
-                    let y = e.clientY - fieldRect.top - offsetY + window.scrollY;
-                    
-                    x = Math.max(0, Math.min(x, fieldRect.width - activeLink.offsetWidth));
-                    y = Math.max(0, Math.min(y, fieldRect.height - activeLink.offsetHeight));
+                    const deltaX = e.clientX - startX;
+                    const deltaY = e.clientY - startY;
 
-                    activeLink.style.left = `${x}px`;
-                    activeLink.style.top = `${y}px`;
+                    const newLeft = initialLinkLeft + deltaX;
+                    const newTop = initialLinkTop + deltaY;
+
+                    const fieldRect = dynamicField.getBoundingClientRect();
+                    const constrainedX = Math.max(0, Math.min(newLeft, fieldRect.width - activeLink.offsetWidth));
+                    const constrainedY = Math.max(0, Math.min(newTop, fieldRect.height - activeLink.offsetHeight));
+
+                    activeLink.style.left = `${constrainedX}px`;
+                    activeLink.style.top = `${constrainedY}px`;
                 }
 
                 function onPointerUp(e) {
@@ -468,7 +467,7 @@
                     
                     if (isDragging) {
                         activeLink.classList.remove('dragging');
-                        document.body.classList.remove('no-scroll'); // Re-enable scrolling
+                        document.body.classList.remove('no-scroll');
                     } else {
                         const target = e.target.closest('.nav-link');
                         if (target && dynamicField.contains(target)) {
