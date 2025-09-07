@@ -26,7 +26,7 @@
             color: var(--text-color);
             font-family: var(--font-serif);
             overflow-x: hidden;
-            cursor: default; /* Change default cursor */
+            cursor: default;
         }
 
         .container {
@@ -106,12 +106,11 @@
             align-items: center;
             gap: 3rem;
             padding-bottom: 1.5rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem; /* Reduced margin */
             border-bottom: 1px solid #333;
             position: relative;
         }
         
-        /* On-brand scroll indicator */
         #scroll-indicator {
             position: absolute;
             bottom: -10px;
@@ -135,6 +134,21 @@
                 transform: scaleY(1.5) translateX(-50%);
             }
         }
+        
+        #interaction-instructions {
+            font-family: var(--font-mono);
+            color: var(--link-color);
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            padding: 0.5rem 0;
+            margin-bottom: 1rem;
+            opacity: 0;
+            animation: fadeIn 2s 1s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 0.7; }
+        }
 
         #dynamic-field {
             flex-grow: 1;
@@ -152,7 +166,7 @@
             transition: color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
             white-space: nowrap;
             padding: 5px;
-            user-select: none; /* Prevent text selection while dragging */
+            user-select: none;
         }
 
         .nav-link.dragging {
@@ -255,7 +269,7 @@
     <div class="container">
         <header>
              <div id="logo-container">
-                <img class="logo-image" src="/img/ltl_logo.PNG" alt="LTL Logo">
+                <img class="logo-image" src="https://placehold.co/300x150/121212/E0E0E0?text=SIGNAL" alt="LTL Logo">
              </div>
             <h1>LUCTHELEO | Audio.Alchemist</h1>
             <p>Pleasantly lost...</p>
@@ -267,6 +281,7 @@
             <div id="anchor-nav">
                  <div id="scroll-indicator"></div>
             </div>
+            <div id="interaction-instructions">TAP TO VIEW | HOLD TO ORGANIZE</div>
             <div id="dynamic-field"></div>
         </main>
 
@@ -319,7 +334,6 @@
             }
 
             function renderLinks() {
-                // Clear previous links from anchor-nav, but keep the indicator
                 Array.from(anchorNav.children).forEach(child => {
                     if (child.id !== 'scroll-indicator') {
                         anchorNav.removeChild(child);
@@ -329,9 +343,8 @@
                 
                 const allLinks = contentData.filter(item => (item.type === 'page' && !item.isAnchor) || item.type === 'post');
 
-                // Tighter mobile spacing
                 const baseHeight = 80;
-                const extraHeightPerTenLinks = 25; // Less height added
+                const extraHeightPerTenLinks = 25;
                 const dynamicHeight = baseHeight + (Math.floor(allLinks.length / 10) * extraHeightPerTenLinks);
                 dynamicField.style.height = `${dynamicHeight}vh`;
 
@@ -366,13 +379,7 @@
                         const randomX = Math.random() * (fieldRect.width - linkWidth);
                         const randomY = Math.random() * (fieldRect.height - linkHeight);
                         
-                        newRect = {
-                            left: randomX,
-                            top: randomY,
-                            right: randomX + linkWidth,
-                            bottom: randomY + linkHeight,
-                        };
-
+                        newRect = { left: randomX, top: randomY, right: randomX + linkWidth, bottom: randomY + linkHeight };
                         hasCollision = placedRects.some(rect => rectsOverlap(rect, newRect));
                         attempts++;
                     }
@@ -389,7 +396,6 @@
                     }
                 });
                 
-                // Show scroll indicator if content overflows
                 if (document.body.scrollHeight > window.innerHeight) {
                     scrollIndicator.style.opacity = '0.5';
                 } else {
@@ -401,46 +407,40 @@
                 let activeLink = null;
                 let offsetX, offsetY;
                 let isDragging = false;
-                let clickTimeout;
+                let pressTimer;
 
-                function dragStart(e) {
-                    isDragging = false;
+                function onPointerDown(e) {
                     const target = e.target.closest('.nav-link');
                     if (!target || !dynamicField.contains(target)) return;
 
-                    clickTimeout = setTimeout(() => {
-                        isDragging = true;
+                    // Start a timer. If it completes, we are in drag mode.
+                    pressTimer = setTimeout(() => {
+                        isDragging = true; // It's officially a drag
                         activeLink = target;
                         activeLink.classList.add('dragging');
 
-                        const fieldRect = dynamicField.getBoundingClientRect();
-
-                        if (e.type === 'touchstart') {
-                            offsetX = e.touches[0].clientX - activeLink.getBoundingClientRect().left;
-                            offsetY = e.touches[0].clientY - activeLink.getBoundingClientRect().top;
-                        } else {
+                        if (e.pointerType === 'touch') {
                             offsetX = e.clientX - activeLink.getBoundingClientRect().left;
                             offsetY = e.clientY - activeLink.getBoundingClientRect().top;
+                        } else {
+                            offsetX = e.offsetX;
+                            offsetY = e.offsetY;
                         }
-                    }, 200); // 200ms press-and-hold delay
+                    }, 200); // 200ms for press-and-hold
                 }
 
-                function dragMove(e) {
+                function onPointerMove(e) {
+                    if (pressTimer && !isDragging) {
+                        // If user moves before timer ends, it's not a drag, cancel timer.
+                         clearTimeout(pressTimer);
+                    }
                     if (!isDragging || !activeLink) return;
                     e.preventDefault();
 
                     const fieldRect = dynamicField.getBoundingClientRect();
-                    let x, y;
-
-                    if (e.type === 'touchmove') {
-                        x = e.touches[0].clientX - fieldRect.left - offsetX;
-                        y = e.touches[0].clientY - fieldRect.top - offsetY;
-                    } else {
-                        x = e.clientX - fieldRect.left - offsetX;
-                        y = e.clientY - fieldRect.top - offsetY;
-                    }
+                    let x = e.clientX - fieldRect.left - offsetX;
+                    let y = e.clientY - fieldRect.top - offsetY;
                     
-                    // Constrain within the dynamic field
                     x = Math.max(0, Math.min(x, fieldRect.width - activeLink.offsetWidth));
                     y = Math.max(0, Math.min(y, fieldRect.height - activeLink.offsetHeight));
 
@@ -448,22 +448,21 @@
                     activeLink.style.top = `${y}px`;
                 }
 
-                function dragEnd(e) {
-                    clearTimeout(clickTimeout);
-                    if (isDragging && activeLink) {
+                function onPointerUp(e) {
+                    clearTimeout(pressTimer); // Always clear timer on pointer up
+                    if (isDragging) {
+                        // If it was a drag, just release the element.
                         activeLink.classList.remove('dragging');
                         activeLink = null;
-                        isDragging = false;
+                        // Use a short delay to prevent the click event from firing immediately after a drag
+                        setTimeout(() => { isDragging = false; }, 50); 
                     }
                 }
-
-                dynamicField.addEventListener('mousedown', dragStart);
-                document.addEventListener('mousemove', dragMove);
-                document.addEventListener('mouseup', dragEnd);
-
-                dynamicField.addEventListener('touchstart', dragStart, { passive: true });
-                document.addEventListener('touchmove', dragMove, { passive: false });
-                document.addEventListener('touchend', dragEnd);
+                
+                // Use Pointer Events for unified touch and mouse handling
+                dynamicField.addEventListener('pointerdown', onPointerDown);
+                document.addEventListener('pointermove', onPointerMove);
+                document.addEventListener('pointerup', onPointerUp);
             }
 
             function showModal(contentId) {
@@ -483,23 +482,19 @@
                 modalBody.innerHTML = ''; 
             }
 
-            dynamicField.addEventListener('click', (e) => {
-                // Only open modal if not dragging
-                if (!isDragging && e.target.classList.contains('nav-link')) {
+            // A single click listener for all links
+            document.getElementById('link-field').addEventListener('click', (e) => {
+                const target = e.target.closest('.nav-link');
+                // Only open modal if it's a link and we weren't just dragging
+                if (target && !target.classList.contains('dragging')) {
+                     // Check if it's a dynamic link that was just released from a drag
+                    if(dynamicField.contains(target) && isDragging) return;
+
                     e.preventDefault();
-                    const contentId = e.target.dataset.id;
+                    const contentId = target.dataset.id;
                     showModal(contentId);
                 }
             });
-
-             anchorNav.addEventListener('click', (e) => {
-                if (e.target.classList.contains('nav-link')) {
-                    e.preventDefault();
-                    const contentId = e.target.dataset.id;
-                    showModal(contentId);
-                }
-            });
-
 
             closeBtn.addEventListener('click', hideModal);
             modal.addEventListener('click', (e) => {
