@@ -366,7 +366,7 @@
                     
                     renderFilterNav();
                     renderLinks(allPosts, 'all');
-                    setupDraggableLinks();
+                    setupInteractionListeners();
                 } catch (error) {
                     console.error("Failed to load content:", error);
                     dynamicField.innerHTML = '<p style="color:red; text-align:center;">Error: Could not load site content. Please ensure content.json is in the same directory and you are running this from a web server.</p>';
@@ -498,7 +498,7 @@
                 }, 100);
             }
 
-            function setupDraggableLinks() {
+            function setupInteractionListeners() {
                 let activeLink = null;
                 let isDragging = false;
                 
@@ -507,7 +507,6 @@
 
                 let lastTap = 0;
                 let tapTimeout;
-                let wasDragged = false;
 
                 function onPointerDown(e) {
                     const target = e.target.closest('.nav-link');
@@ -515,10 +514,12 @@
                     
                     const currentTime = new Date().getTime();
                     const tapLength = currentTime - lastTap;
+                    lastTap = currentTime;
+                    
                     clearTimeout(tapTimeout);
-                    wasDragged = false;
 
                     if (tapLength < 300 && tapLength > 0) {
+                        // Double tap detected
                         e.preventDefault();
                         isDragging = true;
                         activeLink = target;
@@ -529,16 +530,10 @@
                         startY = e.clientY;
                         initialLinkLeft = activeLink.offsetLeft;
                         initialLinkTop = activeLink.offsetTop;
-                        
-                        lastTap = 0;
                     }
-                    lastTap = currentTime;
                 }
 
                 function onPointerMove(e) {
-                    if (isDragging) {
-                        wasDragged = true;
-                    }
                     if (!isDragging || !activeLink) return;
                     e.preventDefault();
 
@@ -566,14 +561,18 @@
                 }
                 
                 dynamicField.addEventListener('pointerdown', onPointerDown);
-                dynamicField.addEventListener('pointermove', onPointerMove, { passive: false });
+                document.addEventListener('pointermove', onPointerMove, { passive: false });
                 document.addEventListener('pointerup', onPointerUp);
 
-                // Use a separate, reliable click listener
+                // This handles the single tap/click logic reliably
                 dynamicField.addEventListener('click', e => {
                     const target = e.target.closest('.nav-link');
-                    if (target && !wasDragged) {
-                        showModal(target.dataset.id);
+                    if (target && !isDragging) {
+                       const now = new Date().getTime();
+                       // If the click is very close to the last tap time, it might be part of the double tap, so ignore it.
+                       if (now - lastTap > 50) { 
+                           showModal(target.dataset.id);
+                       }
                     }
                 });
             }
