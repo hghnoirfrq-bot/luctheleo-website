@@ -26,6 +26,7 @@
             color: var(--text-color);
             font-family: var(--font-serif);
             overflow-x: hidden;
+            cursor: default; /* Change default cursor */
         }
 
         .container {
@@ -95,7 +96,7 @@
             width: 100%;
             max-width: 1200px;
             margin: 1rem 0;
-            position: relative; /* Parent for absolute positioned links */
+            position: relative;
         }
 
         #anchor-nav {
@@ -107,6 +108,32 @@
             padding-bottom: 1.5rem;
             margin-bottom: 1.5rem;
             border-bottom: 1px solid #333;
+            position: relative;
+        }
+        
+        /* On-brand scroll indicator */
+        #scroll-indicator {
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1px;
+            height: 20px;
+            background-color: var(--link-color);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 0.3;
+                transform: scaleY(1) translateX(-50%);
+            }
+            50% {
+                opacity: 0.8;
+                transform: scaleY(1.5) translateX(-50%);
+            }
         }
 
         #dynamic-field {
@@ -116,15 +143,24 @@
         }
 
         .nav-link {
-            position: absolute; /* Reverted to absolute positioning */
+            position: absolute;
             font-family: var(--font-mono);
             color: var(--link-color);
             text-decoration: none;
             font-size: 0.9rem;
             cursor: pointer;
-            transition: color 0.3s ease, transform 0.3s ease;
+            transition: color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
             white-space: nowrap;
             padding: 5px;
+            user-select: none; /* Prevent text selection while dragging */
+        }
+
+        .nav-link.dragging {
+            cursor: grabbing;
+            color: var(--hover-color);
+            transform: scale(1.1);
+            z-index: 100;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
         }
 
         .nav-link:hover {
@@ -132,7 +168,6 @@
             transform: scale(1.1);
         }
         
-        /* Keep anchor links separate and statically positioned */
         #anchor-nav .nav-link { 
             position: static; 
             font-weight: 700;
@@ -229,7 +264,9 @@
         </header>
 
         <main id="link-field">
-            <div id="anchor-nav"></div>
+            <div id="anchor-nav">
+                 <div id="scroll-indicator"></div>
+            </div>
             <div id="dynamic-field"></div>
         </main>
 
@@ -256,6 +293,7 @@
             const modal = document.getElementById('content-modal');
             const modalBody = document.getElementById('modal-body');
             const closeBtn = document.getElementById('modal-close-btn');
+            const scrollIndicator = document.getElementById('scroll-indicator');
             
             async function initializeSite() {
                 try {
@@ -265,6 +303,7 @@
                     }
                     contentData = await response.json();
                     renderLinks();
+                    setupDraggableLinks();
                 } catch (error) {
                     console.error("Failed to load content:", error);
                     dynamicField.innerHTML = '<p style="color:red; text-align:center;">Error: Could not load site content. Please ensure content.json is in the same directory and you are running this from a web server.</p>';
@@ -280,30 +319,33 @@
             }
 
             function renderLinks() {
-                anchorNav.innerHTML = '';
+                // Clear previous links from anchor-nav, but keep the indicator
+                Array.from(anchorNav.children).forEach(child => {
+                    if (child.id !== 'scroll-indicator') {
+                        anchorNav.removeChild(child);
+                    }
+                });
                 dynamicField.innerHTML = '';
                 
                 const allLinks = contentData.filter(item => (item.type === 'page' && !item.isAnchor) || item.type === 'post');
 
-                // Set dynamic height for scrolling
+                // Tighter mobile spacing
                 const baseHeight = 80;
-                const extraHeightPerFiveLinks = 40;
-                const dynamicHeight = baseHeight + (Math.floor(allLinks.length / 5) * extraHeightPerFiveLinks);
+                const extraHeightPerTenLinks = 25; // Less height added
+                const dynamicHeight = baseHeight + (Math.floor(allLinks.length / 10) * extraHeightPerTenLinks);
                 dynamicField.style.height = `${dynamicHeight}vh`;
 
                 const fieldRect = dynamicField.getBoundingClientRect();
                 const placedRects = [];
 
-                // Render static anchor links
                 contentData.filter(item => item.isAnchor).forEach(anchor => {
                     const a = document.createElement('a');
                     a.textContent = anchor.id;
-                    a.className = 'nav-link'; // Anchor links now get base nav-link class
+                    a.className = 'nav-link';
                     a.dataset.id = anchor.id;
                     anchorNav.appendChild(a);
                 });
                 
-                // Render dynamic links with absolute positioning
                 allLinks.forEach(item => {
                     let newRect;
                     let attempts = 0;
@@ -346,6 +388,82 @@
                         placedRects.push(newRect);
                     }
                 });
+                
+                // Show scroll indicator if content overflows
+                if (document.body.scrollHeight > window.innerHeight) {
+                    scrollIndicator.style.opacity = '0.5';
+                } else {
+                    scrollIndicator.style.opacity = '0';
+                }
+            }
+
+            function setupDraggableLinks() {
+                let activeLink = null;
+                let offsetX, offsetY;
+                let isDragging = false;
+                let clickTimeout;
+
+                function dragStart(e) {
+                    isDragging = false;
+                    const target = e.target.closest('.nav-link');
+                    if (!target || !dynamicField.contains(target)) return;
+
+                    clickTimeout = setTimeout(() => {
+                        isDragging = true;
+                        activeLink = target;
+                        activeLink.classList.add('dragging');
+
+                        const fieldRect = dynamicField.getBoundingClientRect();
+
+                        if (e.type === 'touchstart') {
+                            offsetX = e.touches[0].clientX - activeLink.getBoundingClientRect().left;
+                            offsetY = e.touches[0].clientY - activeLink.getBoundingClientRect().top;
+                        } else {
+                            offsetX = e.clientX - activeLink.getBoundingClientRect().left;
+                            offsetY = e.clientY - activeLink.getBoundingClientRect().top;
+                        }
+                    }, 200); // 200ms press-and-hold delay
+                }
+
+                function dragMove(e) {
+                    if (!isDragging || !activeLink) return;
+                    e.preventDefault();
+
+                    const fieldRect = dynamicField.getBoundingClientRect();
+                    let x, y;
+
+                    if (e.type === 'touchmove') {
+                        x = e.touches[0].clientX - fieldRect.left - offsetX;
+                        y = e.touches[0].clientY - fieldRect.top - offsetY;
+                    } else {
+                        x = e.clientX - fieldRect.left - offsetX;
+                        y = e.clientY - fieldRect.top - offsetY;
+                    }
+                    
+                    // Constrain within the dynamic field
+                    x = Math.max(0, Math.min(x, fieldRect.width - activeLink.offsetWidth));
+                    y = Math.max(0, Math.min(y, fieldRect.height - activeLink.offsetHeight));
+
+                    activeLink.style.left = `${x}px`;
+                    activeLink.style.top = `${y}px`;
+                }
+
+                function dragEnd(e) {
+                    clearTimeout(clickTimeout);
+                    if (isDragging && activeLink) {
+                        activeLink.classList.remove('dragging');
+                        activeLink = null;
+                        isDragging = false;
+                    }
+                }
+
+                dynamicField.addEventListener('mousedown', dragStart);
+                document.addEventListener('mousemove', dragMove);
+                document.addEventListener('mouseup', dragEnd);
+
+                dynamicField.addEventListener('touchstart', dragStart, { passive: true });
+                document.addEventListener('touchmove', dragMove, { passive: false });
+                document.addEventListener('touchend', dragEnd);
             }
 
             function showModal(contentId) {
@@ -365,7 +483,16 @@
                 modalBody.innerHTML = ''; 
             }
 
-            document.getElementById('link-field').addEventListener('click', (e) => {
+            dynamicField.addEventListener('click', (e) => {
+                // Only open modal if not dragging
+                if (!isDragging && e.target.classList.contains('nav-link')) {
+                    e.preventDefault();
+                    const contentId = e.target.dataset.id;
+                    showModal(contentId);
+                }
+            });
+
+             anchorNav.addEventListener('click', (e) => {
                 if (e.target.classList.contains('nav-link')) {
                     e.preventDefault();
                     const contentId = e.target.dataset.id;
@@ -373,8 +500,8 @@
                 }
             });
 
-            closeBtn.addEventListener('click', hideModal);
 
+            closeBtn.addEventListener('click', hideModal);
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) {
                     hideModal();
@@ -382,9 +509,6 @@
             });
             
             initializeSite();
-
-            // IMPORTANT: Removed the resize event listener that caused jumping.
-            // The layout is now stable on resize and scroll.
         });
     </script>
 </body>
