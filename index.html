@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LUCTHELEO | Audio.Alchemist</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Lora:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #121212;
+            --text-color: #E0E0E0;
+            --link-color: #B0B0B0;
+            --hover-color: #FFFFFF;
+            --font-mono: 'Roboto Mono', monospace;
+            --font-serif: 'Lora', serif;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-serif);
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            padding: 2rem;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        header, footer {
+            flex-shrink: 0;
+            width: 100%;
+            z-index: 10;
+        }
+        
+        #logo-container {
+            width: 300px;
+            height: 150px;
+            margin: 0 auto 1rem;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            animation: dying-neon 8s infinite ease-in-out;
+        }
+        
+        @keyframes dying-neon {
+            /* Start with a long period of clarity */
+            0%, 70% {
+                opacity: 1;
+                filter: blur(0.5px) brightness(1);
+                transform: scale(1);
+            }
+            /* Start to fade and distort */
+            75% {
+                opacity: 0.7;
+                filter: blur(1px) brightness(0.8);
+            }
+            /* First flicker off */
+            80% {
+                opacity: 0.3;
+                transform: scale(1.02) translateX(-2px);
+            }
+            /* Briefly back on, but distorted */
+            81% {
+                opacity: 0.9;
+                filter: blur(0.5px) brightness(1.2);
+            }
+            /* Second flicker off */
+            82% {
+                opacity: 0.2;
+                transform: scale(0.98) translateX(2px);
+            }
+            /* Quick jitter while faint */
+            83% {
+                opacity: 0.4;
+                transform: translateX(-3px);
+            }
+            84% {
+                opacity: 0.2;
+                transform: translateX(3px);
+            }
+             /* Fading back in */
+            90% {
+                opacity: 0.8;
+                filter: blur(0.5px) brightness(1);
+                transform: scale(1);
+            }
+            /* Return to full clarity */
+            100% {
+                opacity: 1;
+                filter: blur(0.5px) brightness(1);
+                transform: scale(1);
+            }
+        }
+
+        header h1, header p {
+            margin: 0.25rem 0;
+            font-family: var(--font-mono);
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+        header h1 {
+            font-size: 1.2rem;
+        }
+        header p {
+            font-size: 0.9rem;
+            color: var(--link-color);
+        }
+
+        main {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 1200px;
+            margin: 1rem 0;
+        }
+
+        #anchor-nav {
+            flex-shrink: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 3rem;
+            padding-bottom: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #333;
+        }
+
+        #dynamic-field {
+            flex-grow: 1;
+            position: relative;
+        }
+
+        .nav-link {
+            position: absolute;
+            font-family: var(--font-mono);
+            color: var(--link-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: color 0.3s ease, transform 0.3s ease;
+            white-space: nowrap;
+            padding: 5px;
+        }
+
+        .nav-link:hover {
+            color: var(--hover-color);
+            transform: scale(1.1);
+        }
+        
+        #anchor-nav .nav-link {
+            position: static;
+        }
+
+        .nav-link.anchor-link {
+            font-weight: 700;
+            color: var(--text-color);
+            font-size: 1rem;
+        }
+
+        footer {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--link-color);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: var(--bg-color);
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            color: var(--text-color);
+            border: 1px solid #333;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--link-color);
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: var(--hover-color);
+        }
+
+        .modal-body h2 {
+            font-family: var(--font-mono);
+            margin-top: 0;
+        }
+        
+        .modal-body h3 {
+            font-family: var(--font-mono);
+            color: var(--link-color);
+            font-weight: normal;
+        }
+
+        .modal-body p, .modal-body li {
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+        
+        .modal-body a {
+            color: var(--hover-color);
+            text-decoration: underline;
+        }
+
+        .modal-body .embed-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            max-width: 100%;
+            background: #000;
+            margin-top: 1rem;
+        }
+
+        .modal-body iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+        .modal-body .soundcloud-embed iframe {
+            position: relative;
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+             <div id="logo-container">
+                <!-- USER: Replace the 'src' value below with the URL to your logo image or GIF -->
+                 <!--https://placehold.co/200x100/121212/E0E0E0?text=SIGNAL-->
+                <img class="logo-image" src="/img/ltl_logo.PNG" alt="LTL Logo">
+             </div>
+            <h1>LUCTHELEO | Audio.Alchemist</h1>
+            <p>Pleasantly lost...</p>
+            <p>REVERIE | Systematic Creative Development</p>
+            <p>L-01001100 T-01010100 L-01001100</p>
+        </header>
+
+        <main id="link-field">
+            <div id="anchor-nav"></div>
+            <div id="dynamic-field"></div>
+        </main>
+
+        <footer>
+            <p>Signal through the static.</p>
+            <p>No ego. Just work.</p>
+        </footer>
+    </div>
+
+    <div id="content-modal" class="modal">
+        <div class="modal-content">
+            <span id="modal-close-btn" class="modal-close">&times;</span>
+            <div id="modal-body" class="modal-body">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let contentData = [];
+
+            const anchorNav = document.getElementById('anchor-nav');
+            const dynamicField = document.getElementById('dynamic-field');
+            const modal = document.getElementById('content-modal');
+            const modalBody = document.getElementById('modal-body');
+            const closeBtn = document.getElementById('modal-close-btn');
+            
+            async function initializeSite() {
+                try {
+                    const response = await fetch('content.json');
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    contentData = await response.json();
+                    renderLinks();
+                } catch (error) {
+                    console.error("Failed to load content:", error);
+                    dynamicField.innerHTML = '<p style="color:red; text-align:center;">Error: Could not load site content. Please ensure content.json is in the same directory and you are running this from a web server.</p>';
+                }
+            }
+            
+            function rectsOverlap(rect1, rect2) {
+                const padding = 30; 
+                return !(rect1.right + padding < rect2.left ||
+                         rect1.left > rect2.right + padding ||
+                         rect1.bottom + padding < rect2.top ||
+                         rect1.top > rect2.bottom + padding);
+            }
+
+            function renderLinks() {
+                anchorNav.innerHTML = '';
+                dynamicField.innerHTML = '';
+                const fieldRect = dynamicField.getBoundingClientRect();
+                const placedRects = [];
+                
+                const allLinks = contentData.filter(item => (item.type === 'page' && !item.isAnchor) || item.type === 'post');
+
+                contentData.filter(item => item.isAnchor).forEach(anchor => {
+                    const a = document.createElement('a');
+                    a.textContent = anchor.id;
+                    a.className = 'nav-link anchor-link';
+                    a.dataset.id = anchor.id;
+                    anchorNav.appendChild(a);
+                });
+
+                allLinks.forEach(item => {
+                    let newRect;
+                    let attempts = 0;
+                    let hasCollision = true;
+
+                    const tempLink = document.createElement('a');
+                    tempLink.textContent = item.id;
+                    tempLink.className = 'nav-link';
+                    tempLink.style.visibility = 'hidden';
+                    dynamicField.appendChild(tempLink);
+                    const linkWidth = tempLink.offsetWidth;
+                    const linkHeight = tempLink.offsetHeight;
+                    dynamicField.removeChild(tempLink);
+                    
+                    if (fieldRect.width <= linkWidth || fieldRect.height <= linkHeight) return;
+
+                    while (hasCollision && attempts < 500) {
+                        const randomX = Math.random() * (fieldRect.width - linkWidth);
+                        const randomY = Math.random() * (fieldRect.height - linkHeight);
+                        
+                        newRect = {
+                            left: randomX,
+                            top: randomY,
+                            right: randomX + linkWidth,
+                            bottom: randomY + linkHeight,
+                        };
+
+                        hasCollision = placedRects.some(rect => rectsOverlap(rect, newRect));
+                        attempts++;
+                    }
+
+                    if (!hasCollision) {
+                        const a = document.createElement('a');
+                        a.textContent = item.id;
+                        a.className = 'nav-link';
+                        a.dataset.id = item.id;
+                        a.style.left = `${newRect.left}px`;
+                        a.style.top = `${newRect.top}px`;
+                        dynamicField.appendChild(a);
+                        placedRects.push(newRect);
+                    }
+                });
+            }
+
+            function showModal(contentId) {
+                const item = contentData.find(d => d.id === contentId);
+                if (item) {
+                    let finalContent = item.content;
+                    if (item.type === 'post' && !item.content.includes('`<h2>`')) {
+                       finalContent = `<h2>${item.id}</h2>` + item.content;
+                    }
+                    modalBody.innerHTML = finalContent;
+                    modal.style.display = 'flex';
+                }
+            }
+
+            function hideModal() {
+                modal.style.display = 'none';
+                modalBody.innerHTML = ''; 
+            }
+
+            document.getElementById('link-field').addEventListener('click', (e) => {
+                if (e.target.classList.contains('nav-link')) {
+                    e.preventDefault();
+                    const contentId = e.target.dataset.id;
+                    showModal(contentId);
+                }
+            });
+
+            closeBtn.addEventListener('click', hideModal);
+
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    hideModal();
+                }
+            });
+            
+            initializeSite();
+
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    renderLinks();
+                }, 100);
+            });
+        });
+    </script>
+</body>
+</html>
+
