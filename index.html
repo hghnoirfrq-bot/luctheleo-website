@@ -147,13 +147,8 @@
             letter-spacing: 1px;
             padding: 0.5rem 0;
             margin-bottom: 1rem;
-            opacity: 0;
-            animation: fadeIn 2s 1s forwards;
+            opacity: 0.7;
             transition: opacity 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            to { opacity: 0.7; }
         }
 
         #filter-nav {
@@ -433,9 +428,8 @@
                 });
 
                 if (activeFilter === 'all') {
-                    // SCATTERED VIEW
                     dynamicField.classList.remove('filtered-view');
-                    interactionInstructions.style.opacity = '0.7'; // Show instructions
+                    interactionInstructions.style.opacity = '0.7';
 
                     const baseHeight = 80;
                     const extraHeightPerTenLinks = 25;
@@ -483,9 +477,8 @@
                     });
 
                 } else {
-                    // ORGANIZED FILTERED VIEW
                     dynamicField.classList.add('filtered-view');
-                    interactionInstructions.style.opacity = '0'; // Hide instructions
+                    interactionInstructions.style.opacity = '0';
                     
                     postsToRender.forEach(item => {
                          const a = document.createElement('a');
@@ -514,18 +507,19 @@
 
                 let lastTap = 0;
                 let tapTimeout;
+                let wasDragged = false;
 
                 function onPointerDown(e) {
                     const target = e.target.closest('.nav-link');
                     if (!target || !dynamicField.contains(target) || dynamicField.classList.contains('filtered-view')) return;
                     
-                    e.preventDefault(); 
-                    
                     const currentTime = new Date().getTime();
                     const tapLength = currentTime - lastTap;
                     clearTimeout(tapTimeout);
+                    wasDragged = false;
 
                     if (tapLength < 300 && tapLength > 0) {
+                        e.preventDefault();
                         isDragging = true;
                         activeLink = target;
                         activeLink.classList.add('dragging');
@@ -537,17 +531,14 @@
                         initialLinkTop = activeLink.offsetTop;
                         
                         lastTap = 0;
-                    } else {
-                        tapTimeout = setTimeout(() => {
-                            if (!isDragging) {
-                                showModal(target.dataset.id);
-                            }
-                        }, 300);
                     }
                     lastTap = currentTime;
                 }
 
                 function onPointerMove(e) {
+                    if (isDragging) {
+                        wasDragged = true;
+                    }
                     if (!isDragging || !activeLink) return;
                     e.preventDefault();
 
@@ -575,8 +566,16 @@
                 }
                 
                 dynamicField.addEventListener('pointerdown', onPointerDown);
-                document.addEventListener('pointermove', onPointerMove, { passive: false });
+                dynamicField.addEventListener('pointermove', onPointerMove, { passive: false });
                 document.addEventListener('pointerup', onPointerUp);
+
+                // Use a separate, reliable click listener
+                dynamicField.addEventListener('click', e => {
+                    const target = e.target.closest('.nav-link');
+                    if (target && !wasDragged) {
+                        showModal(target.dataset.id);
+                    }
+                });
             }
 
             function showModal(contentId) {
