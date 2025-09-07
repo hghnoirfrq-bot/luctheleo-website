@@ -291,7 +291,7 @@
             <div id="anchor-nav">
                  <div id="scroll-indicator"></div>
             </div>
-            <div id="interaction-instructions">TAP TO VIEW | DOUBLE-TAP & DRAG TO MOVE</div>
+            <div id="interaction-instructions">TAP TO VIEW | DOUBLE-TAP TO ORGANIZE</div>
             <div id="dynamic-field"></div>
         </main>
 
@@ -427,12 +427,14 @@
                     const target = e.target.closest('.nav-link');
                     if (!target || !dynamicField.contains(target)) return;
                     
+                    // Immediately prevent default browser actions like text selection or zoom bubble
+                    e.preventDefault(); 
+                    
                     const currentTime = new Date().getTime();
                     const tapLength = currentTime - lastTap;
                     clearTimeout(tapTimeout);
 
                     if (tapLength < 300 && tapLength > 0) {
-                        e.preventDefault(); // Prevent zoom on double-tap
                         isDragging = true;
                         activeLink = target;
                         activeLink.classList.add('dragging');
