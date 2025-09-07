@@ -269,7 +269,7 @@
     <div class="container">
         <header>
              <div id="logo-container">
-                <img class="logo-image" src="https://placehold.co/300x150/121212/E0E0E0?text=SIGNAL" alt="LTL Logo">
+                <img class="logo-image" src="/img/ltl_logo.PNG" alt="LTL Logo">
              </div>
             <h1>LUCTHELEO | Audio.Alchemist</h1>
             <p>Pleasantly lost...</p>
@@ -339,67 +339,7 @@
                         anchorNav.removeChild(child);
                     }
                 });
-                dynamicField.innerHTML = '';
-                
-                const allLinks = contentData.filter(item => (item.type === 'page' && !item.isAnchor) || item.type === 'post');
-
-                const baseHeight = 80;
-                const extraHeightPerTenLinks = 25;
-                const dynamicHeight = baseHeight + (Math.floor(allLinks.length / 10) * extraHeightPerTenLinks);
-                dynamicField.style.height = `${dynamicHeight}vh`;
-
-                const fieldRect = dynamicField.getBoundingClientRect();
-                const placedRects = [];
-
-                contentData.filter(item => item.isAnchor).forEach(anchor => {
-                    const a = document.createElement('a');
-                    a.textContent = anchor.id;
-                    a.className = 'nav-link';
-                    a.dataset.id = anchor.id;
-                    anchorNav.appendChild(a);
-                });
-                
-                allLinks.forEach(item => {
-                    let newRect;
-                    let attempts = 0;
-                    let hasCollision = true;
-
-                    const tempLink = document.createElement('a');
-                    tempLink.textContent = item.id;
-                    tempLink.className = 'nav-link';
-                    tempLink.style.visibility = 'hidden';
-                    dynamicField.appendChild(tempLink);
-                    const linkWidth = tempLink.offsetWidth;
-                    const linkHeight = tempLink.offsetHeight;
-                    dynamicField.removeChild(tempLink);
-                    
-                    if (fieldRect.width <= linkWidth || fieldRect.height <= linkHeight) return;
-
-                    while (hasCollision && attempts < 500) {
-                        const randomX = Math.random() * (fieldRect.width - linkWidth);
-                        const randomY = Math.random() * (fieldRect.height - linkHeight);
-                        
-                        newRect = { left: randomX, top: randomY, right: randomX + linkWidth, bottom: randomY + linkHeight };
-                        hasCollision = placedRects.some(rect => rectsOverlap(rect, newRect));
-                        attempts++;
-                    }
-
-                    if (!hasCollision) {
-                        const a = document.createElement('a');
-                        a.textContent = item.id;
-                        a.className = 'nav-link';
-                        a.dataset.id = item.id;
-                        a.style.left = `${newRect.left}px`;
-                        a.style.top = `${newRect.top}px`;
-                        dynamicField.appendChild(a);
-                        placedRects.push(newRect);
-                    }
-                });
-                
-                if (document.body.scrollHeight > window.innerHeight) {
-                    scrollIndicator.style.opacity = '0.5';
-                } else {
-                    scrollIndicator.style.opacity = '0';
+// ... existing code ... -->
                 }
             }
 
@@ -408,32 +348,36 @@
                 let offsetX, offsetY;
                 let isDragging = false;
                 let pressTimer;
+                let startX, startY;
 
                 function onPointerDown(e) {
                     const target = e.target.closest('.nav-link');
                     if (!target || !dynamicField.contains(target)) return;
+                    
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    isDragging = false; 
 
-                    // Start a timer. If it completes, we are in drag mode.
                     pressTimer = setTimeout(() => {
-                        isDragging = true; // It's officially a drag
+                        isDragging = true;
                         activeLink = target;
                         activeLink.classList.add('dragging');
-
-                        if (e.pointerType === 'touch') {
-                            offsetX = e.clientX - activeLink.getBoundingClientRect().left;
-                            offsetY = e.clientY - activeLink.getBoundingClientRect().top;
-                        } else {
-                            offsetX = e.offsetX;
-                            offsetY = e.offsetY;
-                        }
-                    }, 200); // 200ms for press-and-hold
+                        
+                        offsetX = e.clientX - activeLink.getBoundingClientRect().left;
+                        offsetY = e.clientY - activeLink.getBoundingClientRect().top;
+                    }, 200);
                 }
 
                 function onPointerMove(e) {
-                    if (pressTimer && !isDragging) {
-                        // If user moves before timer ends, it's not a drag, cancel timer.
-                         clearTimeout(pressTimer);
+                    if (pressTimer) {
+                        const moveThreshold = 5;
+                        const deltaX = Math.abs(e.clientX - startX);
+                        const deltaY = Math.abs(e.clientY - startY);
+                        if (deltaX > moveThreshold || deltaY > moveThreshold) {
+                            clearTimeout(pressTimer);
+                        }
                     }
+                    
                     if (!isDragging || !activeLink) return;
                     e.preventDefault();
 
@@ -449,17 +393,22 @@
                 }
 
                 function onPointerUp(e) {
-                    clearTimeout(pressTimer); // Always clear timer on pointer up
+                    clearTimeout(pressTimer);
+                    
                     if (isDragging) {
-                        // If it was a drag, just release the element.
                         activeLink.classList.remove('dragging');
-                        activeLink = null;
-                        // Use a short delay to prevent the click event from firing immediately after a drag
-                        setTimeout(() => { isDragging = false; }, 50); 
+                    } else {
+                        const target = e.target.closest('.nav-link');
+                        if (target && dynamicField.contains(target)) {
+                             const contentId = target.dataset.id;
+                             showModal(contentId);
+                        }
                     }
+                    
+                    isDragging = false;
+                    activeLink = null;
                 }
                 
-                // Use Pointer Events for unified touch and mouse handling
                 dynamicField.addEventListener('pointerdown', onPointerDown);
                 document.addEventListener('pointermove', onPointerMove);
                 document.addEventListener('pointerup', onPointerUp);
@@ -468,11 +417,7 @@
             function showModal(contentId) {
                 const item = contentData.find(d => d.id === contentId);
                 if (item) {
-                    let finalContent = item.content;
-                    if (item.type === 'post' && !item.content.includes('<h2>')) {
-                       finalContent = `<h2>${item.id}</h2>` + item.content;
-                    }
-                    modalBody.innerHTML = finalContent;
+// ... existing code ... -->
                     modal.style.display = 'flex';
                 }
             }
@@ -482,14 +427,10 @@
                 modalBody.innerHTML = ''; 
             }
 
-            // A single click listener for all links
-            document.getElementById('link-field').addEventListener('click', (e) => {
+            // A single click listener for the static ANCHOR links
+            anchorNav.addEventListener('click', (e) => {
                 const target = e.target.closest('.nav-link');
-                // Only open modal if it's a link and we weren't just dragging
-                if (target && !target.classList.contains('dragging')) {
-                     // Check if it's a dynamic link that was just released from a drag
-                    if(dynamicField.contains(target) && isDragging) return;
-
+                if (target) {
                     e.preventDefault();
                     const contentId = target.dataset.id;
                     showModal(contentId);
