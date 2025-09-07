@@ -183,7 +183,6 @@
             transition: min-height 0.5s ease;
         }
         
-        /* New style for organized/filtered view */
         #dynamic-field.filtered-view {
             display: flex;
             flex-wrap: wrap;
@@ -436,7 +435,7 @@
                 if (activeFilter === 'all') {
                     // SCATTERED VIEW
                     dynamicField.classList.remove('filtered-view');
-                    interactionInstructions.style.opacity = '0.7';
+                    interactionInstructions.style.opacity = '0.7'; // Show instructions
 
                     const baseHeight = 80;
                     const extraHeightPerTenLinks = 25;
@@ -486,7 +485,7 @@
                 } else {
                     // ORGANIZED FILTERED VIEW
                     dynamicField.classList.add('filtered-view');
-                    interactionInstructions.style.opacity = '0';
+                    interactionInstructions.style.opacity = '0'; // Hide instructions
                     
                     postsToRender.forEach(item => {
                          const a = document.createElement('a');
@@ -497,7 +496,6 @@
                     });
                 }
                 
-                // Update scroll indicator visibility
                 setTimeout(() => {
                     if (document.body.scrollHeight > window.innerHeight) {
                         scrollIndicator.style.opacity = '0.5';
@@ -519,7 +517,6 @@
 
                 function onPointerDown(e) {
                     const target = e.target.closest('.nav-link');
-                    // Dragging only works in scattered view
                     if (!target || !dynamicField.contains(target) || dynamicField.classList.contains('filtered-view')) return;
                     
                     e.preventDefault(); 
