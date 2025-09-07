@@ -155,6 +155,26 @@
             to { opacity: 0.7; }
         }
 
+        #filter-nav {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .filter-link {
+            font-family: var(--font-mono);
+            color: var(--link-color);
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .filter-link:hover, .filter-link.active {
+            color: var(--hover-color);
+        }
+
         #dynamic-field {
             flex-grow: 1;
             position: relative;
@@ -176,7 +196,7 @@
             -moz-user-select: none;
             -ms-user-select: none;
             -webkit-touch-callout: none;
-            touch-action: manipulation; /* Prevent double-tap zoom */
+            touch-action: manipulation;
         }
 
         .nav-link.dragging {
@@ -291,6 +311,7 @@
             <div id="anchor-nav">
                  <div id="scroll-indicator"></div>
             </div>
+            <div id="filter-nav"></div>
             <div id="interaction-instructions">TAP TO VIEW | DOUBLE-TAP TO ORGANIZE</div>
             <div id="dynamic-field"></div>
         </main>
@@ -312,8 +333,10 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             let contentData = [];
+            let allPosts = [];
 
             const anchorNav = document.getElementById('anchor-nav');
+            const filterNav = document.getElementById('filter-nav');
             const dynamicField = document.getElementById('dynamic-field');
             const modal = document.getElementById('content-modal');
             const modalBody = document.getElementById('modal-body');
@@ -327,12 +350,45 @@
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
                     contentData = await response.json();
-                    renderLinks();
+                    allPosts = contentData.filter(item => item.type === 'post');
+                    
+                    renderFilterNav();
+                    renderLinks(allPosts); // Initial render with all posts
                     setupDraggableLinks();
                 } catch (error) {
                     console.error("Failed to load content:", error);
                     dynamicField.innerHTML = '<p style="color:red; text-align:center;">Error: Could not load site content. Please ensure content.json is in the same directory and you are running this from a web server.</p>';
                 }
+            }
+
+            function getContentType(id) {
+                return id.split('_')[0];
+            }
+
+            function renderFilterNav() {
+                const contentTypes = [...new Set(allPosts.map(post => getContentType(post.id)))];
+                
+                let filters = `<a href="#" class="filter-link active" data-filter="all">LTL</a>`;
+                contentTypes.sort().forEach(type => {
+                    filters += `<a href="#" class="filter-link" data-filter="${type}">${type}</a>`;
+                });
+                filterNav.innerHTML = filters;
+
+                filterNav.addEventListener('click', e => {
+                    e.preventDefault();
+                    if (e.target.classList.contains('filter-link')) {
+                        const filter = e.target.dataset.filter;
+                        
+                        document.querySelector('#filter-nav .active').classList.remove('active');
+                        e.target.classList.add('active');
+
+                        const filteredPosts = filter === 'all' 
+                            ? allPosts 
+                            : allPosts.filter(post => getContentType(post.id) === filter);
+                        
+                        renderLinks(filteredPosts);
+                    }
+                });
             }
 
             function rectsOverlap(rect1, rect2) {
@@ -343,7 +399,8 @@
                          rect1.top > rect2.bottom + padding);
             }
 
-            function renderLinks() {
+            function renderLinks(postsToRender) {
+                // Clear anchor nav but keep indicator
                 Array.from(anchorNav.children).forEach(child => {
                     if (child.id !== 'scroll-indicator') {
                         anchorNav.removeChild(child);
@@ -351,16 +408,7 @@
                 });
                 dynamicField.innerHTML = '';
                 
-                const allLinks = contentData.filter(item => (item.type === 'page' && !item.isAnchor) || item.type === 'post');
-
-                const baseHeight = 80;
-                const extraHeightPerTenLinks = 25;
-                const dynamicHeight = baseHeight + (Math.floor(allLinks.length / 10) * extraHeightPerTenLinks);
-                dynamicField.style.height = `${dynamicHeight}vh`;
-
-                const fieldRect = dynamicField.getBoundingClientRect();
-                const placedRects = [];
-
+                // Render main anchor links (these are constant)
                 contentData.filter(item => item.isAnchor).forEach(anchor => {
                     const a = document.createElement('a');
                     a.textContent = anchor.id;
@@ -368,8 +416,16 @@
                     a.dataset.id = anchor.id;
                     anchorNav.appendChild(a);
                 });
+
+                const baseHeight = 80;
+                const extraHeightPerTenLinks = 25;
+                const dynamicHeight = baseHeight + (Math.floor(postsToRender.length / 10) * extraHeightPerTenLinks);
+                dynamicField.style.height = `${dynamicHeight}vh`;
+
+                const fieldRect = dynamicField.getBoundingClientRect();
+                const placedRects = [];
                 
-                allLinks.forEach(item => {
+                postsToRender.forEach(item => {
                     let newRect;
                     let attempts = 0;
                     let hasCollision = true;
@@ -427,7 +483,6 @@
                     const target = e.target.closest('.nav-link');
                     if (!target || !dynamicField.contains(target)) return;
                     
-                    // Immediately prevent default browser actions like text selection or zoom bubble
                     e.preventDefault(); 
                     
                     const currentTime = new Date().getTime();
