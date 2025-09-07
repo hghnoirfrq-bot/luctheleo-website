@@ -32,6 +32,7 @@
         /* New class to disable scrolling while dragging */
         body.no-scroll {
             overflow: hidden;
+            touch-action: none; /* Prevent scrolling on touch devices */
         }
 
         .container {
@@ -417,8 +418,8 @@
                 let isDragging = false;
                 let pressTimer;
                 
-                let startX, startY; // Pointer's starting position
-                let initialLinkLeft, initialLinkTop; // Link's starting position
+                let startX, startY; 
+                let initialLinkLeft, initialLinkTop;
 
                 function onPointerDown(e) {
                     const target = e.target.closest('.nav-link');
@@ -440,13 +441,16 @@
                 }
 
                 function onPointerMove(e) {
+                    if (isDragging) {
+                        e.preventDefault(); // Prevent scroll only when dragging
+                    }
+
                     const moveThreshold = 10;
                     if (pressTimer && (Math.abs(e.clientX - startX) > moveThreshold || Math.abs(e.clientY - startY) > moveThreshold)) {
                         clearTimeout(pressTimer);
                     }
                     
                     if (!isDragging || !activeLink) return;
-                    e.preventDefault();
 
                     const deltaX = e.clientX - startX;
                     const deltaY = e.clientY - startY;
@@ -481,7 +485,8 @@
                 }
                 
                 dynamicField.addEventListener('pointerdown', onPointerDown);
-                document.addEventListener('pointermove', onPointerMove);
+                // The { passive: false } here tells the browser we might want to prevent the default scroll
+                dynamicField.addEventListener('pointermove', onPointerMove, { passive: false });
                 document.addEventListener('pointerup', onPointerUp);
             }
 
