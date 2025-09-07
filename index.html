@@ -31,7 +31,6 @@
         .container {
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
             align-items: center;
             min-height: 100vh;
             width: 100vw;
@@ -44,6 +43,7 @@
             flex-shrink: 0;
             width: 100%;
             z-index: 10;
+            position: relative;
         }
         
         #logo-container {
@@ -95,6 +95,7 @@
             width: 100%;
             max-width: 1200px;
             margin: 1rem 0;
+            position: relative; /* Parent for absolute positioned links */
         }
 
         #anchor-nav {
@@ -110,19 +111,12 @@
 
         #dynamic-field {
             flex-grow: 1;
-            min-height: 60vh; 
-            /* NEW: Use Flexbox for a structured, non-floating layout */
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-content: center;
-            gap: 1.5rem 3rem;
-            padding: 2rem 0;
+            position: relative;
+            min-height: 80vh; 
         }
 
         .nav-link {
-            /* NEW: Changed from absolute to static positioning */
-            position: static;
+            position: absolute; /* Reverted to absolute positioning */
             font-family: var(--font-mono);
             color: var(--link-color);
             text-decoration: none;
@@ -138,8 +132,9 @@
             transform: scale(1.1);
         }
         
-        #anchor-nav .nav-link { position: static; }
-        .nav-link.anchor-link {
+        /* Keep anchor links separate and statically positioned */
+        #anchor-nav .nav-link { 
+            position: static; 
             font-weight: 700;
             color: var(--text-color);
             font-size: 1rem;
@@ -149,6 +144,7 @@
             font-family: var(--font-mono);
             font-size: 0.8rem;
             color: var(--link-color);
+            margin-top: 2rem;
         }
 
         .modal {
@@ -275,11 +271,12 @@
                 }
             }
 
-            function shuffle(array) {
-                for (let i = array.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [array[i], array[j]] = [array[j], array[i]];
-                }
+            function rectsOverlap(rect1, rect2) {
+                const padding = 30; 
+                return !(rect1.right + padding < rect2.left ||
+                         rect1.left > rect2.right + padding ||
+                         rect1.bottom + padding < rect2.top ||
+                         rect1.top > rect2.bottom + padding);
             }
 
             function renderLinks() {
@@ -287,23 +284,67 @@
                 dynamicField.innerHTML = '';
                 
                 const allLinks = contentData.filter(item => (item.type === 'page' && !item.isAnchor) || item.type === 'post');
-                shuffle(allLinks); // Shuffle order to maintain randomness
 
+                // Set dynamic height for scrolling
+                const baseHeight = 80;
+                const extraHeightPerFiveLinks = 40;
+                const dynamicHeight = baseHeight + (Math.floor(allLinks.length / 5) * extraHeightPerFiveLinks);
+                dynamicField.style.height = `${dynamicHeight}vh`;
+
+                const fieldRect = dynamicField.getBoundingClientRect();
+                const placedRects = [];
+
+                // Render static anchor links
                 contentData.filter(item => item.isAnchor).forEach(anchor => {
                     const a = document.createElement('a');
                     a.textContent = anchor.id;
-                    a.className = 'nav-link anchor-link';
+                    a.className = 'nav-link'; // Anchor links now get base nav-link class
                     a.dataset.id = anchor.id;
                     anchorNav.appendChild(a);
                 });
                 
-                // NEW: Simply append the shuffled links. Flexbox handles all positioning.
+                // Render dynamic links with absolute positioning
                 allLinks.forEach(item => {
-                    const a = document.createElement('a');
-                    a.textContent = item.id;
-                    a.className = 'nav-link';
-                    a.dataset.id = item.id;
-                    dynamicField.appendChild(a);
+                    let newRect;
+                    let attempts = 0;
+                    let hasCollision = true;
+
+                    const tempLink = document.createElement('a');
+                    tempLink.textContent = item.id;
+                    tempLink.className = 'nav-link';
+                    tempLink.style.visibility = 'hidden';
+                    dynamicField.appendChild(tempLink);
+                    const linkWidth = tempLink.offsetWidth;
+                    const linkHeight = tempLink.offsetHeight;
+                    dynamicField.removeChild(tempLink);
+                    
+                    if (fieldRect.width <= linkWidth || fieldRect.height <= linkHeight) return;
+
+                    while (hasCollision && attempts < 500) {
+                        const randomX = Math.random() * (fieldRect.width - linkWidth);
+                        const randomY = Math.random() * (fieldRect.height - linkHeight);
+                        
+                        newRect = {
+                            left: randomX,
+                            top: randomY,
+                            right: randomX + linkWidth,
+                            bottom: randomY + linkHeight,
+                        };
+
+                        hasCollision = placedRects.some(rect => rectsOverlap(rect, newRect));
+                        attempts++;
+                    }
+
+                    if (!hasCollision) {
+                        const a = document.createElement('a');
+                        a.textContent = item.id;
+                        a.className = 'nav-link';
+                        a.dataset.id = item.id;
+                        a.style.left = `${newRect.left}px`;
+                        a.style.top = `${newRect.top}px`;
+                        dynamicField.appendChild(a);
+                        placedRects.push(newRect);
+                    }
                 });
             }
 
@@ -342,14 +383,8 @@
             
             initializeSite();
 
-            // Rerender links on resize to adjust flexbox layout
-            let resizeTimeout;
-            window.addEventListener('resize', () => {
-                clearTimeout(resizeTimeout);
-                resizeTimeout = setTimeout(() => {
-                    renderLinks();
-                }, 100);
-            });
+            // IMPORTANT: Removed the resize event listener that caused jumping.
+            // The layout is now stable on resize and scroll.
         });
     </script>
 </body>
