@@ -323,7 +323,7 @@
                  <div id="scroll-indicator"></div>
             </div>
             <div id="filter-nav"></div>
-            <div id="interaction-instructions">TAP TO VIEW | DOUBLE-TAP TO ORGANIZE</div>
+            <div id="interaction-instructions">TAP TO VIEW | HOLD TO ORGANIZE</div>
             <div id="dynamic-field"></div>
         </main>
 
@@ -501,39 +501,38 @@
             function setupInteractionListeners() {
                 let activeLink = null;
                 let isDragging = false;
+                let pressTimer;
                 
                 let startX, startY; 
                 let initialLinkLeft, initialLinkTop;
-
-                let lastTap = 0;
-                let tapTimeout;
 
                 function onPointerDown(e) {
                     const target = e.target.closest('.nav-link');
                     if (!target || !dynamicField.contains(target) || dynamicField.classList.contains('filtered-view')) return;
                     
-                    const currentTime = new Date().getTime();
-                    const tapLength = currentTime - lastTap;
-                    lastTap = currentTime;
-                    
-                    clearTimeout(tapTimeout);
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    isDragging = false; 
 
-                    if (tapLength < 300 && tapLength > 0) {
-                        // Double tap detected
-                        e.preventDefault();
+                    pressTimer = setTimeout(() => {
                         isDragging = true;
                         activeLink = target;
                         activeLink.classList.add('dragging');
                         document.body.classList.add('no-scroll');
                         
-                        startX = e.clientX;
-                        startY = e.clientY;
                         initialLinkLeft = activeLink.offsetLeft;
                         initialLinkTop = activeLink.offsetTop;
-                    }
+                    }, 200);
                 }
 
                 function onPointerMove(e) {
+                    if (pressTimer && !isDragging) {
+                        const moveThreshold = 10;
+                        if (Math.abs(e.clientX - startX) > moveThreshold || Math.abs(e.clientY - startY) > moveThreshold) {
+                            clearTimeout(pressTimer);
+                        }
+                    }
+                    
                     if (!isDragging || !activeLink) return;
                     e.preventDefault();
 
@@ -552,27 +551,32 @@
                 }
 
                 function onPointerUp(e) {
+                    clearTimeout(pressTimer);
+                    
                     if (isDragging) {
                         activeLink.classList.remove('dragging');
                         document.body.classList.remove('no-scroll');
-                        isDragging = false;
-                        activeLink = null;
+                    } else {
+                        const target = e.target.closest('.nav-link');
+                        if (target && dynamicField.contains(target)) {
+                             showModal(target.dataset.id);
+                        }
                     }
+                    
+                    isDragging = false;
+                    activeLink = null;
                 }
                 
                 dynamicField.addEventListener('pointerdown', onPointerDown);
-                document.addEventListener('pointermove', onPointerMove, { passive: false });
+                dynamicField.addEventListener('pointermove', onPointerMove, { passive: false });
                 document.addEventListener('pointerup', onPointerUp);
-
-                // This handles the single tap/click logic reliably
-                dynamicField.addEventListener('click', e => {
+                 
+                // Separate click listener for the static/filtered links
+                document.addEventListener('click', e => {
                     const target = e.target.closest('.nav-link');
-                    if (target && !isDragging) {
-                       const now = new Date().getTime();
-                       // If the click is very close to the last tap time, it might be part of the double tap, so ignore it.
-                       if (now - lastTap > 50) { 
-                           showModal(target.dataset.id);
-                       }
+                    if (target && (anchorNav.contains(target) || dynamicField.classList.contains('filtered-view'))) {
+                        e.preventDefault();
+                        showModal(target.dataset.id);
                     }
                 });
             }
@@ -593,15 +597,6 @@
                 modal.style.display = 'none';
                 modalBody.innerHTML = ''; 
             }
-
-            anchorNav.addEventListener('click', (e) => {
-                const target = e.target.closest('.nav-link');
-                if (target) {
-                    e.preventDefault();
-                    const contentId = target.dataset.id;
-                    showModal(contentId);
-                }
-            });
 
             closeBtn.addEventListener('click', hideModal);
             modal.addEventListener('click', (e) => {
