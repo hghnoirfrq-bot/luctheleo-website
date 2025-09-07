@@ -167,7 +167,6 @@
             white-space: nowrap;
             padding: 5px;
             user-select: none;
-            /* New rules to prevent text selection on mobile */
             -webkit-user-select: none; /* Safari */
             -moz-user-select: none;    /* Firefox */
             -ms-user-select: none;     /* IE10+/Edge */
@@ -424,18 +423,21 @@
                     isDragging = false; 
 
                     pressTimer = setTimeout(() => {
+                        // Only start dragging if the timer completes.
                         isDragging = true;
                         activeLink = target;
                         activeLink.classList.add('dragging');
                         
                         offsetX = e.clientX - activeLink.getBoundingClientRect().left;
                         offsetY = e.clientY - activeLink.getBoundingClientRect().top;
-                    }, 200);
+                    }, 200); // 200ms press-and-hold delay
                 }
 
                 function onPointerMove(e) {
+                    // If the user moves their finger/mouse more than a few pixels,
+                    // it's a scroll/swipe, not a drag attempt. Cancel the timer.
                     if (pressTimer) {
-                        const moveThreshold = 5;
+                        const moveThreshold = 5; // pixels
                         const deltaX = Math.abs(e.clientX - startX);
                         const deltaY = Math.abs(e.clientY - startY);
                         if (deltaX > moveThreshold || deltaY > moveThreshold) {
@@ -450,6 +452,7 @@
                     let x = e.clientX - fieldRect.left - offsetX;
                     let y = e.clientY - fieldRect.top - offsetY;
                     
+                    // Constrain movement within the dynamic field boundaries
                     x = Math.max(0, Math.min(x, fieldRect.width - activeLink.offsetWidth));
                     y = Math.max(0, Math.min(y, fieldRect.height - activeLink.offsetHeight));
 
@@ -458,11 +461,14 @@
                 }
 
                 function onPointerUp(e) {
+                    // Always clear the timer when the user lifts their finger/mouse
                     clearTimeout(pressTimer);
                     
                     if (isDragging) {
+                        // If we were in drag mode, just release the element
                         activeLink.classList.remove('dragging');
                     } else {
+                        // If we were NOT in drag mode, it was a tap. Show the content.
                         const target = e.target.closest('.nav-link');
                         if (target && dynamicField.contains(target)) {
                              const contentId = target.dataset.id;
@@ -470,10 +476,12 @@
                         }
                     }
                     
+                    // Reset all state variables for the next interaction
                     isDragging = false;
                     activeLink = null;
                 }
                 
+                // Use modern Pointer Events to handle both mouse and touch
                 dynamicField.addEventListener('pointerdown', onPointerDown);
                 document.addEventListener('pointermove', onPointerMove);
                 document.addEventListener('pointerup', onPointerUp);
@@ -518,5 +526,4 @@
     </script>
 </body>
 </html>
-
 
