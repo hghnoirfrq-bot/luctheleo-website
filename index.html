@@ -29,10 +29,9 @@
             cursor: default;
         }
 
-        /* New class to disable scrolling while dragging */
         body.no-scroll {
             overflow: hidden;
-            touch-action: none; /* Prevent scrolling on touch devices */
+            touch-action: none;
         }
 
         .container {
@@ -112,7 +111,7 @@
             align-items: center;
             gap: 3rem;
             padding-bottom: 1.5rem;
-            margin-bottom: 1rem; /* Reduced margin */
+            margin-bottom: 1rem;
             border-bottom: 1px solid #333;
             position: relative;
         }
@@ -173,10 +172,10 @@
             white-space: nowrap;
             padding: 5px;
             user-select: none;
-            -webkit-user-select: none; /* Safari */
-            -moz-user-select: none;    /* Firefox */
-            -ms-user-select: none;     /* IE10+/Edge */
-            -webkit-touch-callout: none; /* iOS Safari */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -webkit-touch-callout: none;
         }
 
         .nav-link.dragging {
@@ -291,7 +290,7 @@
             <div id="anchor-nav">
                  <div id="scroll-indicator"></div>
             </div>
-            <div id="interaction-instructions">TAP TO VIEW | HOLD TO ORGANIZE</div>
+            <div id="interaction-instructions">TAP TO VIEW | DOUBLE-TAP TO ORGANIZE</div>
             <div id="dynamic-field"></div>
         </main>
 
@@ -416,41 +415,48 @@
             function setupDraggableLinks() {
                 let activeLink = null;
                 let isDragging = false;
-                let pressTimer;
                 
                 let startX, startY; 
                 let initialLinkLeft, initialLinkTop;
 
+                let lastTap = 0;
+                let tapTimeout;
+
                 function onPointerDown(e) {
                     const target = e.target.closest('.nav-link');
                     if (!target || !dynamicField.contains(target)) return;
-                    
-                    startX = e.clientX;
-                    startY = e.clientY;
-                    isDragging = false; 
 
-                    pressTimer = setTimeout(() => {
+                    // Double tap logic
+                    const currentTime = new Date().getTime();
+                    const tapLength = currentTime - lastTap;
+                    clearTimeout(tapTimeout);
+                    if (tapLength < 300 && tapLength > 0) {
+                        // Double tap detected: Start dragging
                         isDragging = true;
                         activeLink = target;
                         activeLink.classList.add('dragging');
                         document.body.classList.add('no-scroll');
                         
+                        startX = e.clientX;
+                        startY = e.clientY;
                         initialLinkLeft = activeLink.offsetLeft;
                         initialLinkTop = activeLink.offsetTop;
-                    }, 200);
+                        
+                        lastTap = 0; // Reset tap
+                    } else {
+                        // Single tap: set a timeout to trigger modal if not cancelled by a second tap
+                        tapTimeout = setTimeout(() => {
+                            if (!isDragging) { // Ensure we haven't started dragging
+                                showModal(target.dataset.id);
+                            }
+                        }, 300);
+                    }
+                    lastTap = currentTime;
                 }
 
                 function onPointerMove(e) {
-                    if (isDragging) {
-                        e.preventDefault(); // Prevent scroll only when dragging
-                    }
-
-                    const moveThreshold = 10;
-                    if (pressTimer && (Math.abs(e.clientX - startX) > moveThreshold || Math.abs(e.clientY - startY) > moveThreshold)) {
-                        clearTimeout(pressTimer);
-                    }
-                    
                     if (!isDragging || !activeLink) return;
+                    e.preventDefault();
 
                     const deltaX = e.clientX - startX;
                     const deltaY = e.clientY - startY;
@@ -467,26 +473,17 @@
                 }
 
                 function onPointerUp(e) {
-                    clearTimeout(pressTimer);
-                    
                     if (isDragging) {
+                        // If we were dragging, just drop the element
                         activeLink.classList.remove('dragging');
                         document.body.classList.remove('no-scroll');
-                    } else {
-                        const target = e.target.closest('.nav-link');
-                        if (target && dynamicField.contains(target)) {
-                             const contentId = target.dataset.id;
-                             showModal(contentId);
-                        }
+                        isDragging = false;
+                        activeLink = null;
                     }
-                    
-                    isDragging = false;
-                    activeLink = null;
                 }
                 
                 dynamicField.addEventListener('pointerdown', onPointerDown);
-                // The { passive: false } here tells the browser we might want to prevent the default scroll
-                dynamicField.addEventListener('pointermove', onPointerMove, { passive: false });
+                document.addEventListener('pointermove', onPointerMove, { passive: false });
                 document.addEventListener('pointerup', onPointerUp);
             }
 
