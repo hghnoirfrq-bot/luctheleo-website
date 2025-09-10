@@ -10,6 +10,61 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Lora:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     
     <style>
+        /* --- Video Background Styles --- */
+
+#video-background-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Places it behind all other content */
+}
+
+#bg-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures the video covers the screen without stretching */
+    filter: grayscale(90%) contrast(150%) brightness(50%); /* This creates the high-contrast, black-and-white film noir look */
+}
+
+#video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4); /* Dark overlay to keep text readable */
+    z-index: 0;
+}
+
+/* This creates the animated grainy static effect */
+#video-overlay::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiGAAAAA1BMVEX///+nxBvIAAAANElEQVR42u3BAQ0AAADCoPdPbQ8HFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPBgJ4QAAUe9F2sAAAAASUVORK5CYII=');
+    opacity: 0.05; /* Adjust for more or less grain */
+    animation: grain 1s steps(2, end) infinite;
+}
+
+@keyframes grain {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-1%, -1%); }
+  20% { transform: translate(1%, 1%); }
+  30% { transform: translate(-2%, 2%); }
+  40% { transform: translate(2%, -1%); }
+  50% { transform: translate(-1%, 2%); }
+  60% { transform: translate(2%, 1%); }
+  70% { transform: translate(-2%, -2%); }
+  80% { transform: translate(1%, -1%); }
+  90% { transform: translate(2%, 2%); }
+}
+
+/* --- End Video Background Styles --- */
         :root {
             --bg-color: #121212;
             --text-color: #E0E0E0;
@@ -314,6 +369,12 @@
     </style>
 </head>
 <body>
+    <div id="video-background-container">
+    <video autoplay loop muted playsinline id="bg-video">
+        <source src="videos/home_LA.mp4" type="video/mp4">
+    </video>
+    <div id="video-overlay"></div>
+</div>
     <div class="container">
         <header>
              <div id="logo-container">
