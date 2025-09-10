@@ -18,6 +18,12 @@
         "content": "<h2>Booking & Contact</h2><h3>Free Consultation (Order Line Conversation)</h3><p>To begin, please request a free 15-minute consultation to determine creative alignment. This is the first step for all new projects.</p><p style=\"text-align:center; margin-top: 1rem; margin-bottom: 2rem;\"><a href=\"https://forms.gle/8S2BXZTp2qmWLoKo6\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"padding: 10px 20px; border: 1px solid var(--link-color); border-radius: 5px; text-decoration: none;\">Open Free Consultation Form</a></p><h3>Direct Booking & Socials</h3><p>For returning clients or other inquiries, use the links below.</p><ul><li><a href=\"https://calendly.com/hghnoirfrq/30min\" target=\"_blank\" rel=\"noopener noreferrer\">Book a Session (Calendly)</a></li><li><a href=\"https://linktr.ee/luctheleo\" target=\"_blank\" rel=\"noopener noreferrer\">View All Links (Linktree)</a></li></ul><h3>Contact & Payment</h3><p><b>Direct Communication:</b> Telegram @luctheleo</p><p><b>Payment for Services:</b> CashApp $NoEgoJustWork</p>"
     },
     {
+        "id": "VOID_017 - home_LA",
+        "type": "post",
+        "isAnchor": false,
+        "content": "<h2>VOID_017 - home_LA</h2><div class='embed-container'><video style='width:100%;' controls><source src='videos/home_LA1.mp4' type='video/mp4'></video></div>"
+    },
+    {
         "id": "SGNNL_004 - JAY Z",
         "type": "post",
         "isAnchor": false,
@@ -46,12 +52,5 @@
         "type": "post",
         "isAnchor": false,
         "content": "<h2>CRCLT_02 - INKLING</h2><p style=\"font-size: 2rem; text-align: center; font-style: italic;\">\"Nothing ventured, nothing gained.\"</p>"
-    },
-    {
-    "id": "VOID_017 - home_LA",
-    "type": "post",
-    "isAnchor": false,
-    "content": "<h2>VOID_017 - home_LA</h2><div class='embed-container'><video style='width:100%;' controls><source src='videos/home_LA1' type='video/mp4'></video></div>"
-}
+    }
 ]
-
