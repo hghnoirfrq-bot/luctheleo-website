@@ -46,6 +46,12 @@
         "type": "post",
         "isAnchor": false,
         "content": "<h2>CRCLT_02 - INKLING</h2><p style=\"font-size: 2rem; text-align: center; font-style: italic;\">\"Nothing ventured, nothing gained.\"</p>"
+    },
+    {
+    "id": "VOID_017 - home_LA",
+    "type": "post",
+    "isAnchor": false,
+    "content": "<h2>VOID_017 - home_LA</h2><div class='embed-container'><video style='width:100%;' controls><source src='videos/home_LA' type='video/quicktime'></video></div>"
     }
 ]
 
