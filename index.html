@@ -7,7 +7,7 @@
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Lora:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Special+Elite&display=swap" rel="stylesheet">
     
     <style>
         /* --- Video Background Styles --- */
@@ -65,14 +65,14 @@
             --link-color: #B0B0B0;
             --hover-color: #FFFFFF;
             --font-mono: 'Roboto Mono', monospace;
-            --font-serif: 'Lora', serif;
+            /* Updated Font Variable */
+            --font-serif: 'Special Elite', cursive;
         }
 
         html, body {
             margin: 0;
             padding: 0;
             width: 100%;
-            /* This is the key fix that makes the video visible */
             background-color: transparent; 
             color: var(--text-color);
             font-family: var(--font-serif);
@@ -86,7 +86,6 @@
         }
 
         .container {
-            /* This makes the main content area see-through */
             background-color: transparent;
             display: flex;
             flex-direction: column;
