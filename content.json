@@ -51,7 +51,7 @@
     "id": "VOID_017 - home_LA",
     "type": "post",
     "isAnchor": false,
-    "content": "<h2>VOID_017 - home_LA</h2><div class='embed-container'><video style='width:100%;' controls><source src='videos/home_LA' type='video/quicktime'></video></div>"
-    }
+    "content": "<h2>VOID_017 - home_LA</h2><div class='embed-container'><video style='width:100%;' controls><source src='videos/home_LA' type='video/mp4'></video></div>"
+}
 ]
 
