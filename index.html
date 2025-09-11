@@ -28,7 +28,7 @@
             height: 100%;
             object-fit: cover;
             filter: grayscale(90%) contrast(150%) brightness(50%);
-            transition: filter 0.1s ease-in-out; /* Smooths the reactive filter changes */
+            transition: filter 0.1s ease-in-out;
         }
         #video-overlay {
             position: absolute;
@@ -82,7 +82,7 @@
             font-family: var(--font-sans);
             overflow-x: hidden;
             cursor: default;
-            padding-bottom: 70px;
+            padding-bottom: 70px; /* Make space for player */
         }
 
         body.no-scroll {
@@ -123,7 +123,6 @@
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
-            /* The default animation will be controlled by JS when audio plays */
             animation: dying-neon 8s infinite ease-in-out;
             transition: opacity 0.1s ease-in-out, filter 0.1s ease-in-out;
         }
@@ -373,7 +372,7 @@
             <span id="duration" class="time-display">0:00</span>
             <input type="range" id="volume-bar" value="1" min="0" max="1" step="0.01">
         </div>
-        <audio id="track" src="music/ruminate.mp3"></audio>
+        <audio id="track" src="music/ruminate.mp3" crossOrigin="anonymous"></audio>
     </div>
 
 
@@ -402,7 +401,6 @@
             const canvas = document.getElementById('audio-visualizer');
             const canvasCtx = canvas.getContext('2d');
 
-            // --- Elements for Audio Reactivity ---
             const logoImage = document.querySelector('.logo-image');
             const bgVideo = document.getElementById('bg-video');
             
@@ -439,38 +437,45 @@
                 source.connect(analyser);
                 analyser.connect(audioCtx.destination);
                 
-                analyser.fftSize = 256;
+                analyser.fftSize = 512;
                 const bufferLength = analyser.frequencyBinCount;
-                const dataArray = new Uint8Array(bufferLength);
+                const timeData = new Uint8Array(bufferLength);
+                const freqData = new Uint8Array(bufferLength);
 
-                canvas.width = canvas.offsetWidth * window.devicePixelRatio;
-                canvas.height = canvas.offsetHeight * window.devicePixelRatio;
-                canvasCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
                 
                 playPauseBtn.addEventListener('click', () => {
                     if (audioCtx.state === 'suspended') audioCtx.resume();
                     if (track.paused) {
                         track.play();
                         playPauseBtn.innerHTML = '&#10074;&#10074;';
-                        logoImage.style.animationPlayState = 'paused'; // Pause CSS animation for JS control
+                        logoImage.style.animationPlayState = 'paused';
                     } else {
                         track.pause();
                         playPauseBtn.innerHTML = '&#9658;';
-                        logoImage.style.animationPlayState = 'running'; // Resume CSS animation
+                        logoImage.style.animationPlayState = 'running';
                     }
                 });
 
                 volumeBar.addEventListener('input', (e) => track.volume = e.target.value);
                 seekBar.addEventListener('input', (e) => track.currentTime = e.target.value);
                 
-                function updateDuration() {
+                // ROBUST DURATION FIX: Wait until the browser can play the whole file.
+                track.addEventListener('canplaythrough', () => {
                     if (track.duration && isFinite(track.duration)) {
                         seekBar.max = track.duration;
                         durationEl.textContent = formatTime(track.duration);
                     }
-                }
-                track.addEventListener('loadedmetadata', updateDuration);
-                track.addEventListener('durationchange', updateDuration);
+                });
+                // Fallback for some browsers
+                track.addEventListener('loadedmetadata', () => {
+                     if (track.duration && isFinite(track.duration)) {
+                        seekBar.max = track.duration;
+                        durationEl.textContent = formatTime(track.duration);
+                    }
+                });
+
 
                 track.addEventListener('timeupdate', () => {
                     seekBar.value = track.currentTime;
@@ -491,33 +496,54 @@
 
                 function draw() {
                     requestAnimationFrame(draw);
-                    if (track.paused) return; // Don't draw if paused
-
-                    analyser.getByteFrequencyData(dataArray);
-                    canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
                     
+                    analyser.getByteTimeDomainData(timeData);
+                    analyser.getByteFrequencyData(freqData);
+
+                    canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+
                     // --- Audio Reactive Logic ---
-                    // Calculate average bass level (lower frequencies)
-                    const bassFrequencies = dataArray.slice(0, Math.floor(bufferLength * 0.2));
-                    const averageBass = bassFrequencies.reduce((a, b) => a + b, 0) / bassFrequencies.length;
-                    const normalizedBass = averageBass / 255; // Value between 0 and 1
+                    if (!track.paused) {
+                        const bassFrequencies = freqData.slice(0, Math.floor(bufferLength * 0.2));
+                        const averageBass = bassFrequencies.reduce((a, b) => a + b, 0) / bassFrequencies.length;
+                        const normalizedBass = averageBass / 255; 
 
-                    // Apply effects to the logo
-                    logoImage.style.opacity = 0.6 + normalizedBass * 0.4; // Pulse opacity
-                    logoImage.style.filter = `blur(0.5px) brightness(${1 + normalizedBass * 0.5})`;
+                        logoImage.style.opacity = 0.6 + normalizedBass * 0.4;
+                        logoImage.style.filter = `blur(0.5px) brightness(${1 + normalizedBass * 0.5})`;
+                        bgVideo.style.filter = `grayscale(90%) contrast(150%) brightness(${0.4 + normalizedBass * 0.2})`;
+                    }
 
-                    // Apply effects to the background video
-                    bgVideo.style.filter = `grayscale(90%) contrast(150%) brightness(${0.4 + normalizedBass * 0.2})`;
+                    // --- New "Signal & Static" Visualizer ---
+                    canvasCtx.lineWidth = 2;
+                    canvasCtx.strokeStyle = 'rgba(224, 224, 224, 0.5)';
+                    canvasCtx.beginPath();
 
-
-                    // --- Visualizer Drawing ---
-                    const barWidth = (canvas.offsetWidth / bufferLength) * 1.5;
+                    const sliceWidth = canvas.width * 1.0 / bufferLength;
                     let x = 0;
-                    for(let i = 0; i < bufferLength; i++) {
-                        const barHeight = (dataArray[i] / 255) * canvas.offsetHeight * 0.8;
-                        canvasCtx.fillStyle = 'rgba(176, 176, 176, 0.5)';
-                        canvasCtx.fillRect(x, canvas.offsetHeight - barHeight, barWidth, barHeight);
-                        x += barWidth + 1;
+
+                    for (let i = 0; i < bufferLength; i++) {
+                        const v = timeData[i] / 128.0;
+                        const y = v * canvas.height / 2;
+                        if (i === 0) {
+                            canvasCtx.moveTo(x, y);
+                        } else {
+                            canvasCtx.lineTo(x, y);
+                        }
+                        x += sliceWidth;
+                    }
+                    canvasCtx.lineTo(canvas.width, canvas.height / 2);
+                    canvasCtx.stroke();
+                    
+                    // Add static particles that react to bass
+                    const bassPulse = freqData[2] / 255; // Sample a low frequency bin for "kick"
+                    if (bassPulse > 0.8) {
+                        for (let i = 0; i < 10; i++) {
+                            const x = Math.random() * canvas.width;
+                            const y = Math.random() * canvas.height;
+                            const size = Math.random() * 2;
+                            canvasCtx.fillStyle = 'rgba(224, 224, 224, 0.7)';
+                            canvasCtx.fillRect(x, y, size, size);
+                        }
                     }
                 }
                 
@@ -545,7 +571,6 @@
             }
 
             function renderLinks(postsToRender, activeFilter) {
-                // Simplified renderLinks function for brevity (no changes here)
                 const scrollIndicator = document.getElementById('scroll-indicator');
                 Array.from(anchorNav.children).forEach(child => { if (child.id !== 'scroll-indicator') anchorNav.removeChild(child); });
                 dynamicField.innerHTML = '';
@@ -555,39 +580,28 @@
                 setTimeout(() => { if (document.body.scrollHeight > window.innerHeight) scrollIndicator.style.opacity = '0.5'; else scrollIndicator.style.opacity = '0'; }, 100);
             }
             
-            function regenerateChaosGrid() { /* No changes here */ const links = dynamicField.querySelectorAll('.nav-link'); if (dynamicField.classList.contains('filtered-view') || links.length === 0) return; const fieldRect = dynamicField.getBoundingClientRect(); const placedRects = []; links.forEach(link => { let newRect, attempts = 0, hasCollision = true; const linkWidth = link.offsetWidth; const linkHeight = link.offsetHeight; while (hasCollision && attempts < 200) { const randomX = Math.random() * (fieldRect.width - linkWidth); const randomY = Math.random() * (fieldRect.height - linkHeight); newRect = { left: randomX, top: randomY, right: randomX + linkWidth, bottom: randomY + linkHeight }; hasCollision = placedRects.some(rect => (rect.right + 30 >= newRect.left && rect.left <= newRect.right + 30 && rect.bottom + 30 >= newRect.top && rect.top <= newRect.bottom + 30)); attempts++; } if (!hasCollision) { link.style.left = `${newRect.left}px`; link.style.top = `${newRect.top}px`; placedRects.push(newRect); } }); }
+            function regenerateChaosGrid() { const links = dynamicField.querySelectorAll('.nav-link'); if (dynamicField.classList.contains('filtered-view') || links.length === 0) return; const fieldRect = dynamicField.getBoundingClientRect(); const placedRects = []; links.forEach(link => { let newRect, attempts = 0, hasCollision = true; const linkWidth = link.offsetWidth; const linkHeight = link.offsetHeight; while (hasCollision && attempts < 200) { const randomX = Math.random() * (fieldRect.width - linkWidth); const randomY = Math.random() * (fieldRect.height - linkHeight); newRect = { left: randomX, top: randomY, right: randomX + linkWidth, bottom: randomY + linkHeight }; hasCollision = placedRects.some(rect => (rect.right + 30 >= newRect.left && rect.left <= newRect.right + 30 && rect.bottom + 30 >= newRect.top && rect.top <= newRect.bottom + 30)); attempts++; } if (!hasCollision) { link.style.left = `${newRect.left}px`; link.style.top = `${newRect.top}px`; placedRects.push(newRect); } }); }
             function startChaosInterval() { stopChaosInterval(); chaosInterval = setInterval(regenerateChaosGrid, 15000); }
             function stopChaosInterval() { clearInterval(chaosInterval); chaosInterval = null; }
 
-            function setupInteractionListeners() { /* No changes here */ let activeLink = null, isDragging = false, pressTimer; dynamicField.addEventListener('pointerdown', e => { const target = e.target.closest('.nav-link'); if (!target || dynamicField.classList.contains('filtered-view')) return; isDragging = false; pressTimer = setTimeout(() => { isDragging = true; activeLink = target; activeLink.classList.add('dragging'); document.body.classList.add('no-scroll'); }, 200); }); document.addEventListener('pointermove', e => { if (pressTimer && !isDragging) clearTimeout(pressTimer); if (!isDragging || !activeLink) return; e.preventDefault(); activeLink.style.left = `${e.clientX - activeLink.offsetWidth / 2}px`; activeLink.style.top = `${e.clientY - activeLink.offsetHeight / 2}px`; }); document.addEventListener('pointerup', e => { clearTimeout(pressTimer); if (isDragging) { activeLink.classList.remove('dragging'); document.body.classList.remove('no-scroll'); } else { const target = e.target.closest('.nav-link'); if (target && dynamicField.contains(target)) showModal(target.dataset.id); } isDragging = false; activeLink = null; }); document.addEventListener('click', e => { const target = e.target.closest('.nav-link'); if (target && (anchorNav.contains(target) || dynamicField.classList.contains('filtered-view'))) { e.preventDefault(); showModal(target.dataset.id); } }); }
+            function setupInteractionListeners() { let activeLink = null, isDragging = false, pressTimer; dynamicField.addEventListener('pointerdown', e => { const target = e.target.closest('.nav-link'); if (!target || dynamicField.classList.contains('filtered-view')) return; isDragging = false; pressTimer = setTimeout(() => { isDragging = true; activeLink = target; activeLink.classList.add('dragging'); document.body.classList.add('no-scroll'); }, 200); }); document.addEventListener('pointermove', e => { if (pressTimer && !isDragging) clearTimeout(pressTimer); if (!isDragging || !activeLink) return; e.preventDefault(); activeLink.style.left = `${e.clientX - activeLink.offsetWidth / 2}px`; activeLink.style.top = `${e.clientY - activeLink.offsetHeight / 2}px`; }); document.addEventListener('pointerup', e => { clearTimeout(pressTimer); if (isDragging) { activeLink.classList.remove('dragging'); document.body.classList.remove('no-scroll'); } else { const target = e.target.closest('.nav-link'); if (target && dynamicField.contains(target)) showModal(target.dataset.id); } isDragging = false; activeLink = null; }); document.addEventListener('click', e => { const target = e.target.closest('.nav-link'); if (target && (anchorNav.contains(target) || dynamicField.classList.contains('filtered-view'))) { e.preventDefault(); showModal(target.dataset.id); } }); }
             
-            function setupBinaryGlitch() { /* No changes here */ const originalText = binarySignature.textContent; let isGlitching = false; const triggerGlitch = () => { if (isGlitching) return; isGlitching = true; let glitchInterval = setInterval(() => { binarySignature.textContent = originalText.split('').map(char => (char === '1' || char === '0') ? (Math.random() > 0.5 ? '1' : '0') : char).join(''); }, 50); setTimeout(() => { clearInterval(glitchInterval); binarySignature.textContent = originalText; isGlitching = false; }, 1000); }; setInterval(triggerGlitch, 8000 + Math.random() * 5000); }
+            function setupBinaryGlitch() { const originalText = binarySignature.textContent; let isGlitching = false; const triggerGlitch = () => { if (isGlitching) return; isGlitching = true; let glitchInterval = setInterval(() => { binarySignature.textContent = originalText.split('').map(char => (char === '1' || char === '0') ? (Math.random() > 0.5 ? '1' : '0') : char).join(''); }, 50); setTimeout(() => { clearInterval(glitchInterval); binarySignature.textContent = originalText; isGlitching = false; }, 1000); }; setInterval(triggerGlitch, 8000 + Math.random() * 5000); }
 
             function showModal(contentId) {
                 const item = contentData.find(d => d.id === contentId);
                 if (item) {
                     if (contentId === 'MNFST') {
                         if (!isPlayerInitialized) initializeAudioPlayer();
-
-                        // Explicitly resume the AudioContext on user interaction.
-                        // This is the key fix for browser autoplay policies.
-                        if (audioCtx && audioCtx.state === 'suspended') {
-                            audioCtx.resume();
-                        }
-                        
+                        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
                         player.style.display = 'flex';
-                        
                         if (track.paused) {
                             const playPromise = track.play();
                             if (playPromise !== undefined) {
-                                playPromise.then(_ => {
-                                    // Autoplay started!
+                                playPromise.then(() => {
                                     playPauseBtn.innerHTML = '&#10074;&#10074;';
                                     logoImage.style.animationPlayState = 'paused';
-                                }).catch(error => {
-                                    // Autoplay was prevented. Log error for debugging.
-                                    console.error("Audio autoplay failed:", error);
-                                });
+                                }).catch(error => console.error("Audio autoplay failed:", error));
                             }
                         }
                     }
@@ -611,5 +625,4 @@
     </script>
 </body>
 </html>
-
 
