@@ -85,6 +85,11 @@
             padding-bottom: 90px; /* Make space for player */
         }
 
+        body.no-scroll {
+            overflow: hidden;
+            touch-action: none;
+        }
+
         .container {
             background-color: transparent;
             display: flex;
@@ -142,6 +147,8 @@
         header h1 { font-size: 1.2rem; }
         header p { font-size: 0.9rem; color: var(--link-color); }
 
+        #binary-signature { cursor: pointer; }
+
         main {
             flex-grow: 1; display: flex; flex-direction: column; width: 100%; max-width: 1200px; margin: 1rem 0; position: relative;
         }
@@ -149,16 +156,56 @@
         #anchor-nav {
             flex-shrink: 0; display: flex; justify-content: center; align-items: center; gap: 3rem; padding-bottom: 1.5rem; margin-bottom: 1rem; border-bottom: 1px solid #333; position: relative;
         }
+        
+        #scroll-indicator {
+            position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 1px; height: 20px; background-color: var(--link-color); opacity: 0; transition: opacity 0.5s ease; animation: pulse 2s infinite ease-in-out;
+        }
 
-        #dynamic-field {
-             flex-grow: 1;
-             position: relative;
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: scaleY(1) translateX(-50%); }
+            50% { opacity: 0.8; transform: scaleY(1.5) translateX(-50%); }
         }
         
+        #interaction-instructions {
+            font-size: 0.8rem; letter-spacing: 1px; padding: 0.5rem 0; margin-bottom: 1rem; opacity: 0.7; transition: opacity 0.3s ease;
+        }
+
+        #filter-nav {
+            display: flex; justify-content: center; flex-wrap: wrap; gap: 1rem 2rem; margin-bottom: 2rem;
+        }
+
+        .filter-link {
+            color: var(--link-color); cursor: pointer; text-decoration: none; transition: color 0.3s ease;
+        }
+
+        .filter-link:hover, .filter-link.active { color: var(--hover-color); }
+
+        #dynamic-field {
+            flex-grow: 1; position: relative; min-height: 80vh; transition: min-height 0.5s ease;
+        }
+        
+        #dynamic-field.filtered-view {
+            display: flex; flex-wrap: wrap; justify-content: center; align-content: flex-start; gap: 1.5rem 3rem; min-height: 10vh !important; height: auto !important;
+        }
+
         .nav-link {
             position: absolute; text-decoration: none; font-size: 0.9rem; cursor: pointer; transition: color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease, opacity 0.5s ease, left 2s ease-in-out, top 2s ease-in-out; white-space: nowrap; padding: 5px; user-select: none;
         }
         
+        .filtered-view .nav-link { position: static; }
+
+        .nav-link.dragging {
+            cursor: grabbing; color: var(--hover-color); transform: scale(1.1); z-index: 100; box-shadow: 0 0 15px rgba(255, 255, 255, 0.2); transition: color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .nav-link:hover { color: var(--hover-color); transform: scale(1.1); }
+        
+        #anchor-nav .nav-link { position: static; font-weight: 700; color: var(--text-color); font-size: 1rem; }
+
+        footer {
+            font-size: 0.8rem; color: var(--link-color); margin-top: 2rem;
+        }
+
         .modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.9); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 1rem; box-sizing: border-box;
         }
@@ -171,6 +218,10 @@
             position: absolute; top: 1rem; right: 1.5rem; font-size: 2rem; font-weight: bold; color: var(--link-color); cursor: pointer; transition: color 0.3s ease;
         }
 
+        .modal-close:hover { color: var(--hover-color); }
+        .modal-body h2 { margin-top: 0; }
+        .modal-body h3 { color: var(--link-color); font-weight: normal; }
+        
         .modal-body p, .modal-body li { 
             font-family: var(--font-sans);
             line-height: 1.8; 
@@ -178,6 +229,15 @@
         }
 
         .modal-body a { color: var(--hover-color); text-decoration: underline; }
+
+        .modal-body .embed-container {
+            position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; background: #000; margin-top: 1rem;
+        }
+
+        .modal-body iframe {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;
+        }
+        .modal-body .soundcloud-embed iframe { position: relative; height: 300px; }
         
         /* --- Premium Audio Player Styles --- */
         #persistent-audio-player {
@@ -367,7 +427,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             let contentData = [];
-            let allPosts = [];
+            let chaosInterval;
+            
             const player = document.getElementById('persistent-audio-player');
             const track = document.getElementById('track');
             const playPauseBtn = document.getElementById('play-pause-btn');
@@ -513,7 +574,6 @@
                             }
                         }
                     }
-                    // This logic was simplified and incorrect in the previous version, now restored.
                     let finalContent = item.content;
                     if (item.type === 'page') {
                          modalBody.innerHTML = finalContent;
@@ -524,19 +584,64 @@
                 }
             }
             
+            // CORRECTED: This function now properly places links without overlapping.
             function renderLinks() { 
                 anchorNav.innerHTML = '';
                 dynamicField.innerHTML = '';
-                contentData.filter(i=>i.isAnchor).forEach(a=>{const l=document.createElement('a');l.textContent=a.id;l.className='nav-link';l.dataset.id=a.id;anchorNav.appendChild(l)});
-                contentData.filter(i=>!i.isAnchor).forEach(p => {
-                    const l=document.createElement('a');
-                    l.textContent=p.id;
-                    l.className='nav-link';
-                    l.dataset.id=p.id;
-                    // Simplified random placement for brevity
-                    l.style.left = `${Math.random() * 80}%`;
-                    l.style.top = `${Math.random() * 80}%`;
-                    dynamicField.appendChild(l)
+
+                // Render anchor links
+                contentData.filter(i => i.isAnchor).forEach(anchor => {
+                    const l = document.createElement('a');
+                    l.textContent = anchor.id;
+                    l.className = 'nav-link';
+                    l.dataset.id = anchor.id;
+                    anchorNav.appendChild(l);
+                });
+
+                // Render dynamic, non-overlapping links
+                const postsToRender = contentData.filter(i => !i.isAnchor);
+                const fieldRect = dynamicField.getBoundingClientRect();
+                const placedRects = [];
+
+                function rectsOverlap(rect1, rect2) {
+                    const padding = 40; // Increased padding for more space
+                    return !(rect1.right + padding < rect2.left ||
+                             rect1.left > rect2.right + padding ||
+                             rect1.bottom + padding < rect2.top ||
+                             rect1.top > rect2.bottom + padding);
+                }
+
+                postsToRender.forEach(item => {
+                    let newRect, attempts = 0, hasCollision = true;
+                    const tempLink = document.createElement('a');
+                    tempLink.textContent = item.id;
+                    tempLink.className = 'nav-link';
+                    tempLink.style.visibility = 'hidden';
+                    dynamicField.appendChild(tempLink);
+                    const linkWidth = tempLink.offsetWidth;
+                    const linkHeight = tempLink.offsetHeight;
+                    dynamicField.removeChild(tempLink);
+
+                    if (fieldRect.width <= linkWidth || fieldRect.height <= linkHeight) return;
+
+                    while (hasCollision && attempts < 500) {
+                        const randomX = Math.random() * (fieldRect.width - linkWidth);
+                        const randomY = Math.random() * (fieldRect.height - linkHeight);
+                        newRect = { left: randomX, top: randomY, right: randomX + linkWidth, bottom: randomY + linkHeight };
+                        hasCollision = placedRects.some(rect => rectsOverlap(rect, newRect));
+                        attempts++;
+                    }
+
+                    if (!hasCollision) {
+                        const link = document.createElement('a');
+                        link.textContent = item.id;
+                        link.className = 'nav-link';
+                        link.dataset.id = item.id;
+                        link.style.left = `${newRect.left}px`;
+                        link.style.top = `${newRect.top}px`;
+                        dynamicField.appendChild(link);
+                        placedRects.push(newRect);
+                    }
                 });
             }
 
