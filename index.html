@@ -312,7 +312,6 @@
             padding-top: 2px;
         }
 
-        /* Custom Range Slider Styles */
         input[type="range"] {
             -webkit-appearance: none;
             appearance: none;
@@ -327,19 +326,26 @@
 
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none; appearance: none;
-            margin-top: -6.5px; 
-            background-color: var(--text-color);
-            height: 16px; width: 16px; border-radius: 50%;
-            transition: background-color 0.2s ease;
+            margin-top: -5.5px; 
+            background-color: var(--link-color);
+            height: 14px; width: 14px; border-radius: 50%;
+            border: 2px solid var(--bg-color);
+            transition: all 0.2s ease;
         }
         input[type="range"]::-moz-range-thumb {
-            border: none;
-            background-color: var(--text-color);
-            height: 16px; width: 16px; border-radius: 50%;
-            transition: background-color 0.2s ease;
+            border: 2px solid var(--bg-color);
+            background-color: var(--link-color);
+            height: 14px; width: 14px; border-radius: 50%;
+            transition: all 0.2s ease;
         }
-        input[type="range"]:hover::-webkit-slider-thumb { background-color: var(--hover-color); }
-        input[type="range"]:hover::-moz-range-thumb { background-color: var(--hover-color); }
+        input[type="range"]:hover::-webkit-slider-thumb { 
+            background-color: var(--hover-color);
+            transform: scale(1.1);
+        }
+        input[type="range"]:hover::-moz-range-thumb { 
+            background-color: var(--hover-color);
+            transform: scale(1.1);
+        }
         
         #volume-bar { display: none; }
 
@@ -353,7 +359,7 @@
             .player-bottom-row { display: none; }
             #audio-visualizer { height: 50px; }
             .track-info { display: none; }
-            .player-top-row { gap: 15px; }
+            .player-top-row { gap: 25px; } 
             #volume-bar { display: block; max-width: 120px; }
             
             .seek-time-wrapper {
@@ -416,6 +422,7 @@
 
     <!-- Premium Player HTML -->
     <div id="persistent-audio-player">
+        <!-- Mobile Layout -->
         <div class="player-top-row">
             <canvas id="audio-visualizer"></canvas>
             <button id="play-pause-btn">&#9658;</button>
@@ -574,8 +581,7 @@
                         bgVideo.style.filter = `grayscale(90%) contrast(150%) brightness(${0.4 + normalizedBass * 0.2})`;
                     }
 
-                    // --- NEW "Signal Wave" Visualizer ---
-                    const barWidth = canvas.width / (bufferLength * 0.7); // Use a portion for cleaner look
+                    const barWidth = canvas.width / (bufferLength * 0.7);
                     const centerY = canvas.height / 2;
                     
                     canvasCtx.strokeStyle = 'rgba(224, 224, 224, 0.2)';
