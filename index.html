@@ -4,15 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LUCTHELEO | Audio.Alchemist</title>
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="manifest" href="/site.webmanifest">
-<link rel="icon" href="/favicon.ico">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Special+Elite&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Special+Elite&family=Spectral:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
         /* --- Video Background Styles --- */
@@ -70,7 +65,6 @@
             --link-color: #B0B0B0;
             --hover-color: #FFFFFF;
             --font-mono: 'Roboto Mono', monospace;
-            /* Updated Font Variable */
             --font-serif: 'Special Elite', cursive;
         }
 
@@ -219,9 +213,17 @@
         }
 
         .modal-close:hover { color: var(--hover-color); }
-        .modal-body h2 { font-family: var(--font-mono); margin-top: 0; }
-        .modal-body h3 { font-family: var(--font-mono); color: var(--link-color); font-weight: normal; }
-        .modal-body p, .modal-body li { line-height: 1.8; font-size: 1rem; }
+        .modal-body h2, .modal-body h3 { font-family: var(--font-serif); }
+        .modal-body h2 { margin-top: 0; }
+        .modal-body h3 { color: var(--link-color); font-weight: normal; }
+        
+        /* UPDATED: Paragraphs and lists now use a more readable font */
+        .modal-body p, .modal-body li {
+            font-family: 'Spectral', serif;
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+        
         .modal-body a { color: var(--hover-color); text-decoration: underline; }
 
         .modal-body .embed-container {
