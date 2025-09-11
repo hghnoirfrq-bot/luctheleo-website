@@ -82,7 +82,7 @@
             font-family: var(--font-sans);
             overflow-x: hidden;
             cursor: default;
-            padding-bottom: 70px; /* Make space for player */
+            padding-bottom: 80px; /* Make space for player */
         }
 
         body.no-scroll {
@@ -239,34 +239,49 @@
         }
         .modal-body .soundcloud-embed iframe { position: relative; height: 300px; }
         
+        /* --- Premium Audio Player Styles --- */
         #persistent-audio-player {
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 70px;
+            height: 80px;
             background-color: rgba(18, 18, 18, 0.8);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border-top: 1px solid #333;
             z-index: 2000;
             display: none;
-            align-items: center;
-            padding: 0 20px;
+            flex-direction: column;
+            padding: 8px 15px;
             box-sizing: border-box;
+        }
+
+        .player-top-row {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            height: 100%;
         }
         
         #audio-visualizer {
             height: 100%;
-            width: 200px;
-            margin-right: 20px;
+            width: 120px;
+            margin-right: 15px;
         }
         
         .player-controls {
             display: flex;
-            align-items: center;
-            width: 100%;
-            gap: 15px;
+            flex-direction: column;
+            justify-content: center;
+            flex-grow: 1;
+        }
+
+        .controls-main {
+             display: flex;
+             align-items: center;
+             gap: 15px;
+             width: 100%;
         }
         
         #play-pause-btn {
@@ -274,51 +289,115 @@
             border: 1px solid var(--link-color);
             color: var(--link-color);
             cursor: pointer;
-            width: 40px;
-            height: 40px;
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
-            font-size: 20px;
+            font-size: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.2s ease;
+            flex-shrink: 0;
         }
 
         #play-pause-btn:hover {
             border-color: var(--hover-color);
             color: var(--hover-color);
         }
-        
-        .time-display {
+
+        .track-info {
             font-family: var(--font-mono);
-            font-size: 0.8rem;
-            min-width: 45px;
+            font-size: 0.9rem;
+            text-align: left;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            flex-grow: 1;
+        }
+        
+        .time-display-wrapper {
+            display: flex;
+            justify-content: space-between;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--link-color);
+            margin-top: 4px;
+            padding: 0 2px;
         }
 
+        /* Custom Range Slider Styles */
         input[type="range"] {
             -webkit-appearance: none;
             appearance: none;
             background: transparent;
             cursor: pointer;
+            width: 100%;
         }
+        input[type="range"]:focus { outline: none; }
+        
+        /* Track */
         input[type="range"]::-webkit-slider-runnable-track {
-            background: #444;
             height: 4px;
+            background: #444;
             border-radius: 4px;
         }
+        input[type="range"]::-moz-range-track {
+            height: 4px;
+            background: #444;
+            border-radius: 4px;
+        }
+
+        /* Thumb */
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            margin-top: -6px;
-            background-color: var(--link-color);
+            margin-top: -6px; /* Center thumb on track */
+            background-color: var(--text-color);
             height: 16px;
             width: 16px;
             border-radius: 50%;
+            transition: background-color 0.2s ease;
         }
+        input[type="range"]::-moz-range-thumb {
+            border: none;
+            background-color: var(--text-color);
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            transition: background-color 0.2s ease;
+        }
+        input[type="range"]:hover::-webkit-slider-thumb { background-color: var(--hover-color); }
+        input[type="range"]:hover::-moz-range-thumb { background-color: var(--hover-color); }
         
-        #seek-bar { flex-grow: 1; }
-        #volume-bar { max-width: 100px; }
+        #volume-bar { max-width: 100px; display: none; /* Hidden on mobile by default */ }
 
+        /* Responsive Mobile Styles */
+        @media (min-width: 600px) {
+            #persistent-audio-player {
+                flex-direction: row;
+                height: 70px;
+                padding: 0 20px;
+            }
+            .player-controls {
+                flex-direction: row;
+                gap: 15px;
+            }
+            #seek-bar, .time-display-wrapper {
+                display: none; /* Hide these on desktop row */
+            }
+            .controls-main {
+                flex-grow: 1;
+            }
+            #volume-bar {
+                display: block; /* Show volume on desktop */
+            }
+            .time-display.desktop {
+                display: block !important;
+                font-family: var(--font-mono);
+                font-size: 0.8rem;
+                min-width: 45px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -363,18 +442,28 @@
         </div>
     </div>
 
+    <!-- Premium Player HTML -->
     <div id="persistent-audio-player">
-        <canvas id="audio-visualizer"></canvas>
-        <div class="player-controls">
-            <button id="play-pause-btn">&#9658;</button>
-            <span id="current-time" class="time-display">0:00</span>
-            <input type="range" id="seek-bar" value="0" step="1">
-            <span id="duration" class="time-display">0:00</span>
-            <input type="range" id="volume-bar" value="1" min="0" max="1" step="0.01">
+        <div class="player-top-row">
+            <canvas id="audio-visualizer"></canvas>
+            <div class="player-controls">
+                <div class="controls-main">
+                    <button id="play-pause-btn">&#9658;</button>
+                    <div class="track-info">Ruminate</div>
+                    <span id="current-time-desktop" class="time-display desktop" style="display: none;">0:00</span>
+                    <input type="range" id="seek-bar-desktop" class="desktop-seek" value="0" step="1" style="flex-grow: 1; display: none;">
+                    <span id="duration-desktop" class="time-display desktop" style="display: none;">0:00</span>
+                    <input type="range" id="volume-bar" value="1" min="0" max="1" step="0.01">
+                </div>
+            </div>
+        </div>
+        <input type="range" id="seek-bar-mobile" value="0" step="1" style="width: 100%; margin-top: 5px;">
+        <div class="time-display-wrapper">
+            <span id="current-time-mobile">0:00</span>
+            <span id="duration-mobile">0:00</span>
         </div>
         <audio id="track" src="music/ruminate.mp3" crossOrigin="anonymous"></audio>
     </div>
-
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -382,6 +471,7 @@
             let allPosts = [];
             let chaosInterval; 
 
+            // --- Site Elements ---
             const anchorNav = document.getElementById('anchor-nav');
             const filterNav = document.getElementById('filter-nav');
             const dynamicField = document.getElementById('dynamic-field');
@@ -390,14 +480,22 @@
             const closeBtn = document.getElementById('modal-close-btn');
             const binarySignature = document.getElementById('binary-signature');
             
+            // --- Player Elements ---
             const player = document.getElementById('persistent-audio-player');
             const track = document.getElementById('track');
             const playPauseBtn = document.getElementById('play-pause-btn');
-            const seekBar = document.getElementById('seek-bar');
             const volumeBar = document.getElementById('volume-bar');
-            const currentTimeEl = document.getElementById('current-time');
-            const durationEl = document.getElementById('duration');
+
+            // Desktop Seek
+            const seekBarDesktop = document.getElementById('seek-bar-desktop');
+            const currentTimeDesktop = document.getElementById('current-time-desktop');
+            const durationDesktop = document.getElementById('duration-desktop');
             
+            // Mobile Seek
+            const seekBarMobile = document.getElementById('seek-bar-mobile');
+            const currentTimeMobile = document.getElementById('current-time-mobile');
+            const durationMobile = document.getElementById('duration-mobile');
+
             const canvas = document.getElementById('audio-visualizer');
             const canvasCtx = canvas.getContext('2d');
 
@@ -445,48 +543,52 @@
                 canvas.width = canvas.offsetWidth;
                 canvas.height = canvas.offsetHeight;
                 
-                playPauseBtn.addEventListener('click', () => {
+                function playAudio() {
                     if (audioCtx.state === 'suspended') audioCtx.resume();
-                    if (track.paused) {
-                        track.play();
-                        playPauseBtn.innerHTML = '&#10074;&#10074;';
-                        logoImage.style.animationPlayState = 'paused';
-                    } else {
-                        track.pause();
-                        playPauseBtn.innerHTML = '&#9658;';
-                        logoImage.style.animationPlayState = 'running';
-                    }
-                });
+                    track.play();
+                    playPauseBtn.innerHTML = '&#10074;&#10074;';
+                    logoImage.style.animationPlayState = 'paused';
+                    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
+                }
+
+                function pauseAudio() {
+                    track.pause();
+                    playPauseBtn.innerHTML = '&#9658;';
+                    logoImage.style.animationPlayState = 'running';
+                    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
+                }
+                
+                playPauseBtn.addEventListener('click', () => track.paused ? playAudio() : pauseAudio());
 
                 volumeBar.addEventListener('input', (e) => track.volume = e.target.value);
-                seekBar.addEventListener('input', (e) => track.currentTime = e.target.value);
                 
-                // ROBUST DURATION FIX: Wait until the browser can play the whole file.
-                track.addEventListener('canplaythrough', () => {
-                    if (track.duration && isFinite(track.duration)) {
-                        seekBar.max = track.duration;
-                        durationEl.textContent = formatTime(track.duration);
-                    }
-                });
-                // Fallback for some browsers
-                track.addEventListener('loadedmetadata', () => {
-                     if (track.duration && isFinite(track.duration)) {
-                        seekBar.max = track.duration;
-                        durationEl.textContent = formatTime(track.duration);
-                    }
-                });
+                function handleSeekInput(e) {
+                    track.currentTime = e.target.value;
+                }
+                seekBarDesktop.addEventListener('input', handleSeekInput);
+                seekBarMobile.addEventListener('input', handleSeekInput);
 
+                const setDuration = () => {
+                    if (track.duration && isFinite(track.duration)) {
+                        const duration = track.duration;
+                        seekBarDesktop.max = duration;
+                        seekBarMobile.max = duration;
+                        durationDesktop.textContent = formatTime(duration);
+                        durationMobile.textContent = formatTime(duration);
+                    }
+                };
+                track.addEventListener('canplaythrough', setDuration);
+                track.addEventListener('loadedmetadata', setDuration);
 
                 track.addEventListener('timeupdate', () => {
-                    seekBar.value = track.currentTime;
-                    currentTimeEl.textContent = formatTime(track.currentTime);
+                    const currentTime = track.currentTime;
+                    seekBarDesktop.value = currentTime;
+                    seekBarMobile.value = currentTime;
+                    currentTimeDesktop.textContent = formatTime(currentTime);
+                    currentTimeMobile.textContent = formatTime(currentTime);
                 });
 
-                track.addEventListener('ended', () => {
-                     playPauseBtn.innerHTML = '&#9658;';
-                     seekBar.value = 0;
-                     logoImage.style.animationPlayState = 'running';
-                });
+                track.addEventListener('ended', pauseAudio);
 
                 function formatTime(seconds) {
                     const minutes = Math.floor(seconds / 60);
@@ -494,15 +596,21 @@
                     return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
                 }
 
+                if ('mediaSession' in navigator) {
+                    navigator.mediaSession.metadata = new MediaMetadata({
+                        title: 'Ruminate', artist: 'LUCTHELEO', album: 'Signal Through The Static',
+                        artwork: [ { src: 'android-chrome-192x192.png', sizes: '192x192', type: 'image/png' }, { src: 'android-chrome-512x512.png', sizes: '512x512', type: 'image/png' } ]
+                    });
+                    navigator.mediaSession.setActionHandler('play', playAudio);
+                    navigator.mediaSession.setActionHandler('pause', pauseAudio);
+                }
+
                 function draw() {
                     requestAnimationFrame(draw);
                     
-                    analyser.getByteTimeDomainData(timeData);
                     analyser.getByteFrequencyData(freqData);
-
                     canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-
-                    // --- Audio Reactive Logic ---
+                    
                     if (!track.paused) {
                         const bassFrequencies = freqData.slice(0, Math.floor(bufferLength * 0.2));
                         const averageBass = bassFrequencies.reduce((a, b) => a + b, 0) / bassFrequencies.length;
@@ -513,36 +621,37 @@
                         bgVideo.style.filter = `grayscale(90%) contrast(150%) brightness(${0.4 + normalizedBass * 0.2})`;
                     }
 
-                    // --- New "Signal & Static" Visualizer ---
-                    canvasCtx.lineWidth = 2;
-                    canvasCtx.strokeStyle = 'rgba(224, 224, 224, 0.5)';
+                    // --- NEW "Signal Wave" Visualizer ---
+                    const barWidth = canvas.width / bufferLength;
+                    const centerY = canvas.height / 2;
+                    let barHeight;
+
+                    // Center line
                     canvasCtx.beginPath();
-
-                    const sliceWidth = canvas.width * 1.0 / bufferLength;
-                    let x = 0;
-
-                    for (let i = 0; i < bufferLength; i++) {
-                        const v = timeData[i] / 128.0;
-                        const y = v * canvas.height / 2;
-                        if (i === 0) {
-                            canvasCtx.moveTo(x, y);
-                        } else {
-                            canvasCtx.lineTo(x, y);
-                        }
-                        x += sliceWidth;
-                    }
-                    canvasCtx.lineTo(canvas.width, canvas.height / 2);
+                    canvasCtx.moveTo(0, centerY);
+                    canvasCtx.lineTo(canvas.width, centerY);
+                    canvasCtx.strokeStyle = 'rgba(224, 224, 224, 0.2)';
+                    canvasCtx.lineWidth = 1;
                     canvasCtx.stroke();
                     
-                    // Add static particles that react to bass
-                    const bassPulse = freqData[2] / 255; // Sample a low frequency bin for "kick"
-                    if (bassPulse > 0.8) {
-                        for (let i = 0; i < 10; i++) {
-                            const x = Math.random() * canvas.width;
-                            const y = Math.random() * canvas.height;
-                            const size = Math.random() * 2;
-                            canvasCtx.fillStyle = 'rgba(224, 224, 224, 0.7)';
-                            canvasCtx.fillRect(x, y, size, size);
+                    for (let i = 0; i < bufferLength; i++) {
+                        barHeight = (freqData[i] / 2) * (canvas.height / 255);
+                        
+                        const r = 224;
+                        const g = 224;
+                        const b = 224;
+
+                        // Mirrored bars from center
+                        canvasCtx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.6)`;
+                        canvasCtx.fillRect(i * barWidth, centerY - barHeight, barWidth, barHeight);
+                        canvasCtx.fillRect(i * barWidth, centerY, barWidth, barHeight);
+
+                        // Glowing effect for peaks
+                        if(barHeight > canvas.height * 0.4) {
+                             canvasCtx.shadowBlur = 10;
+                             canvasCtx.shadowColor = 'rgba(255, 255, 255, 0.5)';
+                        } else {
+                            canvasCtx.shadowBlur = 0;
                         }
                     }
                 }
@@ -551,43 +660,16 @@
                 isPlayerInitialized = true;
             }
 
+            // --- Simplified Site Logic (No Changes) ---
             function getContentType(id) { return id.split('_')[0]; }
-
-            function renderFilterNav() {
-                const contentTypes = [...new Set(allPosts.map(post => getContentType(post.id)))];
-                let filters = `<a href="#" class="filter-link active" data-filter="all">LTL</a>`;
-                contentTypes.sort().forEach(type => filters += `<a href="#" class="filter-link" data-filter="${type}">${type}</a>`);
-                filterNav.innerHTML = filters;
-                filterNav.addEventListener('click', e => {
-                    e.preventDefault();
-                    if (e.target.classList.contains('filter-link')) {
-                        const filter = e.target.dataset.filter;
-                        document.querySelector('#filter-nav .active').classList.remove('active');
-                        e.target.classList.add('active');
-                        const filteredPosts = filter === 'all' ? allPosts : allPosts.filter(post => getContentType(post.id) === filter);
-                        renderLinks(filteredPosts, filter);
-                    }
-                });
-            }
-
-            function renderLinks(postsToRender, activeFilter) {
-                const scrollIndicator = document.getElementById('scroll-indicator');
-                Array.from(anchorNav.children).forEach(child => { if (child.id !== 'scroll-indicator') anchorNav.removeChild(child); });
-                dynamicField.innerHTML = '';
-                contentData.filter(item => item.isAnchor).forEach(anchor => { const a = document.createElement('a'); a.textContent = anchor.id; a.className = 'nav-link'; a.dataset.id = anchor.id; anchorNav.appendChild(a); });
-                if (activeFilter === 'all') { dynamicField.classList.remove('filtered-view'); document.getElementById('interaction-instructions').style.opacity = '0.7'; startChaosInterval(); const fieldRect = dynamicField.getBoundingClientRect(); const placedRects = []; postsToRender.forEach(item => { let newRect, attempts = 0, hasCollision = true; const tempLink = document.createElement('a'); tempLink.textContent = item.id; tempLink.className = 'nav-link'; tempLink.style.visibility = 'hidden'; dynamicField.appendChild(tempLink); const linkWidth = tempLink.offsetWidth; const linkHeight = tempLink.offsetHeight; dynamicField.removeChild(tempLink); if (fieldRect.width <= linkWidth || fieldRect.height <= linkHeight) return; while (hasCollision && attempts < 500) { const randomX = Math.random() * (fieldRect.width - linkWidth); const randomY = Math.random() * (fieldRect.height - linkHeight); newRect = { left: randomX, top: randomY, right: randomX + linkWidth, bottom: randomY + linkHeight }; hasCollision = placedRects.some(rect => (rect.right + 30 >= newRect.left && rect.left <= newRect.right + 30 && rect.bottom + 30 >= newRect.top && rect.top <= newRect.bottom + 30)); attempts++; } if (!hasCollision) { const a = document.createElement('a'); a.textContent = item.id; a.className = 'nav-link'; a.dataset.id = item.id; a.style.left = `${newRect.left}px`; a.style.top = `${newRect.top}px`; dynamicField.appendChild(a); placedRects.push(newRect); } });
-                } else { dynamicField.classList.add('filtered-view'); document.getElementById('interaction-instructions').style.opacity = '0'; stopChaosInterval(); postsToRender.forEach(item => { const a = document.createElement('a'); a.textContent = item.id; a.className = 'nav-link'; a.dataset.id = item.id; dynamicField.appendChild(a); }); }
-                setTimeout(() => { if (document.body.scrollHeight > window.innerHeight) scrollIndicator.style.opacity = '0.5'; else scrollIndicator.style.opacity = '0'; }, 100);
-            }
-            
+            function renderFilterNav() { const contentTypes = [...new Set(allPosts.map(post => getContentType(post.id)))]; let filters = `<a href="#" class="filter-link active" data-filter="all">LTL</a>`; contentTypes.sort().forEach(type => filters += `<a href="#" class="filter-link" data-filter="${type}">${type}</a>`); filterNav.innerHTML = filters; filterNav.addEventListener('click', e => { e.preventDefault(); if (e.target.classList.contains('filter-link')) { const filter = e.target.dataset.filter; document.querySelector('#filter-nav .active').classList.remove('active'); e.target.classList.add('active'); const filteredPosts = filter === 'all' ? allPosts : allPosts.filter(post => getContentType(post.id) === filter); renderLinks(filteredPosts, filter); } }); }
+            function renderLinks(postsToRender, activeFilter) { const scrollIndicator = document.getElementById('scroll-indicator'); Array.from(anchorNav.children).forEach(child => { if (child.id !== 'scroll-indicator') anchorNav.removeChild(child); }); dynamicField.innerHTML = ''; contentData.filter(item => item.isAnchor).forEach(anchor => { const a = document.createElement('a'); a.textContent = anchor.id; a.className = 'nav-link'; a.dataset.id = anchor.id; anchorNav.appendChild(a); }); if (activeFilter === 'all') { dynamicField.classList.remove('filtered-view'); document.getElementById('interaction-instructions').style.opacity = '0.7'; startChaosInterval(); const fieldRect = dynamicField.getBoundingClientRect(); const placedRects = []; postsToRender.forEach(item => { let newRect, attempts = 0, hasCollision = true; const tempLink = document.createElement('a'); tempLink.textContent = item.id; tempLink.className = 'nav-link'; tempLink.style.visibility = 'hidden'; dynamicField.appendChild(tempLink); const linkWidth = tempLink.offsetWidth; const linkHeight = tempLink.offsetHeight; dynamicField.removeChild(tempLink); if (fieldRect.width <= linkWidth || fieldRect.height <= linkHeight) return; while (hasCollision && attempts < 500) { const randomX = Math.random() * (fieldRect.width - linkWidth); const randomY = Math.random() * (fieldRect.height - linkHeight); newRect = { left: randomX, top: randomY, right: randomX + linkWidth, bottom: randomY + linkHeight }; hasCollision = placedRects.some(rect => (rect.right + 30 >= newRect.left && rect.left <= newRect.right + 30 && rect.bottom + 30 >= newRect.top && rect.top <= newRect.bottom + 30)); attempts++; } if (!hasCollision) { const a = document.createElement('a'); a.textContent = item.id; a.className = 'nav-link'; a.dataset.id = item.id; a.style.left = `${newRect.left}px`; a.style.top = `${newRect.top}px`; dynamicField.appendChild(a); placedRects.push(newRect); } }); } else { dynamicField.classList.add('filtered-view'); document.getElementById('interaction-instructions').style.opacity = '0'; stopChaosInterval(); postsToRender.forEach(item => { const a = document.createElement('a'); a.textContent = item.id; a.className = 'nav-link'; a.dataset.id = item.id; dynamicField.appendChild(a); }); } setTimeout(() => { if (document.body.scrollHeight > window.innerHeight) scrollIndicator.style.opacity = '0.5'; else scrollIndicator.style.opacity = '0'; }, 100); }
             function regenerateChaosGrid() { const links = dynamicField.querySelectorAll('.nav-link'); if (dynamicField.classList.contains('filtered-view') || links.length === 0) return; const fieldRect = dynamicField.getBoundingClientRect(); const placedRects = []; links.forEach(link => { let newRect, attempts = 0, hasCollision = true; const linkWidth = link.offsetWidth; const linkHeight = link.offsetHeight; while (hasCollision && attempts < 200) { const randomX = Math.random() * (fieldRect.width - linkWidth); const randomY = Math.random() * (fieldRect.height - linkHeight); newRect = { left: randomX, top: randomY, right: randomX + linkWidth, bottom: randomY + linkHeight }; hasCollision = placedRects.some(rect => (rect.right + 30 >= newRect.left && rect.left <= newRect.right + 30 && rect.bottom + 30 >= newRect.top && rect.top <= newRect.bottom + 30)); attempts++; } if (!hasCollision) { link.style.left = `${newRect.left}px`; link.style.top = `${newRect.top}px`; placedRects.push(newRect); } }); }
             function startChaosInterval() { stopChaosInterval(); chaosInterval = setInterval(regenerateChaosGrid, 15000); }
             function stopChaosInterval() { clearInterval(chaosInterval); chaosInterval = null; }
-
             function setupInteractionListeners() { let activeLink = null, isDragging = false, pressTimer; dynamicField.addEventListener('pointerdown', e => { const target = e.target.closest('.nav-link'); if (!target || dynamicField.classList.contains('filtered-view')) return; isDragging = false; pressTimer = setTimeout(() => { isDragging = true; activeLink = target; activeLink.classList.add('dragging'); document.body.classList.add('no-scroll'); }, 200); }); document.addEventListener('pointermove', e => { if (pressTimer && !isDragging) clearTimeout(pressTimer); if (!isDragging || !activeLink) return; e.preventDefault(); activeLink.style.left = `${e.clientX - activeLink.offsetWidth / 2}px`; activeLink.style.top = `${e.clientY - activeLink.offsetHeight / 2}px`; }); document.addEventListener('pointerup', e => { clearTimeout(pressTimer); if (isDragging) { activeLink.classList.remove('dragging'); document.body.classList.remove('no-scroll'); } else { const target = e.target.closest('.nav-link'); if (target && dynamicField.contains(target)) showModal(target.dataset.id); } isDragging = false; activeLink = null; }); document.addEventListener('click', e => { const target = e.target.closest('.nav-link'); if (target && (anchorNav.contains(target) || dynamicField.classList.contains('filtered-view'))) { e.preventDefault(); showModal(target.dataset.id); } }); }
-            
             function setupBinaryGlitch() { const originalText = binarySignature.textContent; let isGlitching = false; const triggerGlitch = () => { if (isGlitching) return; isGlitching = true; let glitchInterval = setInterval(() => { binarySignature.textContent = originalText.split('').map(char => (char === '1' || char === '0') ? (Math.random() > 0.5 ? '1' : '0') : char).join(''); }, 50); setTimeout(() => { clearInterval(glitchInterval); binarySignature.textContent = originalText; isGlitching = false; }, 1000); }; setInterval(triggerGlitch, 8000 + Math.random() * 5000); }
-
+            
             function showModal(contentId) {
                 const item = contentData.find(d => d.id === contentId);
                 if (item) {
@@ -598,10 +680,7 @@
                         if (track.paused) {
                             const playPromise = track.play();
                             if (playPromise !== undefined) {
-                                playPromise.then(() => {
-                                    playPauseBtn.innerHTML = '&#10074;&#10074;';
-                                    logoImage.style.animationPlayState = 'paused';
-                                }).catch(error => console.error("Audio autoplay failed:", error));
+                                playPromise.then(() => {}).catch(error => console.error("Audio autoplay failed:", error));
                             }
                         }
                     }
