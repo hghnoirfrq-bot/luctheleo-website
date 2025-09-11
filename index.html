@@ -373,7 +373,7 @@
             <span id="duration" class="time-display">0:00</span>
             <input type="range" id="volume-bar" value="1" min="0" max="1" step="0.01">
         </div>
-        <audio id="track" src="music/Ruminate.mp3"></audio>
+        <audio id="track" src="music/ruminate.mp3"></audio>
     </div>
 
 
@@ -568,11 +568,27 @@
                 if (item) {
                     if (contentId === 'MNFST') {
                         if (!isPlayerInitialized) initializeAudioPlayer();
+
+                        // Explicitly resume the AudioContext on user interaction.
+                        // This is the key fix for browser autoplay policies.
+                        if (audioCtx && audioCtx.state === 'suspended') {
+                            audioCtx.resume();
+                        }
+                        
                         player.style.display = 'flex';
+                        
                         if (track.paused) {
-                            track.play();
-                            playPauseBtn.innerHTML = '&#10074;&#10074;';
-                            logoImage.style.animationPlayState = 'paused';
+                            const playPromise = track.play();
+                            if (playPromise !== undefined) {
+                                playPromise.then(_ => {
+                                    // Autoplay started!
+                                    playPauseBtn.innerHTML = '&#10074;&#10074;';
+                                    logoImage.style.animationPlayState = 'paused';
+                                }).catch(error => {
+                                    // Autoplay was prevented. Log error for debugging.
+                                    console.error("Audio autoplay failed:", error);
+                                });
+                            }
                         }
                     }
                     let finalContent = item.content;
@@ -595,4 +611,5 @@
     </script>
 </body>
 </html>
+
 
