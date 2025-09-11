@@ -68,7 +68,6 @@
             --text-color: #E0E0E0;
             --link-color: #B0B0B0;
             --hover-color: #FFFFFF;
-            /* UPDATED FONT VARIABLES */
             --font-mono: 'Roboto Mono', monospace;
             --font-sans: 'Inter', sans-serif;
         }
@@ -79,10 +78,11 @@
             width: 100%;
             background-color: transparent; 
             color: var(--text-color);
-            /* Base font is now the clean sans-serif */
             font-family: var(--font-sans);
             overflow-x: hidden;
             cursor: default;
+            /* Reserve space for the audio player */
+            padding-bottom: 70px;
         }
 
         body.no-scroll {
@@ -138,7 +138,6 @@
             100% { opacity: 1; filter: blur(0.5px) brightness(1); transform: scale(1); }
         }
 
-        /* UI elements get the mono font */
         header h1, header p, .nav-link, #interaction-instructions, footer, .filter-link, .modal-body h2, .modal-body h3 {
             font-family: var(--font-mono);
             font-weight: 400;
@@ -189,7 +188,7 @@
         }
 
         .nav-link {
-            position: absolute; text-decoration: none; font-size: 0.9rem; cursor: pointer; transition: color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease, opacity 0.5s ease, left 2s ease-in-out, top 2s ease-in-out; white-space: nowrap; padding: 5px; user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; -webkit-touch-callout: none; touch-action: manipulation;
+            position: absolute; text-decoration: none; font-size: 0.9rem; cursor: pointer; transition: color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease, opacity 0.5s ease, left 2s ease-in-out, top 2s ease-in-out; white-space: nowrap; padding: 5px; user-select: none;
         }
         
         .filtered-view .nav-link { position: static; }
@@ -222,7 +221,6 @@
         .modal-body h2 { margin-top: 0; }
         .modal-body h3 { color: var(--link-color); font-weight: normal; }
         
-        /* Paragraphs and lists use the clean sans-serif */
         .modal-body p, .modal-body li { 
             font-family: var(--font-sans);
             line-height: 1.8; 
@@ -239,9 +237,92 @@
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;
         }
         .modal-body .soundcloud-embed iframe { position: relative; height: 300px; }
+        
+        /* --- NEW: Persistent Audio Player Styles --- */
+        #persistent-audio-player {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            background-color: rgba(18, 18, 18, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 1px solid #333;
+            z-index: 2000;
+            display: none; /* Hidden by default */
+            align-items: center;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+        
+        #audio-visualizer {
+            height: 100%;
+            width: 200px;
+            margin-right: 20px;
+        }
+        
+        .player-controls {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            gap: 15px;
+        }
+        
+        #play-pause-btn {
+            background: none;
+            border: 1px solid var(--link-color);
+            color: var(--link-color);
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        #play-pause-btn:hover {
+            border-color: var(--hover-color);
+            color: var(--hover-color);
+        }
+        
+        .time-display {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            min-width: 45px;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            cursor: pointer;
+        }
+        input[type="range"]::-webkit-slider-runnable-track {
+            background: #444;
+            height: 4px;
+            border-radius: 4px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            margin-top: -6px; /* Centers thumb on track */
+            background-color: var(--link-color);
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+        }
+        
+        #seek-bar { flex-grow: 1; }
+        #volume-bar { max-width: 100px; }
+
     </style>
 </head>
 <body>
+    <!-- This is the main video background -->
     <div id="video-background-container">
         <video autoplay loop muted playsinline id="bg-video">
             <source src="videos/home_LA1.mp4" type="video/mp4">
@@ -249,6 +330,7 @@
         <div id="video-overlay"></div>
     </div>
    
+    <!-- The main site content -->
     <div class="container">
         <header>
              <div id="logo-container">
@@ -275,6 +357,7 @@
         </footer>
     </div>
 
+    <!-- The pop-up modal for content -->
     <div id="content-modal" class="modal">
         <div class="modal-content">
             <span id="modal-close-btn" class="modal-close">&times;</span>
@@ -282,6 +365,21 @@
             </div>
         </div>
     </div>
+
+    <!-- NEW: Persistent Audio Player HTML -->
+    <div id="persistent-audio-player">
+        <canvas id="audio-visualizer"></canvas>
+        <div class="player-controls">
+            <button id="play-pause-btn">&#9658;</button> <!-- Play icon -->
+            <span id="current-time" class="time-display">0:00</span>
+            <input type="range" id="seek-bar" value="0" step="1">
+            <span id="duration" class="time-display">0:00</span>
+            <input type="range" id="volume-bar" value="1" min="0" max="1" step="0.01">
+        </div>
+        <!-- The actual audio element is hidden but controlled by our UI -->
+        <audio id="track" src="audio/Ruminate.mp3"></audio>
+    </div>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -299,6 +397,24 @@
             const scrollIndicator = document.getElementById('scroll-indicator');
             const binarySignature = document.getElementById('binary-signature');
             
+            // --- NEW: Audio Player and Visualizer variables ---
+            const player = document.getElementById('persistent-audio-player');
+            const track = document.getElementById('track');
+            const playPauseBtn = document.getElementById('play-pause-btn');
+            const seekBar = document.getElementById('seek-bar');
+            const volumeBar = document.getElementById('volume-bar');
+            const currentTimeEl = document.getElementById('current-time');
+            const durationEl = document.getElementById('duration');
+            
+            const canvas = document.getElementById('audio-visualizer');
+            const canvasCtx = canvas.getContext('2d');
+            
+            let audioCtx;
+            let analyser;
+            let source;
+            let isPlayerInitialized = false;
+            // --- End of new variables ---
+
             async function initializeSite() {
                 try {
                     const response = await fetch('content.json');
@@ -315,9 +431,100 @@
                     startChaosInterval();
                 } catch (error) {
                     console.error("Failed to load content:", error);
-                    dynamicField.innerHTML = '<p style="color:red; text-align:center;">Error: Could not load site content. Please ensure content.json is in the same directory and you are running this from a web server.</p>';
+                    dynamicField.innerHTML = '<p style="color:red; text-align:center;">Error: Could not load site content.</p>';
                 }
             }
+            
+            // --- NEW: Function to initialize the audio player and visualizer ---
+            function initializeAudioPlayer() {
+                if (isPlayerInitialized) return;
+
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioCtx.createAnalyser();
+                source = audioCtx.createMediaElementSource(track);
+                
+                source.connect(analyser);
+                analyser.connect(audioCtx.destination);
+                
+                analyser.fftSize = 256;
+                const bufferLength = analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+
+                // Setup canvas
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+                
+                // Player controls logic
+                playPauseBtn.addEventListener('click', () => {
+                    if (audioCtx.state === 'suspended') {
+                        audioCtx.resume();
+                    }
+                    if (track.paused) {
+                        track.play();
+                        playPauseBtn.innerHTML = '&#10074;&#10074;'; // Pause icon
+                    } else {
+                        track.pause();
+                        playPauseBtn.innerHTML = '&#9658;'; // Play icon
+                    }
+                });
+
+                volumeBar.addEventListener('input', (e) => {
+                    track.volume = e.target.value;
+                });
+
+                seekBar.addEventListener('input', (e) => {
+                    track.currentTime = e.target.value;
+                });
+
+                track.addEventListener('loadedmetadata', () => {
+                    seekBar.max = track.duration;
+                    durationEl.textContent = formatTime(track.duration);
+                });
+
+                track.addEventListener('timeupdate', () => {
+                    seekBar.value = track.currentTime;
+                    currentTimeEl.textContent = formatTime(track.currentTime);
+                });
+
+                track.addEventListener('ended', () => {
+                     playPauseBtn.innerHTML = '&#9658;'; // Play icon
+                     seekBar.value = 0;
+                });
+
+                function formatTime(seconds) {
+                    const minutes = Math.floor(seconds / 60);
+                    const secs = Math.floor(seconds % 60);
+                    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+                }
+
+                // Visualizer draw loop
+                function draw() {
+                    requestAnimationFrame(draw);
+                    analyser.getByteFrequencyData(dataArray);
+
+                    canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+                    
+                    const barWidth = (canvas.width / bufferLength) * 1.5;
+                    let x = 0;
+                    
+                    for(let i = 0; i < bufferLength; i++) {
+                        const barHeight = (dataArray[i] / 255) * canvas.height * 0.8;
+                        
+                        // Create a "signal" line with some noise
+                        const y = canvas.height / 2 + (dataArray[i] - 128) * 0.5;
+                        const jitter = (Math.random() - 0.5) * (dataArray[i] / 255) * 5;
+
+                        canvasCtx.fillStyle = 'rgba(176, 176, 176, 0.5)'; // --link-color
+                        canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+                        
+                        x += barWidth + 1;
+                    }
+                }
+                
+                draw();
+                isPlayerInitialized = true;
+            }
+
 
             function getContentType(id) {
                 return id.split('_')[0];
@@ -325,7 +532,6 @@
 
             function renderFilterNav() {
                 const contentTypes = [...new Set(allPosts.map(post => getContentType(post.id)))];
-                
                 let filters = `<a href="#" class="filter-link active" data-filter="all">LTL</a>`;
                 contentTypes.sort().forEach(type => {
                     filters += `<a href="#" class="filter-link" data-filter="${type}">${type}</a>`;
@@ -336,14 +542,11 @@
                     e.preventDefault();
                     if (e.target.classList.contains('filter-link')) {
                         const filter = e.target.dataset.filter;
-                        
                         document.querySelector('#filter-nav .active').classList.remove('active');
                         e.target.classList.add('active');
-
                         const filteredPosts = filter === 'all' 
                             ? allPosts 
                             : allPosts.filter(post => getContentType(post.id) === filter);
-                        
                         renderLinks(filteredPosts, filter);
                     }
                 });
@@ -351,17 +554,12 @@
 
             function rectsOverlap(rect1, rect2) {
                 const padding = 30; 
-                return !(rect1.right + padding < rect2.left ||
-                         rect1.left > rect2.right + padding ||
-                         rect1.bottom + padding < rect2.top ||
-                         rect1.top > rect2.bottom + padding);
+                return !(rect1.right + padding < rect2.left || rect1.left > rect2.right + padding || rect1.bottom + padding < rect2.top || rect1.top > rect2.bottom + padding);
             }
 
             function renderLinks(postsToRender, activeFilter) {
                 Array.from(anchorNav.children).forEach(child => {
-                    if (child.id !== 'scroll-indicator') {
-                        anchorNav.removeChild(child);
-                    }
+                    if (child.id !== 'scroll-indicator') anchorNav.removeChild(child);
                 });
                 dynamicField.innerHTML = '';
                 
@@ -377,20 +575,14 @@
                     dynamicField.classList.remove('filtered-view');
                     interactionInstructions.style.opacity = '0.7';
                     startChaosInterval();
-
                     const baseHeight = 80;
                     const extraHeightPerTenLinks = 25;
-                    const dynamicHeight = baseHeight + (Math.floor(postsToRender.length / 10) * extraHeightPerTenLinks);
-                    dynamicField.style.height = `${dynamicHeight}vh`;
-
+                    dynamicField.style.height = `${baseHeight + (Math.floor(postsToRender.length / 10) * extraHeightPerTenLinks)}vh`;
                     const fieldRect = dynamicField.getBoundingClientRect();
                     const placedRects = [];
                     
                     postsToRender.forEach(item => {
-                        let newRect;
-                        let attempts = 0;
-                        let hasCollision = true;
-
+                        let newRect, attempts = 0, hasCollision = true;
                         const tempLink = document.createElement('a');
                         tempLink.textContent = item.id;
                         tempLink.className = 'nav-link';
@@ -399,18 +591,14 @@
                         const linkWidth = tempLink.offsetWidth;
                         const linkHeight = tempLink.offsetHeight;
                         dynamicField.removeChild(tempLink);
-                        
                         if (fieldRect.width <= linkWidth || fieldRect.height <= linkHeight) return;
-
                         while (hasCollision && attempts < 500) {
                             const randomX = Math.random() * (fieldRect.width - linkWidth);
                             const randomY = Math.random() * (fieldRect.height - linkHeight);
-                            
                             newRect = { left: randomX, top: randomY, right: randomX + linkWidth, bottom: randomY + linkHeight };
                             hasCollision = placedRects.some(rect => rectsOverlap(rect, newRect));
                             attempts++;
                         }
-
                         if (!hasCollision) {
                             const a = document.createElement('a');
                             a.textContent = item.id;
@@ -422,12 +610,10 @@
                             placedRects.push(newRect);
                         }
                     });
-
                 } else {
                     dynamicField.classList.add('filtered-view');
                     interactionInstructions.style.opacity = '0';
                     stopChaosInterval();
-                    
                     postsToRender.forEach(item => {
                          const a = document.createElement('a');
                         a.textContent = item.id;
@@ -436,40 +622,28 @@
                         dynamicField.appendChild(a);
                     });
                 }
-                
                 setTimeout(() => {
-                    if (document.body.scrollHeight > window.innerHeight) {
-                        scrollIndicator.style.opacity = '0.5';
-                    } else {
-                        scrollIndicator.style.opacity = '0';
-                    }
+                    if (document.body.scrollHeight > window.innerHeight) scrollIndicator.style.opacity = '0.5';
+                    else scrollIndicator.style.opacity = '0';
                 }, 100);
             }
             
             function regenerateChaosGrid() {
                 if (dynamicField.classList.contains('filtered-view')) return;
-
                 const links = dynamicField.querySelectorAll('.nav-link');
                 const fieldRect = dynamicField.getBoundingClientRect();
                 const placedRects = [];
-
                 links.forEach(link => {
-                    let newRect;
-                    let attempts = 0;
-                    let hasCollision = true;
-                    
+                    let newRect, attempts = 0, hasCollision = true;
                     const linkWidth = link.offsetWidth;
                     const linkHeight = link.offsetHeight;
-
                     while (hasCollision && attempts < 200) {
                         const randomX = Math.random() * (fieldRect.width - linkWidth);
                         const randomY = Math.random() * (fieldRect.height - linkHeight);
-                        
                         newRect = { left: randomX, top: randomY, right: randomX + linkWidth, bottom: randomY + linkHeight };
                         hasCollision = placedRects.some(rect => rectsOverlap(rect, newRect));
                         attempts++;
                     }
-
                     if (!hasCollision) {
                         link.style.left = `${newRect.left}px`;
                         link.style.top = `${newRect.top}px`;
@@ -482,85 +656,57 @@
                 stopChaosInterval(); 
                 chaosInterval = setInterval(regenerateChaosGrid, 15000);
             }
-
             function stopChaosInterval() {
                 clearInterval(chaosInterval);
                 chaosInterval = null;
             }
 
             function setupInteractionListeners() {
-                let activeLink = null;
-                let isDragging = false;
-                let pressTimer;
-                
-                let startX, startY; 
-                let initialLinkLeft, initialLinkTop;
-
+                let activeLink = null, isDragging = false, pressTimer, startX, startY, initialLinkLeft, initialLinkTop;
                 function onPointerDown(e) {
                     const target = e.target.closest('.nav-link');
                     if (!target || !dynamicField.contains(target) || dynamicField.classList.contains('filtered-view')) return;
-                    
                     startX = e.clientX;
                     startY = e.clientY;
                     isDragging = false; 
-
                     pressTimer = setTimeout(() => {
                         isDragging = true;
                         activeLink = target;
                         activeLink.classList.add('dragging');
                         document.body.classList.add('no-scroll');
-                        
                         initialLinkLeft = activeLink.offsetLeft;
                         initialLinkTop = activeLink.offsetTop;
                     }, 200);
                 }
-
                 function onPointerMove(e) {
                     if (pressTimer && !isDragging) {
-                        const moveThreshold = 10;
-                        if (Math.abs(e.clientX - startX) > moveThreshold || Math.abs(e.clientY - startY) > moveThreshold) {
-                            clearTimeout(pressTimer);
-                        }
+                        if (Math.abs(e.clientX - startX) > 10 || Math.abs(e.clientY - startY) > 10) clearTimeout(pressTimer);
                     }
-                    
                     if (!isDragging || !activeLink) return;
                     e.preventDefault();
-
                     const deltaX = e.clientX - startX;
                     const deltaY = e.clientY - startY;
-
                     const newLeft = initialLinkLeft + deltaX;
                     const newTop = initialLinkTop + deltaY;
-
                     const fieldRect = dynamicField.getBoundingClientRect();
-                    const constrainedX = Math.max(0, Math.min(newLeft, fieldRect.width - activeLink.offsetWidth));
-                    const constrainedY = Math.max(0, Math.min(newTop, fieldRect.height - activeLink.offsetHeight));
-
-                    activeLink.style.left = `${constrainedX}px`;
-                    activeLink.style.top = `${constrainedY}px`;
+                    activeLink.style.left = `${Math.max(0, Math.min(newLeft, fieldRect.width - activeLink.offsetWidth))}px`;
+                    activeLink.style.top = `${Math.max(0, Math.min(newTop, fieldRect.height - activeLink.offsetHeight))}px`;
                 }
-
                 function onPointerUp(e) {
                     clearTimeout(pressTimer);
-                    
                     if (isDragging) {
                         activeLink.classList.remove('dragging');
                         document.body.classList.remove('no-scroll');
                     } else {
                         const target = e.target.closest('.nav-link');
-                        if (target && dynamicField.contains(target)) {
-                             showModal(target.dataset.id);
-                        }
+                        if (target && dynamicField.contains(target)) showModal(target.dataset.id);
                     }
-                    
                     isDragging = false;
                     activeLink = null;
                 }
-                
                 dynamicField.addEventListener('pointerdown', onPointerDown);
                 dynamicField.addEventListener('pointermove', onPointerMove, { passive: false });
                 document.addEventListener('pointerup', onPointerUp);
-                 
                 document.addEventListener('click', e => {
                     const target = e.target.closest('.nav-link');
                     if (target && (anchorNav.contains(target) || dynamicField.classList.contains('filtered-view'))) {
@@ -573,35 +719,38 @@
             function setupBinaryGlitch() {
                 const originalText = binarySignature.textContent;
                 let isGlitching = false;
-
                 const triggerGlitch = () => {
                     if (isGlitching) return;
                     isGlitching = true;
-                    
                     let glitchInterval = setInterval(() => {
-                        const glitchText = originalText.split('').map(char => {
-                            if (char === '1' || char === '0') {
-                                return Math.random() > 0.5 ? '1' : '0';
-                            }
-                            return char;
-                        }).join('');
-                        binarySignature.textContent = glitchText;
+                        binarySignature.textContent = originalText.split('').map(char => (char === '1' || char === '0') ? (Math.random() > 0.5 ? '1' : '0') : char).join('');
                     }, 50);
-
                     setTimeout(() => {
                         clearInterval(glitchInterval);
                         binarySignature.textContent = originalText;
                         isGlitching = false;
                     }, 1000);
                 };
-                
-                // Periodically trigger the glitch on its own
-                setInterval(triggerGlitch, 8000 + Math.random() * 5000); // Glitch every 8-13 seconds
+                setInterval(triggerGlitch, 8000 + Math.random() * 5000);
             }
 
             function showModal(contentId) {
+                // --- MODIFIED showModal function ---
                 const item = contentData.find(d => d.id === contentId);
                 if (item) {
+                    // Check if the MNFST link was clicked
+                    if (contentId === 'MNFST') {
+                        if (!isPlayerInitialized) {
+                            initializeAudioPlayer();
+                        }
+                        // Autoplay logic
+                        player.style.display = 'flex';
+                        if (track.paused) {
+                            track.play();
+                            playPauseBtn.innerHTML = '&#10074;&#10074;'; // Pause icon
+                        }
+                    }
+                    
                     let finalContent = item.content;
                     if (item.type === 'post' && !item.content.includes('<h2>')) {
                        finalContent = `<h2>${item.id}</h2>` + item.content;
