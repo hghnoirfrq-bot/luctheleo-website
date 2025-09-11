@@ -11,7 +11,7 @@
     <link rel="icon" href="/favicon.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
         /* --- Video Background Styles --- */
@@ -69,7 +69,8 @@
             --link-color: #B0B0B0;
             --hover-color: #FFFFFF;
             /* UPDATED FONT VARIABLES */
-            --font-main: 'Jost', sans-serif;
+            --font-mono: 'Roboto Mono', monospace;
+            --font-sans: 'Inter', sans-serif;
         }
 
         html, body {
@@ -78,8 +79,8 @@
             width: 100%;
             background-color: transparent; 
             color: var(--text-color);
-            /* UPDATED FONT FAMILY */
-            font-family: var(--font-main);
+            /* Base font is now the clean sans-serif */
+            font-family: var(--font-sans);
             overflow-x: hidden;
             cursor: default;
         }
@@ -137,8 +138,9 @@
             100% { opacity: 1; filter: blur(0.5px) brightness(1); transform: scale(1); }
         }
 
-        header h1, header p, .nav-link, #interaction-instructions, footer, .filter-link {
-            font-family: var(--font-main);
+        /* UI elements get the mono font */
+        header h1, header p, .nav-link, #interaction-instructions, footer, .filter-link, .modal-body h2, .modal-body h3 {
+            font-family: var(--font-mono);
             font-weight: 400;
             letter-spacing: 1px;
         }
@@ -219,7 +221,14 @@
         .modal-close:hover { color: var(--hover-color); }
         .modal-body h2 { margin-top: 0; }
         .modal-body h3 { color: var(--link-color); font-weight: normal; }
-        .modal-body p, .modal-body li { line-height: 1.8; font-size: 1rem; }
+        
+        /* Paragraphs and lists use the clean sans-serif */
+        .modal-body p, .modal-body li { 
+            font-family: var(--font-sans);
+            line-height: 1.8; 
+            font-size: 1rem; 
+        }
+
         .modal-body a { color: var(--hover-color); text-decoration: underline; }
 
         .modal-body .embed-container {
