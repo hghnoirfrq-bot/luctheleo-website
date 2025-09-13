@@ -36,6 +36,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let rainParticles = [];
     const currencySymbols = ['$', '€', '£', '¥', '₩', '₹', '₽', '₿', 'Ξ'];
     
+    // --- PERFORMANCE FIX: ANIMATED CACHE ---
+    // We create multiple pre-rendered frames of the static instead of one.
+    let staticGridCaches = [];
+    const CACHE_FRAMES = 8; // Number of animation frames to generate
+    let currentCacheFrame = 0;
+
     // Visualizer-specific variables
     let asciiGrid = [], gridWidth, gridHeight, charSize;
     const autoglyphChars = "01";
@@ -119,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
         analyser.connect(audioCtx.destination);
         analyser.fftSize = 256;
         
-        resizeCanvas();
+        resizeCanvas(); // This will call initializeAsciiGrid, which builds the cache
         window.addEventListener('resize', resizeCanvas);
         
         playPauseBtn.addEventListener('click', () => {
@@ -219,7 +225,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const normalizedBass = averageBass / 255;
 
         vCtx.globalAlpha = 0.1 + normalizedBass * 0.4;
-
         bgVideo.style.filter = `grayscale(90%) contrast(150%) brightness(${0.4 + normalizedBass * 0.2})`;
 
         if (midBoost > midBoostThreshold && lastMidBoost <= midBoostThreshold) relocateBrandedChars();
@@ -228,25 +233,33 @@ document.addEventListener('DOMContentLoaded', () => {
         vCtx.fillStyle = 'rgba(0, 0, 0, 0.15)';
         vCtx.fillRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
         
-        // --- MOBILE PERFORMANCE OPTIMIZATION ---
-        // Instead of drawing 15,000+ chars per frame, we draw 100 random ones.
-        // This gives the same "static noise" illusion for a fraction of the cost.
-        vCtx.fillStyle = `rgba(255, 255, 255, 0.05)`; 
-        vCtx.font = `${charSize}px 'Roboto Mono', monospace`;
-        let noiseAmount = 100;
-        for (let i = 0; i < noiseAmount; i++) {
-            let x = Math.random() * visualizerCanvas.width;
-            let y = Math.random() * visualizerCanvas.height;
-            let char = autoglyphChars[Math.floor(Math.random() * autoglyphChars.length)];
-            vCtx.fillText(char, x, y);
+        // --- PERFORMANCE FIX (ANIMATED CACHE) ---
+        // 1. Stamp one of our 8 pre-drawn static frames.
+        if (staticGridCaches.length > 0) {
+            vCtx.drawImage(staticGridCaches[currentCacheFrame], 0, 0);
+            currentCacheFrame = (currentCacheFrame + 1) % CACHE_FRAMES; // Cycle to the next frame
         }
-        // --- End of optimization (The old grid loop is removed) ---
+        // (The old, slow "for...for..." loop is now gone from here)
 
+        // 2. Draw lifelines (fast)
         if (midBoost > midBoostThreshold) lifelineOpacity = Math.min(0.3, lifelineOpacity + midBoost * 0.5);
         else lifelineOpacity = Math.max(0.0, lifelineOpacity - 0.01);
         
         if (brandedCells.length > 1) {
             vCtx.lineWidth = 0.5;
+            // This logic was missing, re-added to calculate lines
+            let allLineCoords = [];
+            for (let i = 0; i < brandedCells.length; i++) {
+                const start = brandedCells[i];
+                const otherChars = brandedCells.filter((_, idx) => idx !== i);
+                const numConnections = Math.min(3, otherChars.length);
+                while (otherChars.length > 0 && allLineCoords.filter(l => l.start === start).length < numConnections) {
+                    const randomIndex = Math.floor(Math.random() * otherChars.length);
+                    const end = otherChars.splice(randomIndex, 1)[0];
+                    allLineCoords.push({ start, end });
+                }
+            }
+            // Now draw them
             for (const line of allLineCoords) {
                 vCtx.beginPath();
                 vCtx.moveTo(line.start.initialX + charSize / 2, line.start.initialY + charSize / 2);
@@ -256,6 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
+        // 3. Draw only the branded cells on top (fast)
         brandedCells.forEach(cell => {
             let vocalIntensity = midBoost * 2;
             let finalOpacity = Math.min(1, vocalIntensity * 1.5);
@@ -271,8 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function drawRain(midBoost) {
         rainCtx.clearRect(0, 0, rainCanvas.width, rainCanvas.height);
         
-        // OPTIMIZATION: Reduced particle generation slightly for mobile
-        if (Math.random() < midBoost * 0.4) {
+        if (Math.random() < midBoost * 0.5) { // Tuned particle rate
             rainParticles.push({
                 x: Math.random() * rainCanvas.width,
                 y: 0,
@@ -307,12 +320,15 @@ document.addEventListener('DOMContentLoaded', () => {
         charSize = 12;
         gridWidth = Math.floor(visualizerCanvas.width / charSize);
         gridHeight = Math.floor(visualizerCanvas.height / charSize);
-        initializeAsciiGrid();
+        initializeAsciiGrid(); // Re-build the data and the cache on resize
     }
 
     function initializeAsciiGrid() {
         asciiGrid = [];
         brandedCells = [];
+        staticGridCaches = []; // Clear old caches
+        
+        // Create the master data grid
         for (let y = 0; y < gridHeight; y++) {
             const row = [];
             for (let x = 0; x < gridWidth; x++) {
@@ -325,6 +341,25 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             asciiGrid.push(row);
         }
+
+        // --- PERFORMANCE CACHING: Create the animated static frames ---
+        for (let f = 0; f < CACHE_FRAMES; f++) {
+            const cacheCanvas = document.createElement('canvas');
+            cacheCanvas.width = visualizerCanvas.width;
+            cacheCanvas.height = visualizerCanvas.height;
+            const sCtx = cacheCanvas.getContext('2d');
+            sCtx.font = `${charSize}px 'Roboto Mono', monospace`;
+            
+            for (let y = 0; y < gridHeight; y++) {
+                for (let x = 0; x < gridWidth; x++) {
+                    const cell = asciiGrid[y][x];
+                    sCtx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.05})`; // New random opacity for each frame
+                    sCtx.fillText(cell.char, cell.initialX, cell.initialY);
+                }
+            }
+            staticGridCaches.push(cacheCanvas);
+        }
+        // --- End of cache creation ---
     }
 
     function relocateBrandedChars() {
@@ -345,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
             newX = Math.floor(Math.random() * (gridWidth - 4) + 2);
             newY = Math.floor(Math.random() * (gridHeight - 4) + 2);
             attempts++;
-        } while (asciiGrid[newY][newX].isBranded && attempts < 100);
+        } while (attempts < 100 && (!asciiGrid[newY] || !asciiGrid[newY][newX] || asciiGrid[newY][newX].isBranded));
 
         if (attempts < 100) {
             const charIndex = Math.floor(Math.random() * brandChars.length);
@@ -361,8 +396,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const oldCell = brandedCells.splice(Math.floor(Math.random() * brandedCells.length), 1)[0];
             const oldX = Math.floor(oldCell.initialX / charSize);
             const oldY = Math.floor(oldCell.initialY / charSize);
-            asciiGrid[oldY][oldX].isBranded = false;
-            asciiGrid[oldY][oldX].char = autoglyphChars[Math.floor(Math.random() * autoglyphChars.length)];
+            if(asciiGrid[oldY] && asciiGrid[oldY][oldX]) {
+                asciiGrid[oldY][oldX].isBranded = false;
+                // We don't need to reset the char, the static cache is always drawn underneath
+            }
         }
     }
     
