@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     let contentData = [];
     let allPosts = [];
-    let chaosInterval; // RESTORED: Chaos interval timer
+    let chaosInterval; 
 
     // --- Core Site Elements ---
     const anchorNav = document.getElementById('anchor-nav');
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function initializeSite() {
         try {
             contentData = [
-                {"id":"MNFST","type":"page","isAnchor":true,"content":"<h2>MNFST</h2><h3>LUCTHELEO | Audio.Alchemist</h3><p>Pleasantly lost in the space between signal and static.</p><p>I create from the overflow. Twenty-three years navigating the intersection of classical training and digital chaos, Louisiana soul and systematic precision. Central Louisiana roots run deep—music creation since 2007, formal production education, life coaching training.</p><p>Someone who knows a little about a lot and a lot about a little.</p><p>The problem isn't lack of creativity. The problem is creative abundance without systematic capture.</p><p>Most creative partnerships scatter brilliant ideas across sessions like seeds in the wind. Concepts emerge, energy builds, then everything disappears into the void between meetings. I solve creative overflow through systematic documentation, organized development, and shared ownership of unused collaborative assets.</p><h3>The Architecture</h3><p><b>HTML.</b> Core creative foundation. Your authentic message before market pressure shapes it.</p><p><b>CSS.</b> How you present yourself when the world is watching. Visual identity that serves the work, not ego.</p><p><b>JS.</b> Market function without compromise. Audience connection that maintains creative integrity.</p><p>Three layers. Each builds upon the previous. Complete creative architecture emerges through systematic development rather than creative chaos.</p><h3>The Process</h3><p>Sessions combine immediate creative work with transferable systematic methods. You leave with both completed material and organizational approaches that serve future projects. This isn't dependency creation—it's systematic capability building.</p><p>Documentation captures everything. Project folders organize by development layer. Session recordings preserve decisions and breakthroughs. Nothing gets lost. Everything builds upon everything.</p><p>Unused creative assets become shared catalog content. Your collaborative overflow generates ongoing revenue rather than disappearing into digital archives. Creative partnership becomes creative investment.</p><h3>The Foundation</h3><p>Louisiana spiritual tradition meets contemporary creative technology. Prayer and systematic organization. AncestRAL wisdom and digital precision. The sacred and the professional occupy the same space without contradiction.</p><p>All decisions start from spiritual foundation, move through abstract glimpses, process through mind and memory, then manifest through systematic action. The heart determines application. The body executes with documentation.</p><p>Excellence is measured by commitment. What gets written becomes real. The work speaks for itself.</p><h3>The Practice</h3><p><b>Order Line Conversation.</b> Fifteen minutes. Creative alignment assessment without sales pressure.</p><p><b>REVERIE Foundation.</b> Two hours. Complete project architecture establishment. Systematic organization that supports long-term creative development.</p><p><b>RUMINATE Development.</b> Focused sessions. CSS and JS layer building through collaborative systematic approaches.</p><p>No ego. Just work. Systematic creative development for artists ready to invest in organized capability building rather than casual creative exploration.</p><h3>The Philosophy</h3><p>I don't explain the spaces. I invite you to wander them.</p><p>Creative development serves the work, not the worker. Systematic approaches honor both artistic authenticity and professional sustainability. Spiritual foundation supports rather than opposes technological precision.</p><p>We are signal through static. Analog intuition meets digital creation. Louisiana heritage informs contemporary creative architecture. The mysterious and the systematic coexist without contradiction.</p><h3>Contact Protocol</h3><p>Direct communication via Telegram @luctheleo. Systematic creative development begins with Order Line Conversation. Assessment precedes engagement. Alignment determines collaboration.</p><p><b>L-01001100 T-01010100 L-01001100</b></p><p>Transdisciplinary artist. Systematic creative development. Louisiana roots, Atlanta operations.</p><p>Signal through the static. Systematic transformation of creative potential into organized reality.</p><p>No ego. Just work.</p>"},
+                {"id":"MNFST","type":"page","isAnchor":true,"content":"<h2>MNFST</h2><h3>LUCTHELEO | Audio.Alchemist</h3><p>Pleasantly lost in the space between signal and static.</p><p>I create from the overflow. Twenty-three years navigating the intersection of classical training and digital chaos, Louisiana soul and systematic precision. Central Louisiana roots run deep—music creation since 2007, formal production education, life coaching training.</p><p>Someone who knows a little about a lot and a lot about a little.</p><p>The problem isn't lack of creativity. The problem is creative abundance without systematic capture.</p><p>Most creative partnerships scatter brilliant ideas across sessions like seeds in the wind. Concepts emerge, energy builds, then everything disappears into the void between meetings. I solve creative overflow through systematic documentation, organized development, and shared ownership of unused collaborative assets.</p><h3>The Architecture</h3><p><b>HTML.</b> Core creative foundation. Your authentic message before market pressure shapes it.</p><p><b>CSS.</b> How you present yourself when the world is watching. Visual identity that serves the work, not ego.</p><p><b>JS.</b> Market function without compromise. Audience connection that maintains creative integrity.</p><p>Three layers. Each builds upon the previous. Complete creative architecture emerges through systematic development rather than creative chaos.</p><h3>The Process</h3><p>Sessions combine immediate creative work with transferable systematic methods. You leave with both completed material and organizational approaches that serve future projects. This isn't dependency creation—it's systematic capability building.</p><p>Documentation captures everything. Project folders organize by development layer. Session recordings preserve decisions and breakthroughs. Nothing gets lost. Everything builds upon everything.</p><p>Unused creative assets become shared catalog content. Your collaborative overflow generates ongoing revenue rather than disappearing into digital archives. Creative partnership becomes creative investment.</p><h3>The Foundation</h3><p>Louisiana spiritual tradition meets contemporary creative technology. Prayer and systematic organization. Ancestral wisdom and digital precision. The sacred and the professional occupy the same space without contradiction.</p><p>All decisions start from spiritual foundation, move through abstract glimpses, process through mind and memory, then manifest through systematic action. The heart determines application. The body executes with documentation.</p><p>Excellence is measured by commitment. What gets written becomes real. The work speaks for itself.</p><h3>The Practice</h3><p><b>Order Line Conversation.</b> Fifteen minutes. Creative alignment assessment without sales pressure.</p><p><b>REVERIE Foundation.</b> Two hours. Complete project architecture establishment. Systematic organization that supports long-term creative development.</p><p><b>RUMINATE Development.</b> Focused sessions. CSS and JS layer building through collaborative systematic approaches.</p><p>No ego. Just work. Systematic creative development for artists ready to invest in organized capability building rather than casual creative exploration.</p><h3>The Philosophy</h3><p>I don't explain the spaces. I invite you to wander them.</p><p>Creative development serves the work, not the worker. Systematic approaches honor both artistic authenticity and professional sustainability. Spiritual foundation supports rather than opposes technological precision.</p><p>We are signal through static. Analog intuition meets digital creation. Louisiana heritage informs contemporary creative architecture. The mysterious and the systematic coexist without contradiction.</p><h3>Contact Protocol</h3><p>Direct communication via Telegram @luctheleo. Systematic creative development begins with Order Line Conversation. Assessment precedes engagement. Alignment determines collaboration.</p><p><b>L-01001100 T-01010100 L-01001100</b></p><p>Transdisciplinary artist. Systematic creative development. Louisiana roots, Atlanta operations.</p><p>Signal through the static. Systematic transformation of creative potential into organized reality.</p><p>No ego. Just work.</p>"},
                 {"id":"CRTVDVLPMNT","type":"page","isAnchor":true,"content":"<h2>CRTVDVLPMNT</h2><h3>Systematic Creative Development Overview</h3><p>Every artist has three faces: the one they know themselves to be (your <b>HTML</b>), the one they present to the world (your <b>CSS</b>), and the one that interacts with reality (your <b>JS</b>).</p><p>Our process systematically aligns these faces, transforming creative overflow into a clear, unified signal. We build not just a project, but a cohesive creative identity.</p><p style=\"text-align:center; margin-top: 2rem; margin-bottom: 2rem;\"><a href=\"#\" onclick=\"event.preventDefault(); document.getElementById('full-guide-content').style.display='block'; this.parentElement.style.display='none';\" style=\"padding: 10px 20px; border: 1px solid var(--link-color); border-radius: 5px; text-decoration: none;\">View Full Guide & Pricing</a></p><div id=\"full-guide-content\" style=\"display:none;\"><h2>REVERIE | RVR Creative Development Guide</h2><h3>Systematic Creative Development Process</h3><p><b>Development Philosophy:</b> No ego. Just work.</p><p><b>Approach:</b> Systematic transformation of creative concepts into organized, tangible results.</p><hr><h3>Process Overview</h3><p>This guide outlines our systematic approach to creative development. Our methodology transforms creative overflow into organized, documented work through structured sessions and skill transfer.</p><p><b>Core Principle:</b> You're not just receiving creative services - you're learning systematic development methods you can apply independently throughout your creative career.</p><hr><h3>The Creative Identity Framework</h3><p>We develop your creative identity using a systematic three-component approach:</p><ul><li><b>HTML Foundation (Core Content):</b> Your authentic creative message and purpose.</li><li><b>CSS Presentation (Visual Interface):</b> How you present yourself creatively.</li><li><b>JS Function (Market Operation):</b> How you operate and connect with audiences.</li></ul><hr><h3>Session Structure & Pricing</h3><p><b>Order Line Conversation (15 minutes - No charge)</b><br>A direct conversation to determine creative alignment and demonstrate our systematic approach.</p><p><b>REVERIE Foundation Session ($120 - 2 hours)</b><br>Establish your complete creative development architecture, focusing on the HTML layer (core creative foundation). You receive an organized project folder system, session documentation, a clear roadmap, and permanent portal access.</p><p><b>RUMINATE Development Sessions ($65/hour)</b><br>Systematic building and refinement of your presentation (CSS) and function (JS) layers through focused work sessions that include skill transfer and methodology education.</p><p><i><b>Member Rates Available:</b> For ongoing partnerships, rates are $100 for a monthly REVERIE session and $55/hour for RUMINATE sessions.</i></p><hr><h3>Skills You'll Develop</h3><ul><li>Systematic Organization</li><li>Creative Problem-Solving</li><li>Documentation Mastery</li><li>Independent Development</li></ul><p>Direct contact: Telegram @luctheleo</p></div>"},
                 {"id":"RQST","type":"page","isAnchor":true,"content":"<h2>Booking & Contact</h2><h3>Free Consultation (Order Line Conversation)</h3><p>To begin, please request a free 15-minute consultation to determine creative alignment. This is the first step for all new projects.</p><p style=\"text-align:center; margin-top: 1rem; margin-bottom: 2rem;\"><a href=\"https://forms.gle/8S2BXZTp2qmWLoKo6\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"padding: 10px 20px; border: 1px solid var(--link-color); border-radius: 5px; text-decoration: none;\">Open Free Consultation Form</a></p><h3>Direct Booking & Socials</h3><p>For returning clients or other inquiries, use the links below.</p><ul><li><a href=\"https://calendly.com/hghnoirfrq/30min\" target=\"_blank\" rel=\"noopener noreferrer\">Book a Session (Calendly)</a></li><li><a href=\"https://linktr.ee/luctheleo\" target=\"_blank\" rel=\"noopener noreferrer\">View All Links (Linktree)</a></li></ul><h3>Contact & Payment</h3><p><b>Direct Communication:</b> Telegram @luctheleo</p><p><b>Payment for Services:</b> CashApp $NoEgoJustWork</p>"},
                 {"id":"VOID_017 - home_LA","type":"post","isAnchor":false,"content":"<h2>VOID_017 - home_LA</h2><div class='embed-container'><video style='width:100%;' controls><source src='videos/home_LA1.mp4' type='video/mp4'></video></div>"},
@@ -67,10 +67,10 @@ document.addEventListener('DOMContentLoaded', () => {
             allPosts = contentData.filter(item => item.type === 'post');
             renderFilterNav();
             renderLinks(allPosts, 'all'); 
-            setupInteractionListeners(); // RESTORED: This is the listener for drag-and-drop
+            setupInteractionListeners(); 
             setupBinaryGlitch();
             setupVideoBreathingEffect();
-            startChaosInterval(); // RESTORED: Start the chaos grid interval
+            startChaosInterval(); 
             setupMasterToggle();
             player.style.display = 'flex';
             initializeAudioPlayer();
@@ -218,7 +218,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const averageBass = bassFrequencies.reduce((a, b) => a + b, 0) / (bassFrequencies.length || 1);
         const normalizedBass = averageBass / 255;
 
-        // PRESERVED CHANGE: Transparency is kept low
         vCtx.globalAlpha = 0.1 + normalizedBass * 0.4;
 
         bgVideo.style.filter = `grayscale(90%) contrast(150%) brightness(${0.4 + normalizedBass * 0.2})`;
@@ -226,34 +225,22 @@ document.addEventListener('DOMContentLoaded', () => {
         if (midBoost > midBoostThreshold && lastMidBoost <= midBoostThreshold) relocateBrandedChars();
         lastMidBoost = midBoost;
 
-        // PRESERVED CHANGE: Trail fade is kept fast
         vCtx.fillStyle = 'rgba(0, 0, 0, 0.15)';
         vCtx.fillRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
         
-        let allLineCoords = [];
-        if (brandedCells.length > 1) {
-            for (let i = 0; i < brandedCells.length; i++) {
-                const start = brandedCells[i];
-                const otherChars = brandedCells.filter((_, idx) => idx !== i);
-                const numConnections = Math.min(3, otherChars.length);
-                while (otherChars.length > 0 && allLineCoords.filter(l => l.start === start).length < numConnections) {
-                    const randomIndex = Math.floor(Math.random() * otherChars.length);
-                    const end = otherChars.splice(randomIndex, 1)[0];
-                    allLineCoords.push({ start, end });
-                }
-            }
+        // --- MOBILE PERFORMANCE OPTIMIZATION ---
+        // Instead of drawing 15,000+ chars per frame, we draw 100 random ones.
+        // This gives the same "static noise" illusion for a fraction of the cost.
+        vCtx.fillStyle = `rgba(255, 255, 255, 0.05)`; 
+        vCtx.font = `${charSize}px 'Roboto Mono', monospace`;
+        let noiseAmount = 100;
+        for (let i = 0; i < noiseAmount; i++) {
+            let x = Math.random() * visualizerCanvas.width;
+            let y = Math.random() * visualizerCanvas.height;
+            let char = autoglyphChars[Math.floor(Math.random() * autoglyphChars.length)];
+            vCtx.fillText(char, x, y);
         }
-
-        for (let y = 0; y < gridHeight; y++) {
-            for (let x = 0; x < gridWidth; x++) {
-                const cell = asciiGrid[y][x];
-                if (!cell.isBranded) {
-                    vCtx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.05})`;
-                    vCtx.font = `${charSize}px 'Roboto Mono', monospace`;
-                    vCtx.fillText(cell.char, cell.initialX, cell.initialY);
-                }
-            }
-        }
+        // --- End of optimization (The old grid loop is removed) ---
 
         if (midBoost > midBoostThreshold) lifelineOpacity = Math.min(0.3, lifelineOpacity + midBoost * 0.5);
         else lifelineOpacity = Math.max(0.0, lifelineOpacity - 0.01);
@@ -284,7 +271,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function drawRain(midBoost) {
         rainCtx.clearRect(0, 0, rainCanvas.width, rainCanvas.height);
         
-        if (Math.random() < midBoost * 0.6) {
+        // OPTIMIZATION: Reduced particle generation slightly for mobile
+        if (Math.random() < midBoost * 0.4) {
             rainParticles.push({
                 x: Math.random() * rainCanvas.width,
                 y: 0,
@@ -381,7 +369,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function getContentType(id) { return id.split('_')[0]; }
     function renderFilterNav() { const c = [...new Set(allPosts.map(p => getContentType(p.id)))]; let f = `<a href="#" class="filter-link active" data-filter="all">LTL</a>`; c.sort().forEach(t => f += `<a href="#" class="filter-link" data-filter="${t}">${t}</a>`); filterNav.innerHTML = f; filterNav.addEventListener('click', e => { e.preventDefault(); if (e.target.classList.contains('filter-link')) { const fi = e.target.dataset.filter; document.querySelector('#filter-nav .active').classList.remove('active'); e.target.classList.add('active'); const p = fi === 'all' ? allPosts : allPosts.filter(po => getContentType(po.id) === fi); renderLinks(p, fi); } }); }
     
-    // --- RESTORED: This is the full renderLinks function that includes the chaos grid logic ---
     function renderLinks(p, a) { 
         const s = document.getElementById('scroll-indicator'); 
         Array.from(anchorNav.children).forEach(c => { if (c.id !== 'scroll-indicator') anchorNav.removeChild(c); }); 
@@ -437,7 +424,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 100); 
     }
 
-    // --- RESTORED: All chaos grid functions ---
     function regenerateChaosGrid() { 
         const l = dynamicField.querySelectorAll('.nav-link'); 
         if (dynamicField.classList.contains('filtered-view') || l.length === 0) return; 
