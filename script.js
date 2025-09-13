@@ -36,20 +36,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let rainParticles = [];
     const currencySymbols = ['$', '€', '£', '¥', '₩', '₹', '₽', '₿', 'Ξ'];
     
-    // --- PERFORMANCE FIX: ANIMATED CACHE ---
-    // We create multiple pre-rendered frames of the static instead of one.
-    let staticGridCaches = [];
-    const CACHE_FRAMES = 8; // Number of animation frames to generate
+    let staticGridCanvas = null;
+    const CACHE_FRAMES = 8; 
     let currentCacheFrame = 0;
 
     // Visualizer-specific variables
-    let asciiGrid = [], gridWidth, gridHeight, charSize;
-    const autoglyphChars = "01";
     const brandedText = "LUCTHELEO LTL";
     let brandedCells = [];
-    let lastMidBoost = 0;
     const midBoostThreshold = 0.3;
     let lifelineOpacity = 0.0;
+    let lastRelocateTime = 0; 
+    const charSize = 12;
     
     let audioCtx;
     let analyser;
@@ -125,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
         analyser.connect(audioCtx.destination);
         analyser.fftSize = 256;
         
-        resizeCanvas(); // This will call initializeAsciiGrid, which builds the cache
+        resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
         
         playPauseBtn.addEventListener('click', () => {
@@ -227,27 +224,21 @@ document.addEventListener('DOMContentLoaded', () => {
         vCtx.globalAlpha = 0.1 + normalizedBass * 0.4;
         bgVideo.style.filter = `grayscale(90%) contrast(150%) brightness(${0.4 + normalizedBass * 0.2})`;
 
-        if (midBoost > midBoostThreshold && lastMidBoost <= midBoostThreshold) relocateBrandedChars();
-        lastMidBoost = midBoost;
-
-        vCtx.fillStyle = 'rgba(0, 0, 0, 0.15)';
-        vCtx.fillRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-        
-        // --- PERFORMANCE FIX (ANIMATED CACHE) ---
-        // 1. Stamp one of our 8 pre-drawn static frames.
-        if (staticGridCaches.length > 0) {
-            vCtx.drawImage(staticGridCaches[currentCacheFrame], 0, 0);
-            currentCacheFrame = (currentCacheFrame + 1) % CACHE_FRAMES; // Cycle to the next frame
+        const now = Date.now();
+        if (midBoost > midBoostThreshold && (now - lastRelocateTime > 100)) { 
+             relocateBrandedChars();
+             lastRelocateTime = now;
         }
-        // (The old, slow "for...for..." loop is now gone from here)
 
-        // 2. Draw lifelines (fast)
-        if (midBoost > midBoostThreshold) lifelineOpacity = Math.min(0.3, lifelineOpacity + midBoost * 0.5);
+        vCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+        
+        // --- FINAL TWEAK 1: Increased max lifeline opacity and reaction speed ---
+        if (midBoost > midBoostThreshold) lifelineOpacity = Math.min(0.6, lifelineOpacity + midBoost * 0.8);
         else lifelineOpacity = Math.max(0.0, lifelineOpacity - 0.01);
         
         if (brandedCells.length > 1) {
-            vCtx.lineWidth = 0.5;
-            // This logic was missing, re-added to calculate lines
+            // --- FINAL TWEAK 2: Increased line thickness ---
+            vCtx.lineWidth = 1.0;
             let allLineCoords = [];
             for (let i = 0; i < brandedCells.length; i++) {
                 const start = brandedCells[i];
@@ -259,17 +250,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     allLineCoords.push({ start, end });
                 }
             }
-            // Now draw them
+            
             for (const line of allLineCoords) {
                 vCtx.beginPath();
-                vCtx.moveTo(line.start.initialX + charSize / 2, line.start.initialY + charSize / 2);
-                vCtx.lineTo(line.end.initialX + charSize / 2, line.end.initialY + charSize / 2);
+                vCtx.moveTo(line.start.x + charSize / 2, line.start.y + charSize / 2);
+                vCtx.lineTo(line.end.x + charSize / 2, line.end.y + charSize / 2);
                 vCtx.strokeStyle = `rgba(255, 255, 255, ${lifelineOpacity})`;
                 vCtx.stroke();
             }
         }
         
-        // 3. Draw only the branded cells on top (fast)
         brandedCells.forEach(cell => {
             let vocalIntensity = midBoost * 2;
             let finalOpacity = Math.min(1, vocalIntensity * 1.5);
@@ -277,7 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
             vCtx.font = `${charSize + vocalIntensity * 15}px 'Roboto Mono', monospace`;
             vCtx.shadowColor = `rgba(255, 255, 255, ${finalOpacity * 0.7})`;
             vCtx.shadowBlur = finalOpacity * 20;
-            vCtx.fillText(cell.char, cell.initialX, cell.initialY);
+            vCtx.fillText(cell.char, cell.x, cell.y);
         });
         vCtx.shadowBlur = 0;
     }
@@ -285,7 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function drawRain(midBoost) {
         rainCtx.clearRect(0, 0, rainCanvas.width, rainCanvas.height);
         
-        if (Math.random() < midBoost * 0.5) { // Tuned particle rate
+        if (Math.random() < midBoost * 0.5) {
             rainParticles.push({
                 x: Math.random() * rainCanvas.width,
                 y: 0,
@@ -317,50 +307,9 @@ document.addEventListener('DOMContentLoaded', () => {
         visualizerCanvas.height = window.innerHeight;
         rainCanvas.width = logoContainer.offsetWidth;
         rainCanvas.height = logoContainer.offsetHeight;
-        charSize = 12;
-        gridWidth = Math.floor(visualizerCanvas.width / charSize);
-        gridHeight = Math.floor(visualizerCanvas.height / charSize);
-        initializeAsciiGrid(); // Re-build the data and the cache on resize
     }
 
-    function initializeAsciiGrid() {
-        asciiGrid = [];
-        brandedCells = [];
-        staticGridCaches = []; // Clear old caches
-        
-        // Create the master data grid
-        for (let y = 0; y < gridHeight; y++) {
-            const row = [];
-            for (let x = 0; x < gridWidth; x++) {
-                row.push({
-                    char: autoglyphChars[Math.floor(Math.random() * autoglyphChars.length)],
-                    isBranded: false,
-                    initialX: x * charSize,
-                    initialY: y * charSize,
-                });
-            }
-            asciiGrid.push(row);
-        }
-
-        // --- PERFORMANCE CACHING: Create the animated static frames ---
-        for (let f = 0; f < CACHE_FRAMES; f++) {
-            const cacheCanvas = document.createElement('canvas');
-            cacheCanvas.width = visualizerCanvas.width;
-            cacheCanvas.height = visualizerCanvas.height;
-            const sCtx = cacheCanvas.getContext('2d');
-            sCtx.font = `${charSize}px 'Roboto Mono', monospace`;
-            
-            for (let y = 0; y < gridHeight; y++) {
-                for (let x = 0; x < gridWidth; x++) {
-                    const cell = asciiGrid[y][x];
-                    sCtx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.05})`; // New random opacity for each frame
-                    sCtx.fillText(cell.char, cell.initialX, cell.initialY);
-                }
-            }
-            staticGridCaches.push(cacheCanvas);
-        }
-        // --- End of cache creation ---
-    }
+    // --- REMOVED initializeAsciiGrid() and all grid data logic ---
 
     function relocateBrandedChars() {
         const brandChars = brandedText.replace(/\s/g, '');
@@ -375,31 +324,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function addBrandedChar(brandChars) {
-        let newX, newY, attempts = 0;
-        do {
-            newX = Math.floor(Math.random() * (gridWidth - 4) + 2);
-            newY = Math.floor(Math.random() * (gridHeight - 4) + 2);
-            attempts++;
-        } while (attempts < 100 && (!asciiGrid[newY] || !asciiGrid[newY][newX] || asciiGrid[newY][newX].isBranded));
-
-        if (attempts < 100) {
-            const charIndex = Math.floor(Math.random() * brandChars.length);
-            const newCell = asciiGrid[newY][newX];
-            newCell.isBranded = true;
-            newCell.char = brandChars[charIndex];
-            brandedCells.push(newCell);
-        }
+        brandedCells.push({
+            x: Math.random() * visualizerCanvas.width,
+            y: Math.random() * visualizerCanvas.height,
+            char: brandChars[Math.floor(Math.random() * brandChars.length)]
+        });
     }
 
     function removeBrandedChar() {
         if (brandedCells.length > 0) {
-            const oldCell = brandedCells.splice(Math.floor(Math.random() * brandedCells.length), 1)[0];
-            const oldX = Math.floor(oldCell.initialX / charSize);
-            const oldY = Math.floor(oldCell.initialY / charSize);
-            if(asciiGrid[oldY] && asciiGrid[oldY][oldX]) {
-                asciiGrid[oldY][oldX].isBranded = false;
-                // We don't need to reset the char, the static cache is always drawn underneath
-            }
+            brandedCells.splice(Math.floor(Math.random() * brandedCells.length), 1);
         }
     }
     
