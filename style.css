@@ -144,7 +144,7 @@ header, footer {
     pointer-events: none;
 }
 
-/* New styles for the scrolling marquee prompt */
+/* Scrolling marquee styles */
 #logo-prompt-container {
     width: 100%;
     max-width: 400px;
@@ -164,7 +164,6 @@ header, footer {
     letter-spacing: 1px;
     text-shadow: 0 0 5px var(--link-color);
     white-space: nowrap;
-    /* Two animations: one for scrolling, one for glitching */
     animation: marquee 20s linear infinite, glitch-flicker 11s infinite;
 }
 
@@ -228,6 +227,7 @@ main {
     0%, 100% { opacity: 0.3; transform: scaleY(1) translateX(-50%); }
     50% { opacity: 0.8; transform: scaleY(1.5) translateX(-50%); }
 }
+/* RESTORED: Instruction text styles */
 #interaction-instructions {
     font-size: 0.8rem; letter-spacing: 1px; padding: 0.5rem 0; margin-bottom: 1rem; opacity: 0.7; transition: opacity 0.3s ease;
 }
@@ -238,21 +238,52 @@ main {
     color: var(--link-color); cursor: pointer; text-decoration: none; transition: color 0.3s ease;
 }
 .filter-link:hover, .filter-link.active { color: var(--hover-color); }
+
+/* RESTORED: Chaos Grid layout styles */
 #dynamic-field {
-    flex-grow: 1; position: relative; min-height: 80vh; transition: min-height 0.5s ease;
+    flex-grow: 1; 
+    position: relative; 
+    min-height: 80vh; 
+    transition: min-height 0.5s ease;
 }
 #dynamic-field.filtered-view {
-    display: flex; flex-wrap: wrap; justify-content: center; align-content: flex-start; gap: 1.5rem 3rem; min-height: 10vh !important; height: auto !important;
+    display: flex; 
+    flex-wrap: wrap; 
+    justify-content: center; 
+    align-content: flex-start; 
+    gap: 1.5rem 3rem; 
+    min-height: 10vh !important; 
+    height: auto !important;
 }
 .nav-link {
-    position: absolute; text-decoration: none; font-size: 0.9rem; cursor: pointer; transition: color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease, opacity 0.5s ease, left 2s ease-in-out, top 2s ease-in-out; white-space: nowrap; padding: 5px; user-select: none;
+    position: absolute; /* Links are absolutely positioned for the chaos grid */
+    text-decoration: none; 
+    font-size: 0.9rem; 
+    cursor: pointer; 
+    transition: color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease, opacity 0.5s ease, left 2s ease-in-out, top 2s ease-in-out; 
+    white-space: nowrap; 
+    padding: 5px; 
+    user-select: none;
 }
-.filtered-view .nav-link { position: static; }
+/* This class is applied to links when they are in the filtered grid */
+.filtered-view .nav-link { 
+    position: static; 
+}
 .nav-link.dragging {
-    cursor: grabbing; color: var(--hover-color); transform: scale(1.1); z-index: 100; box-shadow: 0 0 15px rgba(255, 255, 255, 0.2); transition: color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: grabbing; 
+    color: var(--hover-color); 
+    transform: scale(1.1); 
+    z-index: 100; 
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2); 
+    transition: color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
 }
 .nav-link:hover { color: var(--hover-color); transform: scale(1.1); }
-#anchor-nav .nav-link { position: static; font-weight: 700; color: var(--text-color); font-size: 1rem; }
+#anchor-nav .nav-link { 
+    position: static; /* Anchor links are always static */
+    font-weight: 700; 
+    color: var(--text-color); 
+    font-size: 1rem; 
+}
 footer {
     font-size: 0.8rem; color: var(--link-color); margin-top: 2rem;
 }
