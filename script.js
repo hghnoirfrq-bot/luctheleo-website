@@ -1,0 +1,474 @@
+document.addEventListener('DOMContentLoaded', () => {
+    let contentData = [];
+    let allPosts = [];
+    let chaosInterval; 
+
+    // --- Core Site Elements ---
+    const anchorNav = document.getElementById('anchor-nav');
+    const filterNav = document.getElementById('filter-nav');
+    const dynamicField = document.getElementById('dynamic-field');
+    const modal = document.getElementById('content-modal');
+    const modalBody = document.getElementById('modal-body');
+    const closeBtn = document.getElementById('modal-close-btn');
+    const binarySignature = document.getElementById('binary-signature');
+    const logoContainer = document.getElementById('logo-container');
+    const logoImage = document.querySelector('.logo-image');
+    const logoPromptContainer = document.getElementById('logo-prompt-container');
+    const bgVideo = document.getElementById('bg-video');
+    
+    // --- Audio Player Elements ---
+    const player = document.getElementById('persistent-audio-player');
+    const track = document.getElementById('track');
+    const playPauseBtn = document.getElementById('play-pause-btn');
+    const volumeBar = document.getElementById('volume-bar');
+    const seekBar = document.getElementById('seek-bar');
+    const currentTimeEl = document.getElementById('current-time');
+    const durationEl = document.getElementById('duration');
+    
+    // --- Visualizer Elements & State ---
+    const visualizerOverlay = document.getElementById('visualizer-overlay');
+    const visualizerCanvas = document.getElementById('visualizer-canvas');
+    const vCtx = visualizerCanvas.getContext('2d');
+    
+    // --- Rain Effect Elements ---
+    const rainCanvas = document.getElementById('rain-canvas');
+    const rainCtx = rainCanvas.getContext('2d');
+    let rainParticles = [];
+    const currencySymbols = ['$', '€', '£', '¥', '₩', '₹', '₽', '₿', 'Ξ'];
+    
+    // Visualizer-specific variables
+    let asciiGrid = [], gridWidth, gridHeight, charSize;
+    const autoglyphChars = "01";
+    const brandedText = "LUCTHELEO LTL";
+    let brandedCells = [];
+    let lastMidBoost = 0;
+    const midBoostThreshold = 0.3;
+    let lifelineOpacity = 0.0;
+    
+    let audioCtx;
+    let analyser;
+    let source;
+    let isPlayerInitialized = false;
+    let durationIsSet = false;
+
+    async function initializeSite() {
+        try {
+            contentData = [
+                {"id":"MNFST","type":"page","isAnchor":true,"content":"<h2>MNFST</h2><h3>LUCTHELEO | Audio.Alchemist</h3><p>Pleasantly lost in the space between signal and static.</p><p>I create from the overflow. Twenty-three years navigating the intersection of classical training and digital chaos, Louisiana soul and systematic precision. Central Louisiana roots run deep—music creation since 2007, formal production education, life coaching training.</p><p>Someone who knows a little about a lot and a lot about a little.</p><p>The problem isn't lack of creativity. The problem is creative abundance without systematic capture.</p><p>Most creative partnerships scatter brilliant ideas across sessions like seeds in the wind. Concepts emerge, energy builds, then everything disappears into the void between meetings. I solve creative overflow through systematic documentation, organized development, and shared ownership of unused collaborative assets.</p><h3>The Architecture</h3><p><b>HTML.</b> Core creative foundation. Your authentic message before market pressure shapes it.</p><p><b>CSS.</b> How you present yourself when the world is watching. Visual identity that serves the work, not ego.</p><p><b>JS.</b> Market function without compromise. Audience connection that maintains creative integrity.</p><p>Three layers. Each builds upon the previous. Complete creative architecture emerges through systematic development rather than creative chaos.</p><h3>The Process</h3><p>Sessions combine immediate creative work with transferable systematic methods. You leave with both completed material and organizational approaches that serve future projects. This isn't dependency creation—it's systematic capability building.</p><p>Documentation captures everything. Project folders organize by development layer. Session recordings preserve decisions and breakthroughs. Nothing gets lost. Everything builds upon everything.</p><p>Unused creative assets become shared catalog content. Your collaborative overflow generates ongoing revenue rather than disappearing into digital archives. Creative partnership becomes creative investment.</p><h3>The Foundation</h3><p>Louisiana spiritual tradition meets contemporary creative technology. Prayer and systematic organization. Ancestral wisdom and digital precision. The sacred and the professional occupy the same space without contradiction.</p><p>All decisions start from spiritual foundation, move through abstract glimpses, process through mind and memory, then manifest through systematic action. The heart determines application. The body executes with documentation.</p><p>Excellence is measured by commitment. What gets written becomes real. The work speaks for itself.</p><h3>The Practice</h3><p><b>Order Line Conversation.</b> Fifteen minutes. Creative alignment assessment without sales pressure.</p><p><b>REVERIE Foundation.</b> Two hours. Complete project architecture establishment. Systematic organization that supports long-term creative development.</p><p><b>RUMINATE Development.</b> Focused sessions. CSS and JS layer building through collaborative systematic approaches.</p><p>No ego. Just work. Systematic creative development for artists ready to invest in organized capability building rather than casual creative exploration.</p><h3>The Philosophy</h3><p>I don't explain the spaces. I invite you to wander them.</p><p>Creative development serves the work, not the worker. Systematic approaches honor both artistic authenticity and professional sustainability. Spiritual foundation supports rather than opposes technological precision.</p><p>We are signal through static. Analog intuition meets digital creation. Louisiana heritage informs contemporary creative architecture. The mysterious and the systematic coexist without contradiction.</p><h3>Contact Protocol</h3><p>Direct communication via Telegram @luctheleo. Systematic creative development begins with Order Line Conversation. Assessment precedes engagement. Alignment determines collaboration.</p><p><b>L-01001100 T-01010100 L-01001100</b></p><p>Transdisciplinary artist. Systematic creative development. Louisiana roots, Atlanta operations.</p><p>Signal through the static. Systematic transformation of creative potential into organized reality.</p><p>No ego. Just work.</p>"},
+                {"id":"CRTVDVLPMNT","type":"page","isAnchor":true,"content":"<h2>CRTVDVLPMNT</h2><h3>Systematic Creative Development Overview</h3><p>Every artist has three faces: the one they know themselves to be (your <b>HTML</b>), the one they present to the world (your <b>CSS</b>), and the one that interacts with reality (your <b>JS</b>).</p><p>Our process systematically aligns these faces, transforming creative overflow into a clear, unified signal. We build not just a project, but a cohesive creative identity.</p><p style=\"text-align:center; margin-top: 2rem; margin-bottom: 2rem;\"><a href=\"#\" onclick=\"event.preventDefault(); document.getElementById('full-guide-content').style.display='block'; this.parentElement.style.display='none';\" style=\"padding: 10px 20px; border: 1px solid var(--link-color); border-radius: 5px; text-decoration: none;\">View Full Guide & Pricing</a></p><div id=\"full-guide-content\" style=\"display:none;\"><h2>REVERIE | RVR Creative Development Guide</h2><h3>Systematic Creative Development Process</h3><p><b>Development Philosophy:</b> No ego. Just work.</p><p><b>Approach:</b> Systematic transformation of creative concepts into organized, tangible results.</p><hr><h3>Process Overview</h3><p>This guide outlines our systematic approach to creative development. Our methodology transforms creative overflow into organized, documented work through structured sessions and skill transfer.</p><p><b>Core Principle:</b> You're not just receiving creative services - you're learning systematic development methods you can apply independently throughout your creative career.</p><hr><h3>The Creative Identity Framework</h3><p>We develop your creative identity using a systematic three-component approach:</p><ul><li><b>HTML Foundation (Core Content):</b> Your authentic creative message and purpose.</li><li><b>CSS Presentation (Visual Interface):</b> How you present yourself creatively.</li><li><b>JS Function (Market Operation):</b> How you operate and connect with audiences.</li></ul><hr><h3>Session Structure & Pricing</h3><p><b>Order Line Conversation (15 minutes - No charge)</b><br>A direct conversation to determine creative alignment and demonstrate our systematic approach.</p><p><b>REVERIE Foundation Session ($120 - 2 hours)</b><br>Establish your complete creative development architecture, focusing on the HTML layer (core creative foundation). You receive an organized project folder system, session documentation, a clear roadmap, and permanent portal access.</p><p><b>RUMINATE Development Sessions ($65/hour)</b><br>Systematic building and refinement of your presentation (CSS) and function (JS) layers through focused work sessions that include skill transfer and methodology education.</p><p><i><b>Member Rates Available:</b> For ongoing partnerships, rates are $100 for a monthly REVERIE session and $55/hour for RUMINATE sessions.</i></p><hr><h3>Skills You'll Develop</h3><ul><li>Systematic Organization</li><li>Creative Problem-Solving</li><li>Documentation Mastery</li><li>Independent Development</li></ul><p>Direct contact: Telegram @luctheleo</p></div>"},
+                {"id":"RQST","type":"page","isAnchor":true,"content":"<h2>Booking & Contact</h2><h3>Free Consultation (Order Line Conversation)</h3><p>To begin, please request a free 15-minute consultation to determine creative alignment. This is the first step for all new projects.</p><p style=\"text-align:center; margin-top: 1rem; margin-bottom: 2rem;\"><a href=\"https://forms.gle/8S2BXZTp2qmWLoKo6\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"padding: 10px 20px; border: 1px solid var(--link-color); border-radius: 5px; text-decoration: none;\">Open Free Consultation Form</a></p><h3>Direct Booking & Socials</h3><p>For returning clients or other inquiries, use the links below.</p><ul><li><a href=\"https://calendly.com/hghnoirfrq/30min\" target=\"_blank\" rel=\"noopener noreferrer\">Book a Session (Calendly)</a></li><li><a href=\"https://linktr.ee/luctheleo\" target=\"_blank\" rel=\"noopener noreferrer\">View All Links (Linktree)</a></li></ul><h3>Contact & Payment</h3><p><b>Direct Communication:</b> Telegram @luctheleo</p><p><b>Payment for Services:</b> CashApp $NoEgoJustWork</p>"},
+                {"id":"VOID_017 - home_LA","type":"post","isAnchor":false,"content":"<h2>VOID_017 - home_LA</h2><div class='embed-container'><video style='width:100%;' controls><source src='videos/home_LA1.mp4' type='video/mp4'></video></div>"},
+                {"id":"SGNNL_004 - JAY Z","type":"post","isAnchor":false,"content":"<div class=\"soundcloud-embed\"><iframe width=\"100%\" height=\"300\" scrolling=\"no\" frameborder=\"no\" allow=\"autoplay\" src=\"https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1226734087&color=%23546464&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true\"></iframe></div>"},
+                {"id":"VOID_015 - INIKO | JERICHO","type":"post","isAnchor":false,"content":"<div class=\"embed-container\"><iframe src=\"https://www.youtube.com/embed/6bRsSLMzkIQ\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe></div>"},
+                {"id":"VOID_008 - LTL | KARMA","type":"post","isAnchor":false,"content":"<div class=\"embed-container\"><iframe src=\"https://www.youtube.com/embed/IzjIBoWGJEI\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe></div>"},
+                {"id":"SGNNL_003 - ARNOHOSE DOLLAR | PAN ME","type":"post","isAnchor":false,"content":"<div class=\"soundcloud-embed\"><iframe width=\"100%\" height=\"300\" scrolling=\"no\" frameborder=\"no\" allow=\"autoplay\" src=\"https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1241335237&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true\"></iframe></div>"},
+                {"id":"CRCLT_02 - INKLING","type":"post","isAnchor":false,"content":"<h2>CRCLT_02 - INKLING</h2><p style=\"font-size: 2rem; text-align: center; font-style: italic;\">\"Nothing ventured, nothing gained.\"</p>"}
+            ];
+            allPosts = contentData.filter(item => item.type === 'post');
+            renderFilterNav();
+            renderLinks(allPosts, 'all');
+            setupInteractionListeners();
+            setupBinaryGlitch();
+            setupVideoBreathingEffect();
+            startChaosInterval();
+            setupMasterToggle();
+            player.style.display = 'flex';
+            initializeAudioPlayer();
+        } catch (error) {
+            console.error("Failed to load content:", error);
+            dynamicField.innerHTML = '<p style="color:red; text-align:center;">Error: Could not load site content.</p>';
+        }
+    }
+
+    function showVisualizer() {
+        visualizerOverlay.style.opacity = '1';
+    }
+
+    function hideVisualizer() {
+        visualizerOverlay.style.opacity = '0';
+    }
+    
+    function playAudio() {
+        if (!isPlayerInitialized) initializeAudioPlayer();
+        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+        track.play().catch(error => console.error("Error playing audio:", error));
+    }
+
+    function pauseAudio() {
+        track.pause();
+    }
+    
+    // UPDATED: Logo is now a direct Play/Pause toggle
+    function setupMasterToggle() {
+        logoContainer.addEventListener('click', () => {
+            if (track.paused) {
+                playAudio();
+            } else {
+                pauseAudio();
+            }
+        });
+    }
+
+    function initializeAudioPlayer() {
+        if (isPlayerInitialized) return;
+        
+        track.volume = 0.25;
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioCtx.createAnalyser();
+        source = audioCtx.createMediaElementSource(track);
+        source.connect(analyser);
+        analyser.connect(audioCtx.destination);
+        analyser.fftSize = 256;
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        playPauseBtn.addEventListener('click', () => {
+            if (track.paused) {
+                playAudio();
+            } else {
+                pauseAudio();
+            }
+        });
+        
+        // Visual state changes are tied to the track's play/pause events
+        track.addEventListener('play', () => {
+            playPauseBtn.innerHTML = '&#10074;&#10074;';
+            logoContainer.classList.add('experience-active');
+            logoPromptContainer.style.opacity = '0';
+            logoImage.style.animationPlayState = 'paused';
+            logoImage.style.filter = '';
+        });
+        
+        track.addEventListener('pause', () => {
+            playPauseBtn.innerHTML = '&#9658;';
+            logoContainer.classList.remove('experience-active');
+            logoPromptContainer.style.opacity = '1';
+            logoImage.style.animationPlayState = 'running';
+            logoImage.style.filter = '';
+        });
+        
+        volumeBar.addEventListener('input', (e) => track.volume = e.target.value);
+        seekBar.addEventListener('input', (e) => track.currentTime = e.target.value);
+
+        const setDuration = () => {
+            if (track.duration && isFinite(track.duration)) {
+                seekBar.max = track.duration;
+                durationEl.textContent = formatTime(track.duration);
+                durationIsSet = true;
+            }
+        };
+        track.addEventListener('loadedmetadata', setDuration);
+
+        track.addEventListener('timeupdate', () => {
+            const currentTime = track.currentTime;
+            seekBar.value = currentTime;
+            currentTimeEl.textContent = formatTime(currentTime);
+            if (!durationIsSet) setDuration();
+        });
+
+        track.addEventListener('ended', () => {
+            playPauseBtn.innerHTML = '&#9658;';
+            track.currentTime = 0;
+        });
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+        
+        // Main Animation Loop
+        function draw() {
+            requestAnimationFrame(draw);
+            
+            // Visuals now only depend on the track's playing state
+            if (track.paused) {
+                if (rainParticles.length > 0) rainParticles = [];
+                rainCtx.clearRect(0, 0, rainCanvas.width, rainCanvas.height);
+                vCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+                hideVisualizer();
+                return;
+            }
+            
+            showVisualizer();
+
+            const freqData = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteFrequencyData(freqData);
+            
+            const mids = freqData.slice(16, 64);
+            const avg = (arr) => arr.reduce((sum, val) => sum + val, 0) / (arr.length || 1);
+            const midBoost = avg(mids) / 255;
+            
+            const glowSize = 8 + midBoost * 30;
+            const glowOpacity = 0.5 + midBoost * 0.5;
+            logoImage.style.filter = `
+                brightness(${1 + midBoost * 0.5}) 
+                drop-shadow(0 0 ${glowSize}px rgba(255, 255, 255, ${glowOpacity}))
+            `;
+            
+            drawBackgroundVisualizer(freqData, midBoost);
+            drawRain(midBoost);
+        }
+        
+        draw();
+        isPlayerInitialized = true;
+    }
+    
+    function drawBackgroundVisualizer(freqData, midBoost) {
+        const bassFrequencies = freqData.slice(0, Math.floor(freqData.length * 0.2));
+        const averageBass = bassFrequencies.reduce((a, b) => a + b, 0) / (bassFrequencies.length || 1);
+        const normalizedBass = averageBass / 255;
+
+        // UPDATED for more transparency
+        vCtx.globalAlpha = 0.2 + normalizedBass * 0.5; // Ranges from 20% to 70%
+
+        bgVideo.style.filter = `grayscale(90%) contrast(150%) brightness(${0.4 + normalizedBass * 0.2})`;
+
+        if (midBoost > midBoostThreshold && lastMidBoost <= midBoostThreshold) relocateBrandedChars();
+        lastMidBoost = midBoost;
+
+        vCtx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+        vCtx.fillRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+        
+        let allLineCoords = [];
+        if (brandedCells.length > 1) {
+            for (let i = 0; i < brandedCells.length; i++) {
+                const start = brandedCells[i];
+                const otherChars = brandedCells.filter((_, idx) => idx !== i);
+                const numConnections = Math.min(3, otherChars.length);
+                while (otherChars.length > 0 && allLineCoords.filter(l => l.start === start).length < numConnections) {
+                    const randomIndex = Math.floor(Math.random() * otherChars.length);
+                    const end = otherChars.splice(randomIndex, 1)[0];
+                    allLineCoords.push({ start, end });
+                }
+            }
+        }
+
+        for (let y = 0; y < gridHeight; y++) {
+            for (let x = 0; x < gridWidth; x++) {
+                const cell = asciiGrid[y][x];
+                if (!cell.isBranded) {
+                    vCtx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.05})`;
+                    vCtx.font = `${charSize}px 'Roboto Mono', monospace`;
+                    vCtx.fillText(cell.char, cell.initialX, cell.initialY);
+                }
+            }
+        }
+
+        if (midBoost > midBoostThreshold) lifelineOpacity = Math.min(0.3, lifelineOpacity + midBoost * 0.5);
+        else lifelineOpacity = Math.max(0.0, lifelineOpacity - 0.01);
+        
+        if (brandedCells.length > 1) {
+            vCtx.lineWidth = 0.5;
+            for (const line of allLineCoords) {
+                vCtx.beginPath();
+                vCtx.moveTo(line.start.initialX + charSize / 2, line.start.initialY + charSize / 2);
+                vCtx.lineTo(line.end.initialX + charSize / 2, line.end.initialY + charSize / 2);
+                vCtx.strokeStyle = `rgba(255, 255, 255, ${lifelineOpacity})`;
+                vCtx.stroke();
+            }
+        }
+        
+        brandedCells.forEach(cell => {
+            let vocalIntensity = midBoost * 2;
+            let finalOpacity = Math.min(1, vocalIntensity * 1.5);
+            vCtx.fillStyle = `rgba(255, 255, 255, ${finalOpacity})`;
+            vCtx.font = `${charSize + vocalIntensity * 15}px 'Roboto Mono', monospace`;
+            vCtx.shadowColor = `rgba(255, 255, 255, ${finalOpacity * 0.7})`;
+            vCtx.shadowBlur = finalOpacity * 20;
+            vCtx.fillText(cell.char, cell.initialX, cell.initialY);
+        });
+        vCtx.shadowBlur = 0;
+    }
+
+    function drawRain(midBoost) {
+        rainCtx.clearRect(0, 0, rainCanvas.width, rainCanvas.height);
+        
+        if (Math.random() < midBoost * 0.6) {
+            rainParticles.push({
+                x: Math.random() * rainCanvas.width,
+                y: 0,
+                char: currencySymbols[Math.floor(Math.random() * currencySymbols.length)],
+                speed: 0.5 + Math.random() * 0.5,
+                drift: Math.random() * 0.5 - 0.25,
+                opacity: 0.5 + Math.random() * 0.5,
+                size: 8 + Math.random() * 4,
+            });
+        }
+        
+        for (let i = rainParticles.length - 1; i >= 0; i--) {
+            const p = rainParticles[i];
+            p.y += p.speed;
+            p.x += Math.sin(p.y * 0.05) * p.drift;
+            
+            if (p.y > rainCanvas.height) {
+                rainParticles.splice(i, 1);
+            } else {
+                rainCtx.fillStyle = `rgba(255, 255, 255, ${p.opacity * 0.5})`;
+                rainCtx.font = `${p.size}px 'Roboto Mono', monospace`;
+                rainCtx.fillText(p.char, p.x, p.y);
+            }
+        }
+    }
+
+    function resizeCanvas() {
+        visualizerCanvas.width = window.innerWidth;
+        visualizerCanvas.height = window.innerHeight;
+        rainCanvas.width = logoContainer.offsetWidth;
+        rainCanvas.height = logoContainer.offsetHeight;
+        charSize = 12;
+        gridWidth = Math.floor(visualizerCanvas.width / charSize);
+        gridHeight = Math.floor(visualizerCanvas.height / charSize);
+        initializeAsciiGrid();
+    }
+
+    function initializeAsciiGrid() {
+        asciiGrid = [];
+        brandedCells = [];
+        for (let y = 0; y < gridHeight; y++) {
+            const row = [];
+            for (let x = 0; x < gridWidth; x++) {
+                row.push({
+                    char: autoglyphChars[Math.floor(Math.random() * autoglyphChars.length)],
+                    isBranded: false,
+                    initialX: x * charSize,
+                    initialY: y * charSize,
+                });
+            }
+            asciiGrid.push(row);
+        }
+    }
+
+    function relocateBrandedChars() {
+        const brandChars = brandedText.replace(/\s/g, '');
+        if (brandedCells.length < 15) {
+            if (Math.random() > 0.5 || brandedCells.length < 2) addBrandedChar(brandChars);
+        } else if (brandedCells.length >= 15 && brandedCells.length < 25) {
+            if (Math.random() > 0.5) removeBrandedChar();
+            else addBrandedChar(brandChars);
+        } else if (brandedCells.length >= 25) {
+            removeBrandedChar();
+        }
+    }
+
+    function addBrandedChar(brandChars) {
+        let newX, newY, attempts = 0;
+        do {
+            newX = Math.floor(Math.random() * (gridWidth - 4) + 2);
+            newY = Math.floor(Math.random() * (gridHeight - 4) + 2);
+            attempts++;
+        } while (asciiGrid[newY][newX].isBranded && attempts < 100);
+
+        if (attempts < 100) {
+            const charIndex = Math.floor(Math.random() * brandChars.length);
+            const newCell = asciiGrid[newY][newX];
+            newCell.isBranded = true;
+            newCell.char = brandChars[charIndex];
+            brandedCells.push(newCell);
+        }
+    }
+
+    function removeBrandedChar() {
+        if (brandedCells.length > 0) {
+            const oldCell = brandedCells.splice(Math.floor(Math.random() * brandedCells.length), 1)[0];
+            const oldX = Math.floor(oldCell.initialX / charSize);
+            const oldY = Math.floor(oldCell.initialY / charSize);
+            asciiGrid[oldY][oldX].isBranded = false;
+            asciiGrid[oldY][oldX].char = autoglyphChars[Math.floor(Math.random() * autoglyphChars.length)];
+        }
+    }
+    
+    function getContentType(id) { return id.split('_')[0]; }
+    function renderFilterNav() { const c = [...new Set(allPosts.map(p => getContentType(p.id)))]; let f = `<a href="#" class="filter-link active" data-filter="all">LTL</a>`; c.sort().forEach(t => f += `<a href="#" class="filter-link" data-filter="${t}">${t}</a>`); filterNav.innerHTML = f; filterNav.addEventListener('click', e => { e.preventDefault(); if (e.target.classList.contains('filter-link')) { const fi = e.target.dataset.filter; document.querySelector('#filter-nav .active').classList.remove('active'); e.target.classList.add('active'); const p = fi === 'all' ? allPosts : allPosts.filter(po => getContentType(po.id) === fi); renderLinks(p, fi); } }); }
+    
+    function renderLinks(p, a) { 
+        const s = document.getElementById('scroll-indicator'); 
+        Array.from(anchorNav.children).forEach(c => { if (c.id !== 'scroll-indicator') anchorNav.removeChild(c); }); 
+        dynamicField.innerHTML = ''; 
+        contentData.filter(i => i.isAnchor).forEach(an => { 
+            const link = document.createElement('a'); 
+            link.textContent = an.id; 
+            link.className = 'nav-link'; 
+            link.dataset.id = an.id; 
+            anchorNav.appendChild(link);
+            link.addEventListener('click', e => { 
+                e.preventDefault();
+                showModal(an.id);
+            }); 
+        }); 
+        
+        if (a === 'all') { 
+            dynamicField.classList.remove('filtered-view'); 
+            document.getElementById('interaction-instructions').style.opacity = '0.7'; 
+            startChaosInterval(); 
+            const r = dynamicField.getBoundingClientRect(); 
+            const pl = []; 
+            p.forEach(i => { 
+                let nr, att = 0, h = true; 
+                const t = document.createElement('a'); t.textContent = i.id; t.className = 'nav-link'; t.style.visibility = 'hidden'; dynamicField.appendChild(t); 
+                const lw = t.offsetWidth; const lh = t.offsetHeight; dynamicField.removeChild(t); 
+                if (r.width <= lw || r.height <= lh) return; 
+                while (h && att < 500) { 
+                    const x = Math.random() * (r.width - lw); const y = Math.random() * (r.height - lh); 
+                    nr = { left: x, top: y, right: x + lw, bottom: y + lh }; 
+                    h = pl.some(re => (re.right + 30 >= nr.left && re.left <= nr.right + 30 && re.bottom + 30 >= nr.top && re.top <= nr.bottom + 30)); 
+                    att++; 
+                } 
+                if (!h) { 
+                    const link = document.createElement('a'); link.textContent = i.id; link.className = 'nav-link'; link.dataset.id = i.id; link.style.left = `${nr.left}px`; link.style.top = `${nr.top}px`; 
+                    dynamicField.appendChild(link); pl.push(nr); 
+                } 
+            }); 
+        } else { 
+            dynamicField.classList.add('filtered-view'); 
+            document.getElementById('interaction-instructions').style.opacity = '0'; 
+            stopChaosInterval(); 
+            p.forEach(i => { 
+                const link = document.createElement('a'); link.textContent = i.id; link.className = 'nav-link'; link.dataset.id = i.id; 
+                dynamicField.appendChild(link); 
+            }); 
+        } 
+        setTimeout(() => { 
+            if (document.body.scrollHeight > window.innerHeight) s.style.opacity = '0.5'; 
+            else s.style.opacity = '0'; 
+        }, 100); 
+    }
+
+    function regenerateChaosGrid() { const l = dynamicField.querySelectorAll('.nav-link'); if (dynamicField.classList.contains('filtered-view') || l.length === 0) return; const r = dynamicField.getBoundingClientRect(); const p = []; l.forEach(li => { let nr, att = 0, h = true; const w = li.offsetWidth; const he = li.offsetHeight; while (h && att < 200) { const x = Math.random() * (r.width - w); const y = Math.random() * (r.height - he); nr = { left: x, top: y, right: x + w, bottom: y + he }; h = p.some(re => (re.right + 30 >= nr.left && re.left <= nr.right + 30 && re.bottom + 30 >= nr.top && re.top <= re.bottom + 30)); att++; } if (!h) { li.style.left = `${nr.left}px`; li.style.top = `${nr.top}px`; p.push(nr); } }); }
+    function startChaosInterval() { stopChaosInterval(); chaosInterval = setInterval(regenerateChaosGrid, 15000); }
+    function stopChaosInterval() { clearInterval(chaosInterval); chaosInterval = null; }
+    
+    function setupInteractionListeners() {
+        let activeLink = null, isDragging = false, dragTimeout;
+        const dynamicField = document.getElementById('dynamic-field');
+        dynamicField.addEventListener('pointerdown', e => { const target = e.target.closest('.nav-link'); if (!target || dynamicField.classList.contains('filtered-view')) return; isDragging = false; dragTimeout = setTimeout(() => { isDragging = true; activeLink = target; activeLink.classList.add('dragging'); document.body.classList.add('no-scroll'); }, 200); });
+        document.addEventListener('pointermove', e => { if (dragTimeout && !isDragging) clearTimeout(dragTimeout); if (!isDragging || !activeLink) return; e.preventDefault(); const fieldRect = dynamicField.getBoundingClientRect(); const x = e.clientX - fieldRect.left - (activeLink.offsetWidth / 2); const y = e.clientY - fieldRect.top - (activeLink.offsetHeight / 2); activeLink.style.left = `${x}px`; activeLink.style.top = `${y}px`; });
+        document.addEventListener('pointerup', e => { clearTimeout(dragTimeout); if (isDragging) { activeLink.classList.remove('dragging'); document.body.classList.remove('no-scroll'); } else { const target = e.target.closest('.nav-link'); if (target && dynamicField.contains(target)) { showModal(target.dataset.id); } } isDragging = false; activeLink = null; });
+    }
+
+    function setupVideoBreathingEffect() { const videoContainer = document.getElementById('video-background-container'); if (!videoContainer) return; function breathe() { videoContainer.style.filter = 'blur(4px)'; setTimeout(() => { videoContainer.style.filter = 'blur(0px)'; }, 2500); const randomInterval = Math.random() * 6000 + 5000; setTimeout(breathe, randomInterval + 2500); } setTimeout(breathe, 4000); }
+    function setupBinaryGlitch() { const o = binarySignature.textContent; let i = false; const t = () => { if (i) return; i = true; let g = setInterval(() => { binarySignature.textContent = o.split('').map(c => (c === '1' || c === '0') ? (Math.random() > 0.5 ? '1' : '0') : c).join(''); }, 50); setTimeout(() => { clearInterval(g); binarySignature.textContent = o; i = false; }, 1000); }; setInterval(t, 8000 + Math.random() * 5000); }
+    
+    function showModal(contentId) {
+        const item = contentData.find(d => d.id === contentId);
+        if (item) {
+            let finalContent = item.content;
+            if (item.type === 'post' && !item.content.includes('<h2>')) {
+                finalContent = `<h2>${item.id}</h2>` + item.content;
+            }
+            modalBody.innerHTML = finalContent;
+            modal.style.display = 'flex';
+        }
+    }
+
+    function hideModal() {
+        modal.style.display = 'none';
+        modalBody.innerHTML = ''; 
+    }
+
+    closeBtn.addEventListener('click', hideModal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) hideModal(); });
+    
+    initializeSite();
+});

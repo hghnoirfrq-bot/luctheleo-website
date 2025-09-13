@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LUCTHELEO | Audio.Alchemist</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- Video Background Styles --- */
+        #video-background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            transition: filter 2s ease-in-out;
+        }
+        #bg-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(90%) contrast(150%) brightness(50%);
+            transition: filter 0.1s ease-in-out;
+        }
+        #video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: 0;
+        }
+        #video-overlay::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiGAAAAA1BMVEX///+nxBvIAAAANElEQVR42u3BAQ0AAADCoPdPbQ8HFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPBgJ4QAAUe9F2sAAAAASUVORK5CYII=');
+            opacity: 0.05;
+            animation: grain 1s steps(2, end) infinite;
+        }
+        @keyframes grain {
+          0%, 100% { transform: translate(0, 0); }
+          10% { transform: translate(-1%, -1%); }
+          20% { transform: translate(1%, 1%); }
+          30% { transform: translate(-2%, 2%); }
+          40% { transform: translate(2%, -1%); }
+          50% { transform: translate(-1%, 2%); }
+          60% { transform: translate(2%, 1%); }
+          70% { transform: translate(-2%, -2%); }
+          80% { transform: translate(1%, -1%); }
+          90% { transform: translate(2%, 2%); }
+        }
+        /* --- End Video Background Styles --- */
+        
+        :root {
+            --bg-color: #121212;
+            --text-color: #E0E0E0;
+            --link-color: #B0B0B0;
+            --hover-color: #FFFFFF;
+            --font-mono: 'Roboto Mono', monospace;
+            --font-sans: 'Inter', sans-serif;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            background-color: transparent; 
+            color: var(--text-color);
+            font-family: var(--font-sans);
+            overflow-x: hidden;
+            cursor: default;
+            padding-bottom: 90px; /* Make space for player */
+        }
+
+        body.no-scroll {
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        .container {
+            background-color: transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            width: 100vw;
+            padding: 2rem;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        header, footer {
+            flex-shrink: 0;
+            width: 100%;
+            z-index: 10;
+            position: relative;
+        }
+        
+        #logo-container {
+            width: 300px; 
+            height: 150px;
+            margin: 0 auto 1rem;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            animation: dying-neon 8s infinite ease-in-out;
+            transition: opacity 0.1s ease-in-out, filter 0.1s ease-in-out;
+        }
+        
+        @keyframes dying-neon {
+            0%, 70% { opacity: 1; filter: blur(0.5px) brightness(1); transform: scale(1); }
+            75% { opacity: 0.7; filter: blur(1px) brightness(0.8); }
+            80% { opacity: 0.3; transform: scale(1.02) translateX(-2px); }
+            81% { opacity: 0.9; filter: blur(0.5px) brightness(1.2); }
+            82% { opacity: 0.2; transform: scale(0.98) translateX(2px); }
+            83% { opacity: 0.4; transform: translateX(-3px); }
+            84% { opacity: 0.2; transform: translateX(3px); }
+            90% { opacity: 0.8; filter: blur(0.5px) brightness(1); transform: scale(1); }
+            100% { opacity: 1; filter: blur(0.5px) brightness(1); transform: scale(1); }
+        }
+
+        header h1, header p, .nav-link, #interaction-instructions, footer, .filter-link, .modal-body h2, .modal-body h3 {
+            font-family: var(--font-mono);
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+        header h1 { font-size: 1.2rem; }
+        header p { font-size: 0.9rem; color: var(--link-color); }
+
+        #binary-signature { cursor: pointer; }
+
+        main {
+            flex-grow: 1; display: flex; flex-direction: column; width: 100%; max-width: 1200px; margin: 1rem 0; position: relative;
+        }
+
+        #anchor-nav {
+            flex-shrink: 0; display: flex; justify-content: center; align-items: center; gap: 3rem; padding-bottom: 1.5rem; margin-bottom: 1rem; border-bottom: 1px solid #333; position: relative;
+        }
+        
+        #scroll-indicator {
+            position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 1px; height: 20px; background-color: var(--link-color); opacity: 0; transition: opacity 0.5s ease; animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: scaleY(1) translateX(-50%); }
+            50% { opacity: 0.8; transform: scaleY(1.5) translateX(-50%); }
+        }
+        
+        #interaction-instructions {
+            font-size: 0.8rem; letter-spacing: 1px; padding: 0.5rem 0; margin-bottom: 1rem; opacity: 0.7; transition: opacity 0.3s ease;
+        }
+
+        #filter-nav {
+            display: flex; justify-content: center; flex-wrap: wrap; gap: 1rem 2rem; margin-bottom: 2rem;
+        }
+
+        .filter-link {
+            color: var(--link-color); cursor: pointer; text-decoration: none; transition: color 0.3s ease;
+        }
+
+        .filter-link:hover, .filter-link.active { color: var(--hover-color); }
+
+        #dynamic-field {
+            flex-grow: 1; position: relative; min-height: 80vh; transition: min-height 0.5s ease;
+        }
+        
+        #dynamic-field.filtered-view {
+            display: flex; flex-wrap: wrap; justify-content: center; align-content: flex-start; gap: 1.5rem 3rem; min-height: 10vh !important; height: auto !important;
+        }
+
+        .nav-link {
+            position: absolute; text-decoration: none; font-size: 0.9rem; cursor: pointer; transition: color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease, opacity 0.5s ease, left 2s ease-in-out, top 2s ease-in-out; white-space: nowrap; padding: 5px; user-select: none;
+        }
+        
+        .filtered-view .nav-link { position: static; }
+
+        .nav-link.dragging {
+            cursor: grabbing; color: var(--hover-color); transform: scale(1.1); z-index: 100; box-shadow: 0 0 15px rgba(255, 255, 255, 0.2); transition: color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .nav-link:hover { color: var(--hover-color); transform: scale(1.1); }
+        
+        #anchor-nav .nav-link { position: static; font-weight: 700; color: var(--text-color); font-size: 1rem; }
+
+        footer {
+            font-size: 0.8rem; color: var(--link-color); margin-top: 2rem;
+        }
+
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.9); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 1rem; box-sizing: border-box;
+        }
+
+        .modal-content {
+            position: relative; background-color: var(--bg-color); padding: 2rem; border-radius: 8px; width: 100%; max-width: 800px; max-height: 100%; overflow-y: auto; color: var(--text-color); border: 1px solid #333;
+            /* Hide scrollbar for Firefox */
+            scrollbar-width: none;
+            /* Hide scrollbar for IE and Edge */
+            -ms-overflow-style: none;
+        }
+
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .modal-content::-webkit-scrollbar {
+            display: none;
+        }
+
+        .modal-close {
+            position: absolute; top: 1rem; right: 1.5rem; font-size: 2rem; font-weight: bold; color: var(--link-color); cursor: pointer; transition: color 0.3s ease;
+        }
+
+        .modal-close:hover { color: var(--hover-color); }
+        .modal-body h2 { margin-top: 0; }
+        .modal-body h3 { color: var(--link-color); font-weight: normal; }
+        
+        .modal-body p, .modal-body li { 
+            font-family: var(--font-mono);
+            line-height: 1.7; 
+            font-size: 1rem; 
+            letter-spacing: 1px;
+        }
+
+        .modal-body a { color: var(--hover-color); text-decoration: underline; }
+
+        .modal-body .embed-container {
+            position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; background: #000; margin-top: 1rem;
+        }
+
+        .modal-body iframe {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;
+        }
+        .modal-body .soundcloud-embed iframe { position: relative; height: 300px; }
+        
+        /* --- Premium Audio Player Styles --- */
+        #persistent-audio-player {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(18, 18, 18, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 1px solid #333;
+            z-index: 2000;
+            display: none;
+            padding: 15px 20px;
+            box-sizing: border-box;
+        }
+
+        .player-wrapper {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        #play-pause-btn {
+            background-color: var(--text-color);
+            border: none;
+            color: var(--bg-color);
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        #play-pause-btn:hover {
+            background-color: var(--hover-color);
+            transform: scale(1.05);
+        }
+
+        .player-center {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .track-info {
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            text-align: left;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+        
+        .progress-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .time-display {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--link-color);
+            min-width: 40px;
+        }
+
+        #volume-controls {
+            display: none; /* Hidden on mobile */
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            cursor: pointer;
+            width: 100%;
+        }
+        input[type="range"]:focus { outline: none; }
+        
+        input[type="range"]::-webkit-slider-runnable-track { 
+            height: 4px; 
+            background: #555; 
+            border-radius: 4px; 
+        }
+        input[type="range"]::-moz-range-track { 
+            height: 4px; 
+            background: #555; 
+            border-radius: 4px; 
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none;
+            margin-top: -5px; 
+            background-color: var(--text-color);
+            height: 14px; width: 14px; border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+        input[type="range"]::-moz-range-thumb {
+            border: none;
+            background-color: var(--text-color);
+            height: 14px; width: 14px; border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+        input[type="range"]:hover::-webkit-slider-thumb { 
+            background-color: var(--hover-color);
+            box-shadow: 0 0 5px var(--hover-color);
+        }
+        input[type="range"]:hover::-moz-range-thumb { 
+            background-color: var(--hover-color);
+            box-shadow: 0 0 5px var(--hover-color);
+        }
+        
+        /* Responsive Desktop Styles */
+        @media (min-width: 640px) {
+             #persistent-audio-player {
+                padding: 15px 30px;
+             }
+            .player-wrapper {
+                gap: 30px;
+            }
+            #volume-controls { 
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                width: 150px;
+            }
+            #volume-icon {
+                color: var(--link-color);
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div id="video-background-container">
+        <video autoplay loop muted playsinline id="bg-video">
+            <source src="videos/home_LA1.mp4" type="video/mp4">
+        </video>
+        <div id="video-overlay"></div>
+    </div>
+   
+    <div class="container">
+        <header>
+             <div id="logo-container">
+                <img class="logo-image" src="img/ltl_logo.PNG" alt="LTL Logo">
+             </div>
+            <h1>LUCTHELEO | Audio.Alchemist</h1>
+            <p>Pleasantly lost...</p>
+            <p>REVERIE | Systematic Creative Development</p>
+            <p id="binary-signature">L-01001100 T-01010100 L-01001100</p>
+        </header>
+
+        <main id="link-field">
+            <div id="anchor-nav">
+                 <div id="scroll-indicator"></div>
+            </div>
+            <div id="filter-nav"></div>
+            <div id="interaction-instructions">HOLD TO ORGANIZE | TAP TO VIEW</div>
+            <div id="dynamic-field"></div>
+        </main>
+
+        <footer>
+            <p>Signal through the static.</p>
+            <p>No ego. Just work.</p>
+        </footer>
+    </div>
+
+    <div id="content-modal" class="modal">
+        <div class="modal-content">
+            <span id="modal-close-btn" class="modal-close">&times;</span>
+            <div id="modal-body" class="modal-body">
+            </div>
+        </div>
+    </div>
+
+    <!-- Premium Player HTML -->
+    <div id="persistent-audio-player">
+        <div class="player-wrapper">
+            <button id="play-pause-btn">&#9658;</button>
+            <div class="player-center">
+                <div class="track-info">Ruminate - LUCTHELEO</div>
+                <div class="progress-wrapper">
+                    <span id="current-time" class="time-display">0:00</span>
+                    <input type="range" id="seek-bar" value="0" step="1">
+                    <span id="duration" class="time-display">0:00</span>
+                </div>
+            </div>
+            <div id="volume-controls">
+                <span id="volume-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M11.536 14.01A8.47 8.47 0 0 0 14.026 8a8.47 8.47 0 0 0-2.49-6.01l-.708.707A7.48 7.48 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303z"/>
+                        <path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.48 5.48 0 0 1 11.025 8a5.48 5.48 0 0 1-1.61 3.89z"/>
+                        <path d="M8.707 11.182A4.5 4.5 0 0 0 10.025 8a4.5 4.5 0 0 0-1.318-3.182L8 5.525A3.5 3.5 0 0 1 9.025 8 3.5 3.5 0 0 1 8 10.475zM6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06z"/>
+                    </svg>
+                </span>
+                <input type="range" id="volume-bar" value="0.45" min="0" max="1" step="0.01">
+            </div>
+        </div>
+        <audio id="track" src="music/ruminate.mp3" crossOrigin="anonymous"></audio>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let contentData = [];
+            let allPosts = [];
+            let chaosInterval; 
+
+            const anchorNav = document.getElementById('anchor-nav');
+            const filterNav = document.getElementById('filter-nav');
+            const dynamicField = document.getElementById('dynamic-field');
+            const modal = document.getElementById('content-modal');
+            const modalBody = document.getElementById('modal-body');
+            const closeBtn = document.getElementById('modal-close-btn');
+            const binarySignature = document.getElementById('binary-signature');
+            
+            const player = document.getElementById('persistent-audio-player');
+            const track = document.getElementById('track');
+            const playPauseBtn = document.getElementById('play-pause-btn');
+            const volumeBar = document.getElementById('volume-bar');
+            const seekBar = document.getElementById('seek-bar');
+
+            const currentTimeEl = document.getElementById('current-time');
+            const durationEl = document.getElementById('duration');
+
+            const logoImage = document.querySelector('.logo-image');
+            const bgVideo = document.getElementById('bg-video');
+            
+            let audioCtx;
+            let analyser;
+            let source;
+            let isPlayerInitialized = false;
+
+            async function initializeSite() {
+                try {
+                    // In a real scenario, you'd fetch this from a file.
+                    // For this example, it's embedded.
+                    contentData = [
+                        {
+                            "id": "MNFST", "type": "page", "isAnchor": true,
+                            "content": `<h2>MNFST</h2><h3>LUCTHELEO | Audio.Alchemist</h3><p>Pleasantly lost in the space between signal and static.</p><p>I create from the overflow. Twenty-three years navigating the intersection of classical training and digital chaos, Louisiana soul and systematic precision. Central Louisiana roots run deep—music creation since 2007, formal production education, life coaching training.</p><p>Someone who knows a little about a lot and a lot about a little.</p><p>The problem isn't lack of creativity. The problem is creative abundance without systematic capture.</p><p>Most creative partnerships scatter brilliant ideas across sessions like seeds in the wind. Concepts emerge, energy builds, then everything disappears into the void between meetings. I solve creative overflow through systematic documentation, organized development, and shared ownership of unused collaborative assets.</p><h3>The Architecture</h3><p><b>HTML.</b> Core creative foundation. Your authentic message before market pressure shapes it.</p><p><b>CSS.</b> How you present yourself when the world is watching. Visual identity that serves the work, not ego.</p><p><b>JS.</b> Market function without compromise. Audience connection that maintains creative integrity.</p><p>Three layers. Each builds upon the previous. Complete creative architecture emerges through systematic development rather than creative chaos.</p><h3>The Process</h3><p>Sessions combine immediate creative work with transferable systematic methods. You leave with both completed material and organizational approaches that serve future projects. This isn't dependency creation—it's systematic capability building.</p><p>Documentation captures everything. Project folders organize by development layer. Session recordings preserve decisions and breakthroughs. Nothing gets lost. Everything builds upon everything.</p><p>Unused creative assets become shared catalog content. Your collaborative overflow generates ongoing revenue rather than disappearing into digital archives. Creative partnership becomes creative investment.</p><h3>The Foundation</h3><p>Louisiana spiritual tradition meets contemporary creative technology. Prayer and systematic organization. Ancestral wisdom and digital precision. The sacred and the professional occupy the same space without contradiction.</p><p>All decisions start from spiritual foundation, move through abstract glimpses, process through mind and memory, then manifest through systematic action. The heart determines application. The body executes with documentation.</p><p>Excellence is measured by commitment. What gets written becomes real. The work speaks for itself.</p><h3>The Practice</h3><p><b>Order Line Conversation.</b> Fifteen minutes. Creative alignment assessment without sales pressure.</p><p><b>REVERIE Foundation.</b> Two hours. Complete project architecture establishment. Systematic organization that supports long-term creative development.</p><p><b>RUMINATE Development.</b> Focused sessions. CSS and JS layer building through collaborative systematic approaches.</p><p>No ego. Just work. Systematic creative development for artists ready to invest in organized capability building rather than casual creative exploration.</p><h3>The Philosophy</h3><p>I don't explain the spaces. I invite you to wander them.</p><p>Creative development serves the work, not the worker. Systematic approaches honor both artistic authenticity and professional sustainability. Spiritual foundation supports rather than opposes technological precision.</p><p>We are signal through static. Analog intuition meets digital creation. Louisiana heritage informs contemporary creative architecture. The mysterious and the systematic coexist without contradiction.</p><h3>Contact Protocol</h3><p>Direct communication via Telegram @luctheleo. Systematic creative development begins with Order Line Conversation. Assessment precedes engagement. Alignment determines collaboration.</p><p><b>L-01001100 T-01010100 L-01001100</b></p><p>Transdisciplinary artist. Systematic creative development. Louisiana roots, Atlanta operations.</p><p>Signal through the static. Systematic transformation of creative potential into organized reality.</p><p>No ego. Just work.</p>`
+                        },
+                        {
+                            "id": "CRTVDVLPMNT", "type": "page", "isAnchor": true,
+                            "content": "<h2>CRTVDVLPMNT</h2><h3>Systematic Creative Development Overview</h3><p>Every artist has three faces: the one they know themselves to be (your <b>HTML</b>), the one they present to the world (your <b>CSS</b>), and the one that interacts with reality (your <b>JS</b>)...</p>"
+                        },
+                         {
+                            "id": "RQST", "type": "page", "isAnchor": true,
+                            "content": "<h2>Booking & Contact</h2><h3>Free Consultation (Order Line Conversation)</h3><p>To begin, please request a free 15-minute consultation to determine creative alignment. This is the first step for all new projects.</p><p style=\"text-align:center; margin-top: 1rem; margin-bottom: 2rem;\"><a href=\"https://forms.gle/8S2BXZTp2qmWLoKo6\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"padding: 10px 20px; border: 1px solid var(--link-color); border-radius: 5px; text-decoration: none;\">Open Free Consultation Form</a></p><h3>Direct Booking & Socials</h3><p>For returning clients or other inquiries, use the links below.</p><ul><li><a href=\"https://calendly.com/hghnoirfrq/30min\" target=\"_blank\" rel=\"noopener noreferrer\">Book a Session (Calendly)</a></li><li><a href=\"https://linktr.ee/luctheleo\" target=\"_blank\" rel=\"noopener noreferrer\">View All Links (Linktree)</a></li></ul><h3>Contact & Payment</h3><p><b>Direct Communication:</b> Telegram @luctheleo</p><p><b>Payment for Services:</b> CashApp $NoEgoJustWork</p>"
+                        },
+                        {
+                            "id": "VOID_017 - home_LA", "type": "post", "isAnchor": false,
+                            "content": "<div class='embed-container'><video style='width:100%;' controls><source src='videos/home_LA1.mp4' type='video/mp4'></video></div>"
+                        },
+                        {
+                            "id": "SGNNL_004 - JAY Z", "type": "post", "isAnchor": false,
+                            "content": "<div class=\"soundcloud-embed\"><iframe width=\"100%\" height=\"166\" scrolling=\"no\" frameborder=\"no\" allow=\"autoplay\" src=\"https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1226734087&color=%23546464&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=true\"></iframe></div>"
+                        },
+                        {
+                            "id": "VOID_015 - INIKO | JERICHO", "type": "post", "isAnchor": false,
+                            "content": "<div class=\"embed-container\"><iframe src=\"https://www.youtube.com/embed/6bRsSLMzkIQ\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe></div>"
+                        }
+                    ];
+                    allPosts = contentData.filter(item => item.type === 'post');
+                    renderFilterNav();
+                    renderLinks(allPosts, 'all');
+                    setupInteractionListeners();
+                    setupBinaryGlitch();
+                    setupVideoBreathingEffect();
+                    startChaosInterval();
+                } catch (error) {
+                    console.error("Failed to load content:", error);
+                    dynamicField.innerHTML = '<p style="color:red; text-align:center;">Error: Could not load site content.</p>';
+                }
+            }
+            
+            function initializeAudioPlayer() {
+                if (isPlayerInitialized) return;
+                
+                // Set initial volume
+                track.volume = 0.45;
+
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioCtx.createAnalyser();
+                source = audioCtx.createMediaElementSource(track);
+                
+                source.connect(analyser);
+                analyser.connect(audioCtx.destination);
+                
+                analyser.fftSize = 256;
+                const bufferLength = analyser.frequencyBinCount;
+                const freqData = new Uint8Array(bufferLength);
+                
+                function playAudio() {
+                    if (audioCtx.state === 'suspended') audioCtx.resume();
+                    track.play();
+                }
+
+                function pauseAudio() {
+                    track.pause();
+                }
+                
+                playPauseBtn.addEventListener('click', () => track.paused ? playAudio() : pauseAudio());
+                
+                track.addEventListener('play', () => {
+                    playPauseBtn.innerHTML = '&#10074;&#10074;';
+                    logoImage.style.animationPlayState = 'paused';
+                });
+                
+                track.addEventListener('pause', () => {
+                    playPauseBtn.innerHTML = '&#9658;';
+                    logoImage.style.animationPlayState = 'running';
+                });
+                
+                volumeBar.addEventListener('input', (e) => track.volume = e.target.value);
+                seekBar.addEventListener('input', (e) => track.currentTime = e.target.value);
+
+                const setDuration = () => {
+                    if (track.duration && isFinite(track.duration)) {
+                        const duration = track.duration;
+                        seekBar.max = duration;
+                        durationEl.textContent = formatTime(duration);
+                    }
+                };
+                track.addEventListener('canplaythrough', setDuration);
+                track.addEventListener('loadedmetadata', setDuration);
+
+                track.addEventListener('timeupdate', () => {
+                    const currentTime = track.currentTime;
+                    seekBar.value = currentTime;
+                    currentTimeEl.textContent = formatTime(currentTime);
+                });
+
+                track.addEventListener('ended', pauseAudio);
+
+                function formatTime(seconds) {
+                    const minutes = Math.floor(seconds / 60);
+                    const secs = Math.floor(seconds % 60);
+                    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+                }
+
+                function draw() {
+                    requestAnimationFrame(draw);
+                    analyser.getByteFrequencyData(freqData);
+                    
+                    if (!track.paused) {
+                        const bassFrequencies = freqData.slice(0, Math.floor(bufferLength * 0.2));
+                        const averageBass = bassFrequencies.reduce((a, b) => a + b, 0) / (bassFrequencies.length || 1);
+                        const normalizedBass = averageBass / 255; 
+                        logoImage.style.opacity = 0.6 + normalizedBass * 0.4;
+                        logoImage.style.filter = `blur(0.5px) brightness(${1 + normalizedBass * 0.5})`;
+                        bgVideo.style.filter = `grayscale(90%) contrast(150%) brightness(${0.4 + normalizedBass * 0.2})`;
+                    }
+                }
+                
+                draw();
+                isPlayerInitialized = true;
+            }
+
+            function getContentType(id) { return id.split('_')[0]; }
+            function renderFilterNav() { const c = [...new Set(allPosts.map(p => getContentType(p.id)))]; let f = `<a href="#" class="filter-link active" data-filter="all">LTL</a>`; c.sort().forEach(t => f += `<a href="#" class="filter-link" data-filter="${t}">${t}</a>`); filterNav.innerHTML = f; filterNav.addEventListener('click', e => { e.preventDefault(); if (e.target.classList.contains('filter-link')) { const fi = e.target.dataset.filter; document.querySelector('#filter-nav .active').classList.remove('active'); e.target.classList.add('active'); const p = fi === 'all' ? allPosts : allPosts.filter(po => getContentType(po.id) === fi); renderLinks(p, fi); } }); }
+            function renderLinks(p, a) { const s = document.getElementById('scroll-indicator'); Array.from(anchorNav.children).forEach(c => { if (c.id !== 'scroll-indicator') anchorNav.removeChild(c); }); dynamicField.innerHTML = ''; contentData.filter(i => i.isAnchor).forEach(an => { const link = document.createElement('a'); link.textContent = an.id; link.className = 'nav-link'; link.dataset.id = an.id; anchorNav.appendChild(link); }); if (a === 'all') { dynamicField.classList.remove('filtered-view'); document.getElementById('interaction-instructions').style.opacity = '0.7'; startChaosInterval(); const r = dynamicField.getBoundingClientRect(); const pl = []; p.forEach(i => { let nr, att = 0, h = true; const t = document.createElement('a'); t.textContent = i.id; t.className = 'nav-link'; t.style.visibility = 'hidden'; dynamicField.appendChild(t); const lw = t.offsetWidth; const lh = t.offsetHeight; dynamicField.removeChild(t); if (r.width <= lw || r.height <= lh) return; while (h && att < 500) { const x = Math.random() * (r.width - lw); const y = Math.random() * (r.height - lh); nr = { left: x, top: y, right: x + lw, bottom: y + lh }; h = pl.some(re => (re.right + 30 >= nr.left && re.left <= nr.right + 30 && re.bottom + 30 >= nr.top && re.top <= nr.bottom + 30)); att++; } if (!h) { const link = document.createElement('a'); link.textContent = i.id; link.className = 'nav-link'; link.dataset.id = i.id; link.style.left = `${nr.left}px`; link.style.top = `${nr.top}px`; dynamicField.appendChild(link); pl.push(nr); } }); } else { dynamicField.classList.add('filtered-view'); document.getElementById('interaction-instructions').style.opacity = '0'; stopChaosInterval(); p.forEach(i => { const link = document.createElement('a'); link.textContent = i.id; link.className = 'nav-link'; link.dataset.id = i.id; dynamicField.appendChild(link); }); } setTimeout(() => { if (document.body.scrollHeight > window.innerHeight) s.style.opacity = '0.5'; else s.style.opacity = '0'; }, 100); }
+            function regenerateChaosGrid() { const l = dynamicField.querySelectorAll('.nav-link'); if (dynamicField.classList.contains('filtered-view') || l.length === 0) return; const r = dynamicField.getBoundingClientRect(); const p = []; l.forEach(li => { let nr, att = 0, h = true; const w = li.offsetWidth; const he = li.offsetHeight; while (h && att < 200) { const x = Math.random() * (r.width - w); const y = Math.random() * (r.height - he); nr = { left: x, top: y, right: x + w, bottom: y + he }; h = p.some(re => (re.right + 30 >= nr.left && re.left <= nr.right + 30 && re.bottom + 30 >= nr.top && re.top <= re.bottom + 30)); att++; } if (!h) { li.style.left = `${nr.left}px`; li.style.top = `${nr.top}px`; p.push(nr); } }); }
+            function startChaosInterval() { stopChaosInterval(); chaosInterval = setInterval(regenerateChaosGrid, 15000); }
+            function stopChaosInterval() { clearInterval(chaosInterval); chaosInterval = null; }
+            
+            function setupInteractionListeners() {
+                let activeLink = null, isDragging = false, dragTimeout;
+                const dynamicField = document.getElementById('dynamic-field');
+
+                dynamicField.addEventListener('pointerdown', e => {
+                    const target = e.target.closest('.nav-link');
+                    if (!target || dynamicField.classList.contains('filtered-view')) return;
+
+                    isDragging = false;
+                    dragTimeout = setTimeout(() => {
+                        isDragging = true;
+                        activeLink = target;
+                        activeLink.classList.add('dragging');
+                        document.body.classList.add('no-scroll');
+                    }, 200);
+                });
+
+                document.addEventListener('pointermove', e => {
+                    if (dragTimeout && !isDragging) clearTimeout(dragTimeout);
+                    if (!isDragging || !activeLink) return;
+
+                    e.preventDefault();
+
+                    const fieldRect = dynamicField.getBoundingClientRect();
+                    const x = e.clientX - fieldRect.left - (activeLink.offsetWidth / 2);
+                    const y = e.clientY - fieldRect.top - (activeLink.offsetHeight / 2);
+
+                    activeLink.style.left = `${x}px`;
+                    activeLink.style.top = `${y}px`;
+                });
+
+                document.addEventListener('pointerup', e => {
+                    clearTimeout(dragTimeout);
+
+                    if (isDragging) {
+                        activeLink.classList.remove('dragging');
+                        document.body.classList.remove('no-scroll');
+                    } else {
+                        const target = e.target.closest('.nav-link');
+                        if (target && dynamicField.contains(target)) {
+                            showModal(target.dataset.id);
+                        }
+                    }
+
+                    isDragging = false;
+                    activeLink = null;
+                });
+
+                 document.addEventListener('click', e => {
+                    const target = e.target.closest('.nav-link');
+                    if (target && (anchorNav.contains(target) || dynamicField.classList.contains('filtered-view'))) {
+                        e.preventDefault();
+                        showModal(target.dataset.id);
+                    }
+                });
+            }
+
+            function setupVideoBreathingEffect() {
+                const videoContainer = document.getElementById('video-background-container');
+                if (!videoContainer) return;
+
+                function breathe() {
+                    // Add blur to the container, making the video "breathe"
+                    videoContainer.style.filter = 'blur(4px)';
+
+                    // Set timeout to remove blur after a few seconds
+                    setTimeout(() => {
+                        videoContainer.style.filter = 'blur(0px)';
+                    }, 2500); // Duration of the blur effect
+
+                    // Schedule the next "breath" at a random interval to feel more organic
+                    const randomInterval = Math.random() * 6000 + 5000; // Next breath in 5-11 seconds
+                    setTimeout(breathe, randomInterval + 2500); 
+                }
+
+                // Start the breathing effect after an initial delay
+                setTimeout(breathe, 4000);
+            }
+
+            function setupBinaryGlitch() { const o = binarySignature.textContent; let i = false; const t = () => { if (i) return; i = true; let g = setInterval(() => { binarySignature.textContent = o.split('').map(c => (c === '1' || c === '0') ? (Math.random() > 0.5 ? '1' : '0') : c).join(''); }, 50); setTimeout(() => { clearInterval(g); binarySignature.textContent = o; i = false; }, 1000); }; setInterval(t, 8000 + Math.random() * 5000); }
+            
+            function showModal(contentId) {
+                const item = contentData.find(d => d.id === contentId);
+                if (item) {
+                    if (contentId === 'MNFST') {
+                        if (!isPlayerInitialized) initializeAudioPlayer();
+                        player.style.display = 'flex';
+                        if (track.paused) {
+                           track.play().catch(error => console.error("Audio autoplay failed:", error));
+                        }
+                    }
+                    let finalContent = item.content;
+                    if (item.type === 'post' && !item.content.includes('<h2>')) finalContent = `<h2>${item.id}</h2>` + item.content;
+                    modalBody.innerHTML = finalContent;
+                    modal.style.display = 'flex';
+                }
+            }
+
+            function hideModal() {
+                modal.style.display = 'none';
+                modalBody.innerHTML = ''; 
+            }
+
+            closeBtn.addEventListener('click', hideModal);
+            modal.addEventListener('click', (e) => { if (e.target === modal) hideModal(); });
+            
+            initializeSite();
+        });
+    </script>
+</body>
+</html>
+
+
+
