@@ -104,6 +104,26 @@ body.no-scroll {
     background-color: transparent; 
 }
 
+#visualizer-overlay::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='50' viewBox='0 0 100 50'%3E%3Ctext x='0' y='15' font-family='monospace' font-size='10' fill='rgba(255,255,255,0.05)'%3E01 10 01 11 01 10 01 00 10%3C/text%3E%3Ctext x='0' y='35' font-family='monospace' font-size='10' fill='rgba(255,255,255,0.05)'%3E10 00 11 01 10 01 10 11 01%3C/text%3E%3C/svg%3E");
+    animation: shimmer 0.3s steps(2, end) infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translate(0, 0); opacity: 0.8; }
+    25% { transform: translate(1px, 2px); }
+    50% { opacity: 1; }
+    75% { transform: translate(-1px, 1px); }
+    100% { transform: translate(0, 0); opacity: 0.8; }
+}
+
 #visualizer-canvas {
     display: block;
     position: absolute;
@@ -111,6 +131,7 @@ body.no-scroll {
     left: 0;
     width: 100%;
     height: 100%;
+    z-index: 3; 
 }
 
 /* --- Main Site Styles --- */
@@ -176,14 +197,15 @@ header, footer {
     }
 }
 
+/* MOBILE FIX: Removed conflicting 'transform' property from this animation */
 @keyframes glitch-flicker {
     0%, 100% { opacity: 1; }
     50% { opacity: 1; }
     51% { opacity: 0.6; }
     52% { opacity: 1; }
     70% { opacity: 1; }
-    71% { opacity: 0.7; transform: translateX(1px); }
-    72% { opacity: 1; transform: translateX(0); }
+    71% { opacity: 0.7; } /* Fixed */
+    72% { opacity: 1; }   /* Fixed */
 }
 
 .logo-image {
@@ -227,7 +249,6 @@ main {
     0%, 100% { opacity: 0.3; transform: scaleY(1) translateX(-50%); }
     50% { opacity: 0.8; transform: scaleY(1.5) translateX(-50%); }
 }
-/* RESTORED: Instruction text styles */
 #interaction-instructions {
     font-size: 0.8rem; letter-spacing: 1px; padding: 0.5rem 0; margin-bottom: 1rem; opacity: 0.7; transition: opacity 0.3s ease;
 }
@@ -239,7 +260,6 @@ main {
 }
 .filter-link:hover, .filter-link.active { color: var(--hover-color); }
 
-/* RESTORED: Chaos Grid layout styles */
 #dynamic-field {
     flex-grow: 1; 
     position: relative; 
@@ -256,7 +276,7 @@ main {
     height: auto !important;
 }
 .nav-link {
-    position: absolute; /* Links are absolutely positioned for the chaos grid */
+    position: absolute;
     text-decoration: none; 
     font-size: 0.9rem; 
     cursor: pointer; 
@@ -265,7 +285,6 @@ main {
     padding: 5px; 
     user-select: none;
 }
-/* This class is applied to links when they are in the filtered grid */
 .filtered-view .nav-link { 
     position: static; 
 }
@@ -279,7 +298,7 @@ main {
 }
 .nav-link:hover { color: var(--hover-color); transform: scale(1.1); }
 #anchor-nav .nav-link { 
-    position: static; /* Anchor links are always static */
+    position: static;
     font-weight: 700; 
     color: var(--text-color); 
     font-size: 1rem; 
