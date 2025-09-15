@@ -280,7 +280,7 @@ main {
     scrollbar-width: none;
     -ms-overflow-style: none;
 
-    /* === MASK UPDATED: Removed top fade to make nav links visible === */
+    /* Mask UPDATED: Removed top fade to make nav links visible */
     -webkit-mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 50px), transparent 100%);
     mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 50px), transparent 100%);
 }
@@ -294,7 +294,7 @@ main::-webkit-scrollbar {
     z-index: 10;
 }
 
-/* === THIS RULE IS REVERTED TO THE 1px LINE === */
+/* Reverted to the 1px line */
 #scroll-indicator {
     position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); 
     width: 1px; height: 20px; background-color: var(--link-color); 
@@ -364,9 +364,21 @@ main::-webkit-scrollbar {
     color: var(--text-color); 
     font-size: 1rem; 
 }
+
+/* === THIS ENTIRE RULE IS UPDATED === */
 footer {
-    font-size: 0.8rem; color: var(--link-color); margin-top: 2rem;
+    position: fixed;
+    bottom: 90px; /* Sits on top of the player's 90px padding area */
+    left: 0;
+    width: 100%;
+    padding-bottom: 1rem; /* Add some space above the player bar */
+    font-size: 0.8rem; 
+    color: var(--link-color);
+    z-index: 10;
+    text-align: center;
+    pointer-events: none; /* Allows scrolling/clicking 'through' the footer text */
 }
+
 .modal {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.9); display: none; justify-content: center; align-items: center; z-index: 2000;
     padding: 1rem; box-sizing: border-box;
