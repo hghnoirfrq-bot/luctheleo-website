@@ -690,6 +690,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // === CALL THE HELPER FUNCTION ON LOAD ===
         setBrandFilter("PLAY_BRAND_BEAT");
 
+        bgVideo.play(); // Manually start the video
         playAudio(); 
     });
     // === END ENTRY POINT ===
