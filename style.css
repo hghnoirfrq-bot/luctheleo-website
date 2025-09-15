@@ -5,7 +5,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: -1;
+    z-index: 1; /* LAYER 1 (Bottom) */
     transition: filter 2s ease-in-out;
 }
 #bg-video {
@@ -22,7 +22,7 @@
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.4);
-    z-index: 0;
+    z-index: 2;
 }
 #video-overlay::after {
     content: "";
@@ -59,6 +59,7 @@
     --brand-color: #0F003D; /* Brand's accent color */
 }
 
+/* Re-enabled scrolling on the page */
 html, body {
     margin: 0;
     padding: 0;
@@ -67,16 +68,11 @@ html, body {
     color: var(--text-color);
     font-family: var(--font-sans);
     cursor: default;
-    padding-bottom: 90px;
-    
-    height: 100%;
-    overflow: hidden;
-    touch-action: none;
+    overflow-x: hidden;
 }
 
 body.no-scroll {
-    overflow: hidden;
-    touch-action: none;
+    overflow: hidden; /* This class is still used when the MODAL is open */
 }
 
 .container {
@@ -84,23 +80,25 @@ body.no-scroll {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: 100%;
+    min-height: 100vh;
     width: 100vw;
     padding: 2rem;
     box-sizing: border-box;
     text-align: center;
     transition: opacity 2s ease-in-out;
     position: relative;
+    z-index: 4; /* LAYER 4 (Content) */
 }
 
 /* --- Visualizer Styles --- */
+/* The overlay is now fixed, behind the content, to create parallax */
 #visualizer-overlay {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 2;
+    z-index: 3; /* LAYER 3 (Visualizer) */
     opacity: 0;
     pointer-events: none;
     transition: opacity 2s ease-in-out;
@@ -237,7 +235,7 @@ header h1 { margin-top: 1.5rem; font-size: 1.2rem; }
 header p { font-size: 0.9rem; color: var(--link-color); }
 #binary-signature { cursor: pointer; }
 
-/* LAYOUT FIX: Main content area is now scrollable */
+/* The main content area now scrolls naturally */
 main {
     flex-grow: 1; 
     display: flex; 
@@ -246,15 +244,8 @@ main {
     max-width: 1200px; 
     margin: 1rem 0; 
     position: relative;
-    min-height: 0; /* Important for flexbox scrolling */
-    overflow-y: auto; /* This makes the content area scroll */
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-    /* Hide the scrollbar */
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
-main::-webkit-scrollbar {
-    display: none;
+    min-height: 0; 
+    /* Removed overflow: auto. The window will scroll. */
 }
 
 #anchor-nav {
