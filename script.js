@@ -255,20 +255,28 @@ document.addEventListener('DOMContentLoaded', () => {
         analyser = audioCtx.createAnalyser();
         source = audioCtx.createMediaElementSource(track);
         source.connect(analyser);
-        analyser.connect(audioCtx.destination);
+        analyser.connect(audioCtx.destination); // THIS LINE IS RESTORED
         analyser.fftSize = 256;
         
-        // === THIS IS THE NEW CODEBLOCK TO FIX GLITCHING ===
-        // This listener waits for the user to return to the tab, checks if the audio 
-        // system was suspended by the browser, and safely resumes it.
+        // === THIS LISTENER IS UPDATED ===
+        // This handles both leaving and returning to the page per your new request.
         document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible') {
+            if (document.visibilityState === 'hidden') {
+                // --- User left the tab: Force VFX OFF
+                isVfxOn = false; 
+                logoContainer.classList.add('vfx-disabled'); 
+                hideVisualizer(); 
+                rainCtx.clearRect(0, 0, rainCanvas.width, rainCanvas.height);
+                vCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+            } else if (document.visibilityState === 'visible') {
+                // --- User returned: Resume context (for when they re-enable VFX)
                 if (audioCtx && audioCtx.state === 'suspended') {
                     audioCtx.resume().catch(e => console.error("AudioContext resume failed:", e));
                 }
+                // Visuals stay OFF until user manually taps logo.
             }
         });
-        // === END NEW CODEBLOCK ===
+        // === END UPDATED LISTENER ===
         
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);

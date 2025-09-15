@@ -271,7 +271,7 @@ main {
     flex-direction: column; 
     width: 100%; 
     max-width: 1200px; 
-    margin: 0; /* <-- UPDATED: Removed vertical margin to maximize space */
+    margin: 0; /* Removed vertical margin */
     position: relative;
     min-height: 0; 
     overflow-y: auto; /* This makes the content area scroll */
@@ -280,9 +280,9 @@ main {
     scrollbar-width: none;
     -ms-overflow-style: none;
 
-    /* These lines create the fade effect at the top/bottom of the scroll area */
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 50px, black calc(100% - 50px), transparent 100%);
-    mask-image: linear-gradient(to bottom, transparent 0%, black 50px, black calc(100% - 50px), transparent 100%);
+    /* === MASK UPDATED: Removed top fade to make nav links visible === */
+    -webkit-mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 50px), transparent 100%);
+    mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 50px), transparent 100%);
 }
 main::-webkit-scrollbar {
     display: none;
@@ -293,18 +293,21 @@ main::-webkit-scrollbar {
     position: relative; 
     z-index: 10;
 }
+
+/* === THIS RULE IS REVERTED TO THE 1px LINE === */
 #scroll-indicator {
-    position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 1px; height: 20px; background-color: var(--link-color); 
+    position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); 
+    width: 1px; height: 20px; background-color: var(--link-color); 
     opacity: 0; /* JS will change this to 0.8 or 0 */
     transition: opacity 0.5s ease; 
     animation: pulse 2s infinite ease-in-out;
 }
-/* --- THIS KEYFRAME IS UPDATED --- */
 @keyframes pulse {
-    /* Removed opacity from animation; JS will now control visibility */
+    /* Only animates transform, JS controls opacity */
     0%, 100% { transform: scaleY(1) translateX(-50%); }
     50% { transform: scaleY(1.5) translateX(-50%); }
 }
+
 #interaction-instructions {
     font-size: 0.8rem; letter-spacing: 1px; padding: 0.5rem 0; margin-bottom: 1rem; opacity: 0.7; transition: opacity 0.3s ease;
 }
