@@ -685,12 +685,20 @@ document.addEventListener('DOMContentLoaded', () => {
         mainContainer.style.display = 'flex';
         player.style.display = 'flex';
 
+        // === THIS IS THE FIX FOR MOBILE VIDEO ===
+        // We must call .play() on the muted video *inside* the user tap event,
+        // before we initialize the audio context (which happens in initializeSite/playAudio)
+        const playPromise = bgVideo.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(e => console.warn("Background video autoplay was blocked by browser."));
+        }
+        // === END FIX ===
+
         initializeSite(); 
 
         // === CALL THE HELPER FUNCTION ON LOAD ===
         setBrandFilter("PLAY_BRAND_BEAT");
 
-        bgVideo.play(); // Manually start the video
         playAudio(); 
     });
     // === END ENTRY POINT ===
