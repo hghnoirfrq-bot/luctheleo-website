@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let chaosGridItems = []; // Holds posts AND tracks
     let chaosInterval; 
     let inactivityTimer = null; // Timer for idle revert to chaos
-    let tempFavorites = []; // <-- 1. ADDED TEMP FAVORITES ARRAY
+    let tempFavorites = []; // <-- Temp favorites array
 
     // --- Core Site Elements ---
     const anchorNav = document.getElementById('anchor-nav');
@@ -259,7 +259,8 @@ document.addEventListener('DOMContentLoaded', () => {
         analyser.connect(audioCtx.destination); // Audio is routed through analyser
         analyser.fftSize = 256;
         
-        // This handles both leaving and returning to the page per your request
+        // === THIS LISTENER IS UPDATED ===
+        // This handles both leaving and returning to the page per your new request.
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'hidden') {
                 // --- User left the tab: Force VFX OFF
@@ -276,6 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Visuals stay OFF until user manually taps logo.
             }
         });
+        // === END UPDATED LISTENER ===
         
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
@@ -492,7 +494,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function getContentType(id) { return id.split('_')[0]; }
     
-    // === 2. THIS FUNCTION IS UPDATED (FILTER LOGIC) ===
+    // === THIS FUNCTION IS UPDATED (FILTER LOGIC) ===
     function renderFilterNav() { 
         const c = [...new Set(chaosGridItems.map(p => getContentType(p.id)))]; 
         let f = `<a href="#" class="filter-link active" data-filter="all">LTL</a>`; 
@@ -581,6 +583,12 @@ document.addEventListener('DOMContentLoaded', () => {
             p.forEach(i => { 
                 const linkText = i.type === 'track' ? i.title : i.id;
                 const link = document.createElement('a'); link.textContent = linkText; link.className = 'nav-link'; link.dataset.id = i.id; 
+
+                // Add the favorite class if the item is in the array
+                if (tempFavorites.includes(i.id)) {
+                    link.classList.add('is-favorite');
+                }
+
                 dynamicField.appendChild(link); 
             }); 
         } 
@@ -629,9 +637,15 @@ document.addEventListener('DOMContentLoaded', () => {
         chaosInterval = null; 
     }
     
-    // === 3. THIS FUNCTION IS UPDATED (DRAG-AND-DROP LOGIC) ===
+    // === THIS FUNCTION IS REWRITTEN ===
     function setupInteractionListeners() {
+        // These track single vs double taps
+        let lastTap = 0;
+        let lastTapTarget = null;
+        let singleTapTimer;
+        
         let activeLink = null, isDragging = false, dragTimeout;
+
         dynamicField.addEventListener('pointerdown', e => { 
             const target = e.target.closest('.nav-link'); 
             if (!target || dynamicField.classList.contains('filtered-view')) return; 
@@ -641,8 +655,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 activeLink = target; 
                 activeLink.classList.add('dragging'); 
                 document.body.classList.add('no-scroll'); 
+                document.body.classList.add('user-select-disabled'); // Disable text select on drag
             }, 200); 
         });
+
         document.addEventListener('pointermove', e => { 
             if (dragTimeout && !isDragging) clearTimeout(dragTimeout); 
             if (!isDragging || !activeLink) return; 
@@ -654,46 +670,60 @@ document.addEventListener('DOMContentLoaded', () => {
             activeLink.style.left = `${x}px`; 
             activeLink.style.top = `${y}px`; 
         });
+
         document.addEventListener('pointerup', e => { 
             clearTimeout(dragTimeout); 
             if (isDragging) { 
                 activeLink.classList.remove('dragging'); 
                 document.body.classList.remove('no-scroll'); 
+                document.body.classList.remove('user-select-disabled'); // Re-enable text select
 
-                // --- NEW FAVORITES LOGIC ---
-                // Check if the element we dropped on is the "LTL" filter link
-                const dropTarget = e.target.closest('.filter-link');
-                if (dropTarget && dropTarget.dataset.filter === 'all') {
-                    // This is a successful drop on the "LTL" (all) filter
-                    const linkId = activeLink.dataset.id;
-                    
-                    // Add to our favorites array (if it's not already there)
-                    if (!tempFavorites.includes(linkId)) {
-                        tempFavorites.push(linkId);
-                    }
-                    
-                    // Fade out and remove the link from the chaos grid
-                    activeLink.style.opacity = '0';
-                    setTimeout(() => {
-                         if (dynamicField.contains(activeLink)) {
-                            dynamicField.removeChild(activeLink);
-                         }
-                    }, 500); // Wait for fade-out transition
-                }
-                // --- END NEW LOGIC ---
+                // NOTE: All "drop on LTL" logic is removed from here.
 
             } else { 
-                // This is the original "click" logic (not a drag)
+                // --- NEW SINGLE/DOUBLE TAP LOGIC ---
                 const target = e.target.closest('.nav-link'); 
-                if (target && dynamicField.contains(target)) { 
-                    const linkId = target.dataset.id;
+                if (target && dynamicField.contains(target)) {
                     
-                    if (trackLibrary[linkId]) {
-                        loadAndPlayTrack(linkId); 
+                    const now = new Date().getTime();
+                    const timesince = now - lastTap;
+
+                    if ((timesince < 300) && (timesince > 0) && (lastTapTarget === target)) {
+                        // --- DOUBLE TAP LOGIC ---
+                        clearTimeout(singleTapTimer); // Cancel the single-tap
+
+                        const linkId = target.dataset.id;
+                        const favIndex = tempFavorites.indexOf(linkId);
+
+                        if (favIndex > -1) {
+                            // Already a fav, so REMOVE it
+                            tempFavorites.splice(favIndex, 1);
+                            target.classList.remove('is-favorite');
+                        } else {
+                            // Not a fav, so ADD it
+                            tempFavorites.push(linkId);
+                            target.classList.add('is-favorite');
+                        }
+                        
+                        lastTap = 0; // Reset tap tracker
+                        lastTapTarget = null;
+
                     } else {
-                        showModal(linkId); 
+                        // --- SINGLE TAP LOGIC ---
+                        // Wait 300ms to see if it's a double-tap
+                        singleTapTimer = setTimeout(() => {
+                            const linkId = target.dataset.id;
+                            if (trackLibrary[linkId]) {
+                                loadAndPlayTrack(linkId); 
+                            } else {
+                                showModal(linkId); 
+                            }
+                        }, 300);
                     }
-                } 
+                    
+                    lastTap = now;
+                    lastTapTarget = target;
+                }
             } 
             isDragging = false; 
             activeLink = null; 

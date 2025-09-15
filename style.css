@@ -77,6 +77,14 @@ body.no-scroll {
     overflow: hidden; 
 }
 
+/* === NEW: Disables text highlighting during drag === */
+body.user-select-disabled {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
 .container {
     background-color: transparent;
     display: flex;
@@ -358,6 +366,13 @@ main::-webkit-scrollbar {
     transition: color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
 }
 .nav-link:hover { color: var(--hover-color); transform: scale(1.1); }
+
+/* === NEW: Style for favorited links === */
+.nav-link.is-favorite {
+    color: var(--hover-color); /* Makes it white */
+    text-shadow: 0 0 8px var(--hover-color); /* Adds a permanent glow */
+}
+
 #anchor-nav .nav-link { 
     position: static;
     font-weight: 700; 
@@ -365,7 +380,7 @@ main::-webkit-scrollbar {
     font-size: 1rem; 
 }
 
-/* === THIS ENTIRE RULE IS UPDATED === */
+/* This rule makes the footer float */
 footer {
     position: fixed;
     bottom: 90px; /* Sits on top of the player's 90px padding area */
