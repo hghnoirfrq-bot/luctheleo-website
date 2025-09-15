@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let chaosGridItems = []; // Holds posts AND tracks
     let chaosInterval; 
     let inactivityTimer = null; // Timer for idle revert to chaos
+    let tempFavorites = []; // <-- 1. ADDED TEMP FAVORITES ARRAY
 
     // --- Core Site Elements ---
     const anchorNav = document.getElementById('anchor-nav');
@@ -255,15 +256,10 @@ document.addEventListener('DOMContentLoaded', () => {
         analyser = audioCtx.createAnalyser();
         source = audioCtx.createMediaElementSource(track);
         source.connect(analyser);
-
-        // === THIS LINE IS RESTORED ===
-        // This is required for audio to play at all.
-        analyser.connect(audioCtx.destination); 
-        
+        analyser.connect(audioCtx.destination); // Audio is routed through analyser
         analyser.fftSize = 256;
         
-        // === THIS LISTENER IS UPDATED ===
-        // This handles both leaving and returning to the page per your new request.
+        // This handles both leaving and returning to the page per your request
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'hidden') {
                 // --- User left the tab: Force VFX OFF
@@ -280,7 +276,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Visuals stay OFF until user manually taps logo.
             }
         });
-        // === END UPDATED LISTENER ===
         
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
@@ -497,6 +492,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function getContentType(id) { return id.split('_')[0]; }
     
+    // === 2. THIS FUNCTION IS UPDATED (FILTER LOGIC) ===
     function renderFilterNav() { 
         const c = [...new Set(chaosGridItems.map(p => getContentType(p.id)))]; 
         let f = `<a href="#" class="filter-link active" data-filter="all">LTL</a>`; 
@@ -509,8 +505,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.querySelector('#filter-nav .active').classList.remove('active'); 
                 e.target.classList.add('active'); 
                 
-                const p = fi === 'all' ? chaosGridItems : chaosGridItems.filter(po => getContentType(po.id) === fi); 
-                renderLinks(p, fi); 
+                let p; // Define p
+                if (fi === 'all') {
+                    if (tempFavorites.length > 0) {
+                        // STATE 2: Show Favorites
+                        // Get the full data objects for the IDs in tempFavorites
+                        p = chaosGridItems.filter(item => tempFavorites.includes(item.id));
+                        // Render this as a 'filtered' list, not chaos grid
+                        renderLinks(p, 'favorites'); // Pass a new, custom state 'favorites'
+                    } else {
+                        // STATE 1: Show Chaos Grid (default)
+                        p = chaosGridItems;
+                        renderLinks(p, 'all');
+                    }
+                } else {
+                    // This is the normal filter logic (e.g., show "VOID")
+                    p = chaosGridItems.filter(po => getContentType(po.id) === fi); 
+                    renderLinks(p, fi); 
+                }
                 
                 clearTimeout(inactivityTimer); 
                 if (fi !== 'all') {
@@ -537,7 +549,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }); 
         }); 
         
-        if (a === 'all') { 
+        // This logic is now correct: only run chaos if 'all' is passed AND favorites is empty
+        if (a === 'all' && tempFavorites.length === 0) { 
             dynamicField.classList.remove('filtered-view'); 
             document.getElementById('interaction-instructions').style.opacity = '0.7'; 
             startChaosInterval(); 
@@ -561,6 +574,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } 
             }); 
         } else { 
+            // This 'else' block now handles ALL filtered views, including the new 'favorites' view
             dynamicField.classList.add('filtered-view'); 
             document.getElementById('interaction-instructions').style.opacity = '0'; 
             stopChaosInterval(); 
@@ -615,6 +629,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chaosInterval = null; 
     }
     
+    // === 3. THIS FUNCTION IS UPDATED (DRAG-AND-DROP LOGIC) ===
     function setupInteractionListeners() {
         let activeLink = null, isDragging = false, dragTimeout;
         dynamicField.addEventListener('pointerdown', e => { 
@@ -644,7 +659,31 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isDragging) { 
                 activeLink.classList.remove('dragging'); 
                 document.body.classList.remove('no-scroll'); 
+
+                // --- NEW FAVORITES LOGIC ---
+                // Check if the element we dropped on is the "LTL" filter link
+                const dropTarget = e.target.closest('.filter-link');
+                if (dropTarget && dropTarget.dataset.filter === 'all') {
+                    // This is a successful drop on the "LTL" (all) filter
+                    const linkId = activeLink.dataset.id;
+                    
+                    // Add to our favorites array (if it's not already there)
+                    if (!tempFavorites.includes(linkId)) {
+                        tempFavorites.push(linkId);
+                    }
+                    
+                    // Fade out and remove the link from the chaos grid
+                    activeLink.style.opacity = '0';
+                    setTimeout(() => {
+                         if (dynamicField.contains(activeLink)) {
+                            dynamicField.removeChild(activeLink);
+                         }
+                    }, 500); // Wait for fade-out transition
+                }
+                // --- END NEW LOGIC ---
+
             } else { 
+                // This is the original "click" logic (not a drag)
                 const target = e.target.closest('.nav-link'); 
                 if (target && dynamicField.contains(target)) { 
                     const linkId = target.dataset.id;
