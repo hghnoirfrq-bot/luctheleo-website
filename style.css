@@ -288,7 +288,7 @@ main {
     scrollbar-width: none;
     -ms-overflow-style: none;
 
-    /* === MASK RE-ADDED: Fades bottom 50px, top is solid === */
+    /* Mask Fades bottom 50px of content, top is solid */
     -webkit-mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 50px), transparent 100%);
     mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 50px), transparent 100%);
 }
@@ -316,9 +316,9 @@ main::-webkit-scrollbar {
     50% { transform: scaleY(1.5) translateX(-50%); }
 }
 
-/* === THIS RULE IS UPDATED === */
+/* This text is no longer needed since chaos grid is gone */
 #interaction-instructions {
-    display: none; /* This text is no longer needed */
+    display: none; 
 }
 
 #filter-nav {
@@ -346,20 +346,18 @@ main::-webkit-scrollbar {
     height: auto !important;
 }
 .nav-link {
-    /* REMOVED position: absolute and float-related styles */
+    /* All links are now static (part of the flex-wrap flow) */
+    position: static; 
     text-decoration: none; 
     font-size: 0.9rem; 
     cursor: pointer; 
-    transition: color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease; /* Removed opacity/left/top transitions */
+    transition: color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
     white-space: nowrap; 
     padding: 5px; 
     user-select: none;
     touch-action: manipulation; /* Ensures taps work on links */
-    position: static; /* <-- ALL LINKS ARE NOW STATIC */
 }
-/* These rules are no longer needed */
-/* .filtered-view .nav-link { position: static; } */
-/* .nav-link.dragging { ... } */
+/* Removed .filtered-view .nav-link and .nav-link.dragging rules */
 .nav-link:hover { color: var(--hover-color); transform: scale(1.1); }
 
 /* Style for favorited links */
@@ -376,14 +374,13 @@ main::-webkit-scrollbar {
 }
 
 /* === FOOTER RULE REVERTED === */
-/* This is back in the normal document flow */
+/* This is now back in the normal document flow */
 footer {
     font-size: 0.8rem; 
     color: var(--link-color); 
     margin-top: 2rem;
     text-align: center;
-    /* Re-add flex-shrink from the header/footer shared rule */
-    flex-shrink: 0;
+    flex-shrink: 0; /* Re-adding this from the (header, footer) rule */
 }
 
 .modal {
@@ -453,7 +450,8 @@ footer {
     width: 100%;
     height: 100%;
     
-    background: transparent; /* Shows the video background */
+    /* === THIS BACKGROUND IS RESTORED === */
+    background: radial-gradient(ellipse at center, #1f1f1f 0%, var(--bg-color) 75%);
     
     z-index: 9999;
     display: flex;
