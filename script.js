@@ -9,9 +9,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let contentData = [];
     let allPosts = [];
     let chaosGridItems = []; // Holds posts AND tracks
-    let chaosInterval; 
+    // REMOVED chaosInterval variable
     let inactivityTimer = null; // Timer for idle revert to chaos
-    let tempFavorites = ["PLAY_BRAND_BEAT"]; // <-- UPDATED: Pre-loads Brand Beat as a favorite
+    let tempFavorites = ["PLAY_BRAND_BEAT"]; // <-- Pre-loads Brand Beat as a favorite
 
     // --- Core Site Elements ---
     const anchorNav = document.getElementById('anchor-nav');
@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setupInteractionListeners(); 
             setupBinaryGlitch();
             setupVideoBreathingEffect();
-            startChaosInterval(); 
+            // REMOVED startChaosInterval(); 
             setupMasterToggle(); 
             initializeAudioPlayer();
             
@@ -135,7 +135,16 @@ document.addEventListener('DOMContentLoaded', () => {
             activeFilter.classList.remove('active');
             const ltlLink = document.querySelector('#filter-nav [data-filter="all"]');
             if (ltlLink) ltlLink.classList.add('active');
-            renderLinks(chaosGridItems, 'all');
+
+            // Logic to check for favorites when reverting
+            let p;
+            if (tempFavorites.length > 0) {
+                p = chaosGridItems.filter(item => tempFavorites.includes(item.id));
+                renderLinks(p, 'favorites');
+            } else {
+                p = chaosGridItems;
+                renderLinks(p, 'all');
+            }
         }
     }
 
@@ -534,6 +543,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }); 
     }
     
+    // === THIS FUNCTION IS REWRITTEN ===
+    // Removed all "chaos grid" logic. All content now renders as a simple list.
+    // This fixes the layout bug permanently.
     function renderLinks(p, a) { 
         const s = document.getElementById('scroll-indicator'); 
         Array.from(anchorNav.children).forEach(c => { if (c.id !== 'scroll-indicator') anchorNav.removeChild(c); }); 
@@ -551,53 +563,23 @@ document.addEventListener('DOMContentLoaded', () => {
             }); 
         }); 
         
-        // This logic is now correct: only run chaos if 'all' is passed AND favorites is empty
-        if (a === 'all' && tempFavorites.length === 0) { 
-            dynamicField.classList.remove('filtered-view'); 
-            document.getElementById('interaction-instructions').style.opacity = '0.7'; 
-            startChaosInterval(); 
-            const r = dynamicField.getBoundingClientRect(); 
-            const pl = []; 
-            p.forEach(i => { 
-                let nr, att = 0, h = true;
-                const linkText = i.type === 'track' ? i.title : i.id; 
-                const t = document.createElement('a'); t.textContent = linkText; t.className = 'nav-link'; t.style.visibility = 'hidden'; dynamicField.appendChild(t); 
-                const lw = t.offsetWidth; const lh = t.offsetHeight; dynamicField.removeChild(t); 
-                if (!r || r.width <= lw || r.height <= lh) return; 
-                while (h && att < 500) { 
-                    const x = Math.random() * (r.width - lw); const y = Math.random() * (r.height - lh); 
-                    nr = { left: x, top: y, right: x + lw, bottom: y + lh }; 
-                    h = pl.some(re => (re.right + 30 >= nr.left && re.left <= nr.right + 30 && re.bottom + 30 >= nr.top && re.top <= nr.bottom + 30)); 
-                    att++; 
-                } 
-                if (!h) { 
-                    const link = document.createElement('a'); link.textContent = linkText; link.className = 'nav-link'; link.dataset.id = i.id; link.style.left = `${nr.left}px`; link.style.top = `${nr.top}px`; 
-                    
-                    // Add the favorite class if the item is in the array
-                    if (tempFavorites.includes(i.id)) {
-                        link.classList.add('is-favorite');
-                    }
-                    
-                    dynamicField.appendChild(link); pl.push(nr); 
-                } 
-            }); 
-        } else { 
-            // This 'else' block now handles ALL filtered views, including the new 'favorites' view
-            dynamicField.classList.add('filtered-view'); 
-            document.getElementById('interaction-instructions').style.opacity = '0'; 
-            stopChaosInterval(); 
-            p.forEach(i => { 
-                const linkText = i.type === 'track' ? i.title : i.id;
-                const link = document.createElement('a'); link.textContent = linkText; link.className = 'nav-link'; link.dataset.id = i.id; 
+        // This is now the ONLY renderer. Chaos grid logic is gone.
+        // This renders 'all', 'favorites', 'VOID', etc. the same way.
+        dynamicField.classList.add('filtered-view'); 
+        document.getElementById('interaction-instructions').style.display = 'none'; // Hide instructions
+        stopChaosInterval(); // Stop any rogue chaos timers
+        
+        p.forEach(i => { 
+            const linkText = i.type === 'track' ? i.title : i.id;
+            const link = document.createElement('a'); link.textContent = linkText; link.className = 'nav-link'; link.dataset.id = i.id; 
 
-                // Add the favorite class if the item is in the array
-                if (tempFavorites.includes(i.id)) {
-                    link.classList.add('is-favorite');
-                }
+            // Add the favorite class if the item is in the array
+            if (tempFavorites.includes(i.id)) {
+                link.classList.add('is-favorite');
+            }
 
-                dynamicField.appendChild(link); 
-            }); 
-        } 
+            dynamicField.appendChild(link); 
+        }); 
         
         // === UPDATED INDICATOR LOGIC ===
         setTimeout(() => { 
@@ -608,131 +590,72 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 100); 
     }
 
-    function regenerateChaosGrid() { 
-        const l = dynamicField.querySelectorAll('.nav-link'); 
-        if (dynamicField.classList.contains('filtered-view') || l.length === 0) return; 
-        const r = dynamicField.getBoundingClientRect(); 
-        if (!r) return;
-        const p = []; 
-        l.forEach(li => { 
-            let nr, att = 0, h = true; 
-            const w = li.offsetWidth; 
-            const he = li.offsetHeight; 
-            while (h && att < 200) { 
-                const x = Math.random() * (r.width - w); 
-                const y = Math.random() * (r.height - he); 
-                nr = { left: x, top: y, right: x + w, bottom: y + he }; 
-                h = p.some(re => (re.right + 30 >= nr.left && re.left <= nr.right + 30 && re.bottom + 30 >= nr.top && re.top <= re.bottom + 30)); 
-                att++; 
-            } 
-            if (!h) { 
-                li.style.left = `${nr.left}px`; 
-                li.style.top = `${nr.top}px`; 
-                p.push(nr); 
-            } 
-        }); 
-    }
+    // === THIS FUNCTION IS DELETED ===
+    // function regenerateChaosGrid() { ... } 
     
-    function startChaosInterval() { 
-        stopChaosInterval(); 
-        chaosInterval = setInterval(regenerateChaosGrid, 15000); 
-    }
+    // === THIS FUNCTION IS DELETED ===
+    // function startChaosInterval() { ... } 
     
+    // This function remains ONLY to clear timers, just in case.
     function stopChaosInterval() { 
         clearInterval(chaosInterval); 
         chaosInterval = null; 
     }
     
     // === THIS FUNCTION IS REWRITTEN ===
+    // Removed ALL drag logic (dragTimeout, isDragging, pointermove)
+    // Now ONLY handles single and double tap logic.
     function setupInteractionListeners() {
         // These track single vs double taps
         let lastTap = 0;
         let lastTapTarget = null;
         let singleTapTimer;
         
-        let activeLink = null, isDragging = false, dragTimeout;
+        // Removed pointerdown and pointermove listeners
 
-        dynamicField.addEventListener('pointerdown', e => { 
+        dynamicField.addEventListener('pointerup', e => { 
+            // This is now the primary interaction event
             const target = e.target.closest('.nav-link'); 
-            if (!target || dynamicField.classList.contains('filtered-view')) return; 
-            isDragging = false; 
-            dragTimeout = setTimeout(() => { 
-                isDragging = true; 
-                activeLink = target; 
-                activeLink.classList.add('dragging'); 
-                document.body.classList.add('no-scroll'); 
-                document.body.classList.add('user-select-disabled'); // Disable text select on drag
-            }, 200); 
-        });
+            if (!target || !dynamicField.contains(target)) return; // Not a link, bail.
 
-        document.addEventListener('pointermove', e => { 
-            if (dragTimeout && !isDragging) clearTimeout(dragTimeout); 
-            if (!isDragging || !activeLink) return; 
-            e.preventDefault(); 
-            const fieldRect = dynamicField.getBoundingClientRect(); 
-            if (!fieldRect) return;
-            const x = e.clientX - fieldRect.left - (activeLink.offsetWidth / 2); 
-            const y = e.clientY - fieldRect.top - (activeLink.offsetHeight / 2); 
-            activeLink.style.left = `${x}px`; 
-            activeLink.style.top = `${y}px`; 
-        });
+            const now = new Date().getTime();
+            const timesince = now - lastTap;
 
-        document.addEventListener('pointerup', e => { 
-            clearTimeout(dragTimeout); 
-            if (isDragging) { 
-                activeLink.classList.remove('dragging'); 
-                document.body.classList.remove('no-scroll'); 
-                document.body.classList.remove('user-select-disabled'); // Re-enable text select
+            if ((timesince < 300) && (timesince > 0) && (lastTapTarget === target)) {
+                // --- DOUBLE TAP LOGIC ---
+                clearTimeout(singleTapTimer); // Cancel the single-tap
 
-                // Drag-to-save logic removed
+                const linkId = target.dataset.id;
+                const favIndex = tempFavorites.indexOf(linkId);
 
-            } else { 
-                // --- NEW SINGLE/DOUBLE TAP LOGIC ---
-                const target = e.target.closest('.nav-link'); 
-                if (target && dynamicField.contains(target)) {
-                    
-                    const now = new Date().getTime();
-                    const timesince = now - lastTap;
-
-                    if ((timesince < 300) && (timesince > 0) && (lastTapTarget === target)) {
-                        // --- DOUBLE TAP LOGIC ---
-                        clearTimeout(singleTapTimer); // Cancel the single-tap
-
-                        const linkId = target.dataset.id;
-                        const favIndex = tempFavorites.indexOf(linkId);
-
-                        if (favIndex > -1) {
-                            // Already a fav, so REMOVE it
-                            tempFavorites.splice(favIndex, 1);
-                            target.classList.remove('is-favorite');
-                        } else {
-                            // Not a fav, so ADD it
-                            tempFavorites.push(linkId);
-                            target.classList.add('is-favorite');
-                        }
-                        
-                        lastTap = 0; // Reset tap tracker
-                        lastTapTarget = null;
-
-                    } else {
-                        // --- SINGLE TAP LOGIC ---
-                        // Wait 300ms to see if it's a double-tap
-                        singleTapTimer = setTimeout(() => {
-                            const linkId = target.dataset.id;
-                            if (trackLibrary[linkId]) {
-                                loadAndPlayTrack(linkId); 
-                            } else {
-                                showModal(linkId); 
-                            }
-                        }, 300);
-                    }
-                    
-                    lastTap = now;
-                    lastTapTarget = target;
+                if (favIndex > -1) {
+                    // Already a fav, so REMOVE it
+                    tempFavorites.splice(favIndex, 1);
+                    target.classList.remove('is-favorite');
+                } else {
+                    // Not a fav, so ADD it
+                    tempFavorites.push(linkId);
+                    target.classList.add('is-favorite');
                 }
-            } 
-            isDragging = false; 
-            activeLink = null; 
+                
+                lastTap = 0; // Reset tap tracker
+                lastTapTarget = null;
+
+            } else {
+                // --- SINGLE TAP LOGIC ---
+                // Wait 300ms to see if it's a double-tap
+                singleTapTimer = setTimeout(() => {
+                    const linkId = target.dataset.id;
+                    if (trackLibrary[linkId]) {
+                        loadAndPlayTrack(linkId); 
+                    } else {
+                        showModal(linkId); 
+                    }
+                }, 300);
+            }
+            
+            lastTap = now;
+            lastTapTarget = target;
         });
     }
 
