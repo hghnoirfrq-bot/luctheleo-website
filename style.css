@@ -59,7 +59,7 @@
     --brand-color: #0F003D; /* Brand's accent color */
 }
 
-/* Re-enabled scrolling on the page */
+/* Correct "App-like" scrolling behavior */
 html, body {
     margin: 0;
     padding: 0;
@@ -68,11 +68,13 @@ html, body {
     color: var(--text-color);
     font-family: var(--font-sans);
     cursor: default;
-    overflow-x: hidden;
+    height: 100%;
+    overflow: hidden; /* This locks the page */
+    touch-action: none;
 }
 
 body.no-scroll {
-    overflow: hidden; /* This class is still used when the MODAL is open */
+    overflow: hidden; 
 }
 
 .container {
@@ -80,9 +82,9 @@ body.no-scroll {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: 100vh;
+    height: 100%;
     width: 100vw;
-    padding: 2rem;
+    padding: 2rem 2rem 90px 2rem; /* Padding at bottom for player */
     box-sizing: border-box;
     text-align: center;
     transition: opacity 2s ease-in-out;
@@ -91,20 +93,20 @@ body.no-scroll {
 }
 
 /* --- Visualizer Styles --- */
-/* The overlay is now fixed, behind the content, to create parallax */
 #visualizer-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 3; /* LAYER 3 (Visualizer) */
+    z-index: 3; /* LAYER 3 (Visualizer) - BEHIND content */
     opacity: 0;
     pointer-events: none;
     transition: opacity 2s ease-in-out;
     background-color: transparent; 
 }
 
+/* This is the CSS-based "living static" field. Fast and performant. */
 #visualizer-overlay::before {
     content: "";
     position: absolute;
@@ -132,7 +134,7 @@ body.no-scroll {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 3; 
+    z-index: 3; /* Canvas (lifelines/cells) sits on top of the shimmer texture */
 }
 
 /* --- Main Site Styles --- */
@@ -156,6 +158,15 @@ header, footer {
 #logo-container.experience-active .logo-image {
     filter: drop-shadow(0 0 35px rgba(255, 255, 255, 0.15));
 }
+
+/* NEW: Style for when logo is clicked to disable VFX */
+#logo-container.vfx-disabled .logo-image {
+    opacity: 0.5;
+    animation: none !important; /* Kill neon animation */
+    filter: grayscale(100%) !important; /* Kill audio-reactive glow */
+    transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
 
 #rain-canvas {
     position: absolute;
@@ -198,6 +209,7 @@ header, footer {
     }
 }
 
+/* Mobile-safe glitch animation (no transform) */
 @keyframes glitch-flicker {
     0%, 100% { opacity: 1; }
     50% { opacity: 1; }
@@ -235,7 +247,7 @@ header h1 { margin-top: 1.5rem; font-size: 1.2rem; }
 header p { font-size: 0.9rem; color: var(--link-color); }
 #binary-signature { cursor: pointer; }
 
-/* The main content area now scrolls naturally */
+/* Main content area scrolls, but the window does not */
 main {
     flex-grow: 1; 
     display: flex; 
@@ -245,7 +257,14 @@ main {
     margin: 1rem 0; 
     position: relative;
     min-height: 0; 
-    /* Removed overflow: auto. The window will scroll. */
+    overflow-y: auto; /* This makes the content area scroll */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    touch-action: pan-y; /* Allow vertical panning (scrolling) */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+main::-webkit-scrollbar {
+    display: none;
 }
 
 #anchor-nav {
@@ -271,6 +290,7 @@ main {
 }
 .filter-link:hover, .filter-link.active { color: var(--hover-color); }
 
+/* Chaos Grid layout styles */
 #dynamic-field {
     flex-grow: 1; 
     position: relative; 
@@ -287,7 +307,7 @@ main {
     height: auto !important;
 }
 .nav-link {
-    position: absolute;
+    position: absolute; 
     text-decoration: none; 
     font-size: 0.9rem; 
     cursor: pointer; 
@@ -295,6 +315,7 @@ main {
     white-space: nowrap; 
     padding: 5px; 
     user-select: none;
+    touch-action: manipulation; /* Ensures taps work on links */
 }
 .filtered-view .nav-link { 
     position: static; 
@@ -324,6 +345,7 @@ footer {
 .modal-content {
     position: relative; background-color: var(--bg-color); padding: 2rem; border-radius: 8px; width: 100%; max-width: 800px; max-height: 100%; 
     overflow-y: auto; 
+    touch-action: pan-y; /* Allow scrolling inside the modal */
     color: var(--text-color); border: 1px solid #333;
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -352,6 +374,122 @@ footer {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;
 }
 .modal-body .soundcloud-embed iframe { position: relative; height: 300px; }
+
+
+/* === KEYFRAME ANIMATIONS FOR SPLASH === */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* This pulses text-shadow */
+@keyframes pulse-btn {
+    0%, 100% {
+        /* Pulse the text glow */
+        text-shadow: 0 0 10px rgba(224, 224, 224, 0.4);
+        opacity: 0.8;
+    }
+    50% {
+        text-shadow: 0 0 25px rgba(255, 255, 255, 0.9);
+        opacity: 1;
+    }
+}
+/* === END KEYFRAMES === */
+
+
+/* === PREMIUM SPLASH SCREEN STYLES === */
+#splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    
+    /* This is the generated radial gradient background */
+    background: radial-gradient(ellipse at center, #1f1f1f 0%, var(--bg-color) 75%);
+    
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1; 
+    transition: opacity 1s ease-out, visibility 1s ease-out;
+    visibility: visible;
+}
+
+/* GRAIN effect (layers on gradient) */
+#splash-screen::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiGAAAAA1BMVEX///+nxBvIAAAANElEQVR42u3BAQ0AAADCoPdPbQ8HFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPBgJ4QAAUe9F2sAAAAASUVORK5CYII=');
+    opacity: 0.05;
+    animation: grain 1s steps(2, end) infinite;
+    z-index: 1; 
+}
+
+/* STATIC SHIMMER effect (layers on grain) */
+ #splash-screen::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='50' viewBox='0 0 100 50'%3E%3Ctext x='0' y='15' font-family='monospace' font-size='10' fill='rgba(255,255,255,0.05)'%3E01 10 01 11 01 10 01 00 10%3C/text%3E%3Ctext x='0' y='35' font-family='monospace' font-size='10' fill='rgba(255,255,255,0.05)'%3E10 00 11 01 10 01 10 11 01%3C/text%3E%3C/svg%3E");
+    animation: shimmer 0.3s steps(2, end) infinite;
+    z-index: 2; 
+}
+
+/* Holds the centered logo */
+.splash-content {
+    text-align: center;
+    z-index: 3; 
+    animation: fadeIn 2s ease-out 0.5s;
+    animation-fill-mode: forwards;
+    opacity: 0; 
+}
+
+/* Anchors the button 5rem from the bottom */
+.splash-action {
+    position: absolute;
+    bottom: 5rem; 
+    left: 0;
+    width: 100%;
+    padding: 0; 
+    z-index: 4;
+    text-align: center;
+}
+
+/* The minimalist TEXT button */
+#enter-btn {
+    background: transparent;
+    border: none; 
+    color: var(--link-color);
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    padding: 12px 24px;
+    cursor: pointer;
+    margin-top: 0; 
+    letter-spacing: 2px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    animation: pulse-btn 3s infinite ease-in-out, fadeIn 2s ease-out 1.5s;
+    animation-fill-mode: forwards; 
+    opacity: 0; 
+}
+#enter-btn:hover {
+    color: var(--hover-color);
+    /* Underline is removed */
+    text-shadow: 0 0 15px var(--hover-color);
+}
+/* === END UPGRADED SPLASH SCREEN STYLES === */
+
 
 /* --- Premium Audio Player Styles --- */
 #persistent-audio-player {

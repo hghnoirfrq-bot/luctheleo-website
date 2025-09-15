@@ -26,6 +26,15 @@
     </script>
 </head>
 <body>
+
+    <div id="splash-screen">
+        <div class="splash-content">
+            <img class="logo-image" src="img/ltl_logo.PNG" alt="LTL Logo" style="width: 250px;">
+        </div>
+        <div class="splash-action">
+            <button id="enter-btn">ENTER REVERIE</button>
+        </div>
+    </div>
     <div id="video-background-container">
         <video autoplay loop muted playsinline id="bg-video">
             <source src="videos/home_LA1.mp4" type="video/mp4">
@@ -37,14 +46,14 @@
         <canvas id="visualizer-canvas"></canvas>
     </div>
    
-    <div class="container">
+    <div class="container" style="display: none;">
         <header>
              <div id="logo-container">
                 <img class="logo-image" src="img/ltl_logo.PNG" alt="LTL Logo">
                 <canvas id="rain-canvas"></canvas>
              </div>
              <div id="logo-prompt-container">
-                <p id="logo-prompt">TAP LTL TO [RUMINATE] &nbsp;|&nbsp; TAP LTL TO [RUMINATE] &nbsp;|&nbsp; </p>
+                <p id="logo-prompt">TAP LTL TO [TOGGLE VFX] &nbsp;|&nbsp; TAP LTL TO [TOGGLE VFX] &nbsp;|&nbsp; </p>
              </div>
             <h1>LUCTHELEO | Audio.Alchemist</h1>
             <p>Pleasantly lost...</p>
@@ -75,11 +84,10 @@
         </div>
     </div>
 
-    <div id="persistent-audio-player">
+    <div id="persistent-audio-player" style="display: none;">
         <div class="player-wrapper">
-            <button id="play-pause-btn">&#9658;</button>
-            <div class="player-center">
-                <div class="track-info">Ruminate - LUCTHELEO</div>
+            <button id="play-pause-btn">&#9658;</button> <div class="player-center">
+                <div class="track-info">Brand Beat - LUCTHELEO</div>
                 <div class="progress-wrapper">
                     <span id="current-time" class="time-display">0:00</span>
                     <input type="range" id="seek-bar" value="0" step="1">
@@ -97,7 +105,7 @@
                 <input type="range" id="volume-bar" value="0.25" min="0" max="1" step="0.01">
             </div>
         </div>
-        <audio id="track" src="music/ruminate.mp3" crossOrigin="anonymous"></audio>
+        <audio id="track" src="music/Brand_Beat.wav" crossOrigin="anonymous"></audio>
     </div>
 
     <script type="module" src="script.js"></script>
