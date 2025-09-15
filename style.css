@@ -159,7 +159,7 @@ header, footer {
     filter: drop-shadow(0 0 35px rgba(255, 255, 255, 0.15));
 }
 
-/* NEW: Style for when logo is clicked to disable VFX */
+/* Style for when logo is clicked to disable VFX */
 #logo-container.vfx-disabled .logo-image {
     opacity: 0.5;
     animation: none !important; /* Kill neon animation */
@@ -177,8 +177,8 @@ header, footer {
     pointer-events: none;
 }
 
-/* Scrolling marquee styles */
-#logo-prompt-container {
+/* NEW: SHARED PROMPT STYLES (for Header AND Splash Screen) */
+.prompt-container {
     width: 100%;
     max-width: 400px;
     margin: -1rem auto 1rem;
@@ -188,7 +188,7 @@ header, footer {
     mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent);
 }
 
-#logo-prompt {
+.prompt-text {
     margin: 0;
     padding: 0;
     font-family: var(--font-mono);
@@ -199,6 +199,8 @@ header, footer {
     white-space: nowrap;
     animation: marquee 20s linear infinite, glitch-flicker 11s infinite;
 }
+/* END SHARED PROMPT STYLES */
+
 
 @keyframes marquee {
     from {
@@ -415,6 +417,7 @@ footer {
     opacity: 1; 
     transition: opacity 1s ease-out, visibility 1s ease-out;
     visibility: visible;
+    cursor: pointer; /* Make the whole screen clickable */
 }
 
 /* GRAIN effect (layers on gradient) */
@@ -446,7 +449,7 @@ footer {
     z-index: 2; 
 }
 
-/* Holds the centered logo */
+/* Holds the centered logo AND the new prompt */
 .splash-content {
     text-align: center;
     z-index: 3; 
@@ -455,39 +458,14 @@ footer {
     opacity: 0; 
 }
 
-/* Anchors the button 5rem from the bottom */
-.splash-action {
-    position: absolute;
-    bottom: 5rem; 
-    left: 0;
-    width: 100%;
-    padding: 0; 
-    z-index: 4;
-    text-align: center;
+/* The prompt text on the splash screen also pulses */
+#splash-prompt-container .prompt-text {
+     animation: marquee 20s linear infinite, glitch-flicker 11s infinite, pulse-btn 3s infinite ease-in-out;
 }
 
-/* The minimalist TEXT button */
-#enter-btn {
-    background: transparent;
-    border: none; 
-    color: var(--link-color);
-    font-family: var(--font-mono);
-    font-size: 1rem;
-    padding: 12px 24px;
-    cursor: pointer;
-    margin-top: 0; 
-    letter-spacing: 2px;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    animation: pulse-btn 3s infinite ease-in-out, fadeIn 2s ease-out 1.5s;
-    animation-fill-mode: forwards; 
-    opacity: 0; 
-}
-#enter-btn:hover {
-    color: var(--hover-color);
-    /* Underline is removed */
-    text-shadow: 0 0 15px var(--hover-color);
-}
+
+/* STYLES FOR OLD BUTTON (NOW DELETED) */
+/* .splash-action and #enter-btn styles have been removed */
 /* === END UPGRADED SPLASH SCREEN STYLES === */
 
 

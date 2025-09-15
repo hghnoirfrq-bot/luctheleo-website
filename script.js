@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // === NEW SPLASH/CONTENT SELECTORS ===
+    // === MODIFIED: Splash selector is now the content div ===
     const splashScreen = document.getElementById('splash-screen');
-    const enterBtn = document.getElementById('enter-btn');
+    const splashContent = document.querySelector('.splash-content'); // This is the new entry button
     const mainContainer = document.querySelector('.container');
     // === END NEW SELECTORS ===
 
@@ -106,7 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
             setupMasterToggle(); 
             initializeAudioPlayer();
             
-            // Add scroll listener to the main content area to reset the idle timer
             document.getElementById('link-field').addEventListener('scroll', resetInactivityTimer);
 
         } catch (error) {
@@ -118,21 +117,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // === IDLE TIMER FUNCTIONS ===
     function revertToChaos() {
         const activeFilter = document.querySelector('#filter-nav .active');
-        // Only run if we are currently in a filtered view (not 'all')
         if (activeFilter && activeFilter.dataset.filter !== 'all') { 
             activeFilter.classList.remove('active');
             const ltlLink = document.querySelector('#filter-nav [data-filter="all"]');
             if (ltlLink) ltlLink.classList.add('active');
-            renderLinks(chaosGridItems, 'all'); // Re-render the chaos grid
+            renderLinks(chaosGridItems, 'all');
         }
     }
 
     function resetInactivityTimer() {
         clearTimeout(inactivityTimer);
-        // Only restart the timer if we are *still* in a filtered view
         const activeFilter = document.querySelector('#filter-nav .active');
         if (activeFilter && activeFilter.dataset.filter !== 'all') {
-             inactivityTimer = setTimeout(revertToChaos, 10000); // 10 seconds
+             inactivityTimer = setTimeout(revertToChaos, 10000); 
         }
     }
     // === END IDLE TIMER FUNCTIONS ===
@@ -147,16 +144,26 @@ document.addEventListener('DOMContentLoaded', () => {
         visualizerOverlay.style.opacity = '0';
     }
     
+    // MODIFIED: Added Media Session state update
     function playAudio() {
         if (!isPlayerInitialized) initializeAudioPlayer();
         if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
         track.play().catch(error => console.error("Error playing audio:", error));
+        
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.playbackState = 'playing';
+        }
     }
 
+    // MODIFIED: Added Media Session state update
     function pauseAudio() {
         track.pause();
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.playbackState = 'paused';
+        }
     }
     
+    // MODIFIED: Added Media Session API for background audio/lock screen controls
     function loadAndPlayTrack(trackId) {
         if (!trackLibrary[trackId]) return; 
 
@@ -171,13 +178,27 @@ document.addEventListener('DOMContentLoaded', () => {
         seekBar.value = 0;
         currentTimeEl.textContent = '0:00';
         durationIsSet = false; 
+
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: trackData.title.split(' - ')[0],
+                artist: trackData.title.split(' - ')[1],
+                artwork: [
+                    { src: 'img/ltl_logo.PNG', sizes: '300x150', type: 'image/png' }
+                ]
+            });
+            
+            navigator.mediaSession.setActionHandler('play', playAudio);
+            navigator.mediaSession.setActionHandler('pause', pauseAudio);
+        }
     }
 
-    // REWRITTEN: Logo now toggles VFX, not playback
+    // REWRITTEN: Logo ONLY toggles VFX. All shuffle logic removed.
     function setupMasterToggle() {
         logoContainer.addEventListener('click', () => {
-            isVfxOn = !isVfxOn; // Toggle the global VFX state
-            logoContainer.classList.toggle('vfx-disabled', !isVfxOn); // Add class for CSS feedback
+            // Action: Toggle VFX 
+            isVfxOn = !isVfxOn; 
+            logoContainer.classList.toggle('vfx-disabled', !isVfxOn); 
             
             if (isVfxOn && !track.paused) {
                 showVisualizer(); 
@@ -186,6 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 rainCtx.clearRect(0, 0, rainCanvas.width, rainCanvas.height);
                 vCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
             }
+            // All track shuffling logic has been removed from this function.
         });
     }
 
@@ -413,9 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function getContentType(id) { return id.split('_')[0]; }
     
-    // MODIFIED: This function now builds the filter list from ALL tracks and posts.
     function renderFilterNav() { 
-        // MODIFIED: Generate categories from chaosGridItems (posts + tracks) instead of just allPosts
         const c = [...new Set(chaosGridItems.map(p => getContentType(p.id)))]; 
         let f = `<a href="#" class="filter-link active" data-filter="all">LTL</a>`; 
         c.sort().forEach(t => f += `<a href="#" class="filter-link" data-filter="${t}">${t}</a>`); 
@@ -427,11 +447,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.querySelector('#filter-nav .active').classList.remove('active'); 
                 e.target.classList.add('active'); 
                 
-                // MODIFIED: Filter logic now correctly filters from the master chaosGridItems list
                 const p = fi === 'all' ? chaosGridItems : chaosGridItems.filter(po => getContentType(po.id) === fi); 
                 renderLinks(p, fi); 
                 
-                // IDLE TIMER LOGIC
                 clearTimeout(inactivityTimer); 
                 if (fi !== 'all') {
                     inactivityTimer = setTimeout(revertToChaos, 10000);
@@ -465,7 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const pl = []; 
             p.forEach(i => { 
                 let nr, att = 0, h = true;
-                const linkText = i.type === 'track' ? i.title : i.id; // Use title for tracks
+                const linkText = i.type === 'track' ? i.title : i.id; 
                 const t = document.createElement('a'); t.textContent = linkText; t.className = 'nav-link'; t.style.visibility = 'hidden'; dynamicField.appendChild(t); 
                 const lw = t.offsetWidth; const lh = t.offsetHeight; dynamicField.removeChild(t); 
                 if (!r || r.width <= lw || r.height <= lh) return; 
@@ -485,7 +503,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('interaction-instructions').style.opacity = '0'; 
             stopChaosInterval(); 
             p.forEach(i => { 
-                // MODIFIED: Use title for tracks, ID for posts in the filtered list view
                 const linkText = i.type === 'track' ? i.title : i.id;
                 const link = document.createElement('a'); link.textContent = linkText; link.className = 'nav-link'; link.dataset.id = i.id; 
                 dynamicField.appendChild(link); 
@@ -603,7 +620,9 @@ document.addEventListener('DOMContentLoaded', () => {
     closeBtn.addEventListener('click', hideModal);
     modal.addEventListener('click', (e) => { if (e.target === modal) hideModal(); });
     
-    enterBtn.addEventListener('click', () => {
+    // === ENTRY POINT MODIFIED ===
+    // Click listener is now on splashContent, not enterBtn
+    splashContent.addEventListener('click', () => {
         
         requestAppFullscreen(); 
 
@@ -618,6 +637,7 @@ document.addEventListener('DOMContentLoaded', () => {
         initializeSite(); 
         playAudio(); 
     });
+    // === END ENTRY POINT ===
 
 });
 
