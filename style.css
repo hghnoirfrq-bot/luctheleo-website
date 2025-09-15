@@ -69,7 +69,6 @@ html, body {
     cursor: default;
     padding-bottom: 90px;
     
-    /* APP-LIKE FIX: Lock viewport, disable scroll/zoom/bounce */
     height: 100%;
     overflow: hidden;
     touch-action: none;
@@ -85,7 +84,7 @@ body.no-scroll {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: 100%; /* Changed from 100vh to 100% to work with fixed body height */
+    min-height: 100%;
     width: 100vw;
     padding: 2rem;
     box-sizing: border-box;
@@ -201,7 +200,6 @@ header, footer {
     }
 }
 
-/* MOBILE FIX: Removed conflicting 'transform' property */
 @keyframes glitch-flicker {
     0%, 100% { opacity: 1; }
     50% { opacity: 1; }
@@ -238,11 +236,27 @@ header h1, header p, .nav-link, #interaction-instructions, footer, .filter-link,
 header h1 { margin-top: 1.5rem; font-size: 1.2rem; }
 header p { font-size: 0.9rem; color: var(--link-color); }
 #binary-signature { cursor: pointer; }
+
+/* LAYOUT FIX: Main content area is now scrollable */
 main {
-    flex-grow: 1; display: flex; flex-direction: column; width: 100%; max-width: 1200px; margin: 1rem 0; position: relative;
-    /* This ensures main flexes correctly within the 100% height container */
-    min-height: 0;
+    flex-grow: 1; 
+    display: flex; 
+    flex-direction: column; 
+    width: 100%; 
+    max-width: 1200px; 
+    margin: 1rem 0; 
+    position: relative;
+    min-height: 0; /* Important for flexbox scrolling */
+    overflow-y: auto; /* This makes the content area scroll */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    /* Hide the scrollbar */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
+main::-webkit-scrollbar {
+    display: none;
+}
+
 #anchor-nav {
     flex-shrink: 0; display: flex; justify-content: center; align-items: center; gap: 3rem; padding-bottom: 1.5rem; margin-bottom: 1rem; border-bottom: 1px solid #333;
     position: relative; 
@@ -269,7 +283,7 @@ main {
 #dynamic-field {
     flex-grow: 1; 
     position: relative; 
-    min-height: 50vh; /* Adjusted from 80vh to better fit content */
+    min-height: 80vh; 
     transition: min-height 0.5s ease;
 }
 #dynamic-field.filtered-view {
@@ -318,7 +332,7 @@ footer {
 }
 .modal-content {
     position: relative; background-color: var(--bg-color); padding: 2rem; border-radius: 8px; width: 100%; max-width: 800px; max-height: 100%; 
-    overflow-y: auto; /* This allows the modal content to scroll */
+    overflow-y: auto; 
     color: var(--text-color); border: 1px solid #333;
     scrollbar-width: none;
     -ms-overflow-style: none;
