@@ -262,33 +262,22 @@ document.addEventListener('DOMContentLoaded', () => {
         
         analyser.fftSize = 256;
         
-        // === THIS LISTENER IS UPDATED FOR BACKGROUND PLAY & YOUR REQUEST ===
+        // === THIS LISTENER IS UPDATED ===
+        // This handles both leaving and returning to the page per your new request.
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'hidden') {
-                // --- USER LEAVES TAB ---
-                // 1. Disconnect the analyser graph to allow native background play
-                source.disconnect(analyser);
-                source.connect(audioCtx.destination); // Connect source directly to output
-                
-                // 2. Force VFX state to OFF (as you requested)
+                // --- User left the tab: Force VFX OFF
                 isVfxOn = false; 
                 logoContainer.classList.add('vfx-disabled'); 
                 hideVisualizer(); 
                 rainCtx.clearRect(0, 0, rainCanvas.width, rainCanvas.height);
                 vCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-
             } else if (document.visibilityState === 'visible') {
-                // --- USER RETURNS TO TAB ---
-                // 1. Resume the audio context
+                // --- User returned: Resume context (for when they re-enable VFX)
                 if (audioCtx && audioCtx.state === 'suspended') {
                     audioCtx.resume().catch(e => console.error("AudioContext resume failed:", e));
                 }
-                // 2. Disconnect the direct path
-                source.disconnect(audioCtx.destination);
-                // 3. Re-route the audio back through the analyser for visuals
-                source.connect(analyser); 
-                
-                // Visuals remain OFF until user taps logo (respecting your request)
+                // Visuals stay OFF until user manually taps logo.
             }
         });
         // === END UPDATED LISTENER ===
