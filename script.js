@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setupBinaryGlitch();
             setupVideoBreathingEffect();
             startChaosInterval(); 
-            setupMasterToggle(); // This is the function we are updating
+            setupMasterToggle(); 
             initializeAudioPlayer();
             
             document.getElementById('link-field').addEventListener('scroll', resetInactivityTimer);
@@ -255,25 +255,40 @@ document.addEventListener('DOMContentLoaded', () => {
         analyser = audioCtx.createAnalyser();
         source = audioCtx.createMediaElementSource(track);
         source.connect(analyser);
-        analyser.connect(audioCtx.destination); // THIS LINE IS RESTORED
+
+        // === THIS LINE IS RESTORED ===
+        // This is required for audio to play at all.
+        analyser.connect(audioCtx.destination); 
+        
         analyser.fftSize = 256;
         
-        // === THIS LISTENER IS UPDATED ===
-        // This handles both leaving and returning to the page per your new request.
+        // === THIS LISTENER IS UPDATED FOR BACKGROUND PLAY & YOUR REQUEST ===
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'hidden') {
-                // --- User left the tab: Force VFX OFF
+                // --- USER LEAVES TAB ---
+                // 1. Disconnect the analyser graph to allow native background play
+                source.disconnect(analyser);
+                source.connect(audioCtx.destination); // Connect source directly to output
+                
+                // 2. Force VFX state to OFF (as you requested)
                 isVfxOn = false; 
                 logoContainer.classList.add('vfx-disabled'); 
                 hideVisualizer(); 
                 rainCtx.clearRect(0, 0, rainCanvas.width, rainCanvas.height);
                 vCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+
             } else if (document.visibilityState === 'visible') {
-                // --- User returned: Resume context (for when they re-enable VFX)
+                // --- USER RETURNS TO TAB ---
+                // 1. Resume the audio context
                 if (audioCtx && audioCtx.state === 'suspended') {
                     audioCtx.resume().catch(e => console.error("AudioContext resume failed:", e));
                 }
-                // Visuals stay OFF until user manually taps logo.
+                // 2. Disconnect the direct path
+                source.disconnect(audioCtx.destination);
+                // 3. Re-route the audio back through the analyser for visuals
+                source.connect(analyser); 
+                
+                // Visuals remain OFF until user taps logo (respecting your request)
             }
         });
         // === END UPDATED LISTENER ===
