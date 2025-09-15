@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let chaosGridItems = []; // Holds posts AND tracks
     let chaosInterval; 
     let inactivityTimer = null; // Timer for idle revert to chaos
-    let tempFavorites = []; // <-- Temp favorites array
+    let tempFavorites = ["PLAY_BRAND_BEAT"]; // <-- UPDATED: Pre-loads Brand Beat as a favorite
 
     // --- Core Site Elements ---
     const anchorNav = document.getElementById('anchor-nav');
@@ -572,6 +572,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 } 
                 if (!h) { 
                     const link = document.createElement('a'); link.textContent = linkText; link.className = 'nav-link'; link.dataset.id = i.id; link.style.left = `${nr.left}px`; link.style.top = `${nr.top}px`; 
+                    
+                    // Add the favorite class if the item is in the array
+                    if (tempFavorites.includes(i.id)) {
+                        link.classList.add('is-favorite');
+                    }
+                    
                     dynamicField.appendChild(link); pl.push(nr); 
                 } 
             }); 
@@ -678,7 +684,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.body.classList.remove('no-scroll'); 
                 document.body.classList.remove('user-select-disabled'); // Re-enable text select
 
-                // NOTE: All "drop on LTL" logic is removed from here.
+                // Drag-to-save logic removed
 
             } else { 
                 // --- NEW SINGLE/DOUBLE TAP LOGIC ---

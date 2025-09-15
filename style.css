@@ -77,7 +77,7 @@ body.no-scroll {
     overflow: hidden; 
 }
 
-/* === NEW: Disables text highlighting during drag === */
+/* Disables text highlighting during drag */
 body.user-select-disabled {
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -367,7 +367,7 @@ main::-webkit-scrollbar {
 }
 .nav-link:hover { color: var(--hover-color); transform: scale(1.1); }
 
-/* === NEW: Style for favorited links === */
+/* Style for favorited links */
 .nav-link.is-favorite {
     color: var(--hover-color); /* Makes it white */
     text-shadow: 0 0 8px var(--hover-color); /* Adds a permanent glow */
@@ -380,18 +380,19 @@ main::-webkit-scrollbar {
     font-size: 1rem; 
 }
 
-/* This rule makes the footer float */
+/* === FOOTER RULE UPDATED === */
 footer {
     position: fixed;
     bottom: 90px; /* Sits on top of the player's 90px padding area */
     left: 0;
     width: 100%;
-    padding-bottom: 1rem; /* Add some space above the player bar */
-    font-size: 0.8rem; 
+    padding-bottom: 0.5rem; /* Reduced padding */
+    font-size: 0.7rem;  /* Made smaller */
     color: var(--link-color);
     z-index: 10;
     text-align: center;
     pointer-events: none; /* Allows scrolling/clicking 'through' the footer text */
+    opacity: 0.7; /* Made slightly transparent */
 }
 
 .modal {
