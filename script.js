@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const anchorNav = document.getElementById('anchor-nav');
     const filterNav = document.getElementById('filter-nav');
     const dynamicField = document.getElementById('dynamic-field');
+    const mainScrollArea = document.getElementById('link-field'); // Scrolling container
     const modal = document.getElementById('content-modal');
     const modalBody = document.getElementById('modal-body');
     const closeBtn = document.getElementById('modal-close-btn');
@@ -218,32 +219,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // === THIS ENTIRE FUNCTION IS REWRITTEN ===
+    // === This is the updated function from the last request ===
     function setupMasterToggle() {
         logoContainer.addEventListener('click', () => {
             
             if (track.paused) {
                 // --- NEW BEHAVIOR: Play a random track ---
-                
-                // 1. Get all available track IDs from the library
                 const trackIds = Object.keys(trackLibrary); 
-                
-                // 2. Pick a random index
                 const randomIndex = Math.floor(Math.random() * trackIds.length);
-                
-                // 3. Get the random track ID
                 const randomTrackId = trackIds[randomIndex];
-                
-                // 4. Load and play it using our existing function
                 loadAndPlayTrack(randomTrackId);
 
             } else {
                 // --- EXISTING BEHAVIOR: Toggle VFX ---
-                
                 isVfxOn = !isVfxOn; 
                 logoContainer.classList.toggle('vfx-disabled', !isVfxOn); 
                 
-                if (isVfxOn) { // Simplified from (isVfxOn && !track.paused)
+                if (isVfxOn) { 
                     showVisualizer(); 
                 } else {
                     hideVisualizer(); 
@@ -253,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-    // === END OF REWRITTEN FUNCTION ===
+    // === END OF UPDATED FUNCTION ===
 
     function initializeAudioPlayer() {
         if (isPlayerInitialized) return;
@@ -265,6 +257,18 @@ document.addEventListener('DOMContentLoaded', () => {
         source.connect(analyser);
         analyser.connect(audioCtx.destination);
         analyser.fftSize = 256;
+        
+        // === THIS IS THE NEW CODEBLOCK TO FIX GLITCHING ===
+        // This listener waits for the user to return to the tab, checks if the audio 
+        // system was suspended by the browser, and safely resumes it.
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                if (audioCtx && audioCtx.state === 'suspended') {
+                    audioCtx.resume().catch(e => console.error("AudioContext resume failed:", e));
+                }
+            }
+        });
+        // === END NEW CODEBLOCK ===
         
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
@@ -555,9 +559,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }); 
         } 
         
+        // === UPDATED INDICATOR LOGIC ===
         setTimeout(() => { 
             const s = document.getElementById('scroll-indicator');
-            if (s && document.body.scrollHeight > window.innerHeight) s.style.opacity = '0.5'; 
+            // This now correctly checks the main scroll area (mainScrollArea), not the body
+            if (s && mainScrollArea.scrollHeight > mainScrollArea.clientHeight) s.style.opacity = '0.8'; // Set to 0.8 for a good pulse
             else if (s) s.style.opacity = '0'; 
         }, 100); 
     }
