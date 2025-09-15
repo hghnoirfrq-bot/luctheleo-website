@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
             chaosGridItems = contentData.filter(item => item.type === 'post' || item.type === 'track');
 
             renderFilterNav();
-            renderLinks(chaosGridItems, 'all'); 
+            renderLinks(chaosGridItems, 'all'); // This will now call the simple list renderer
             setupInteractionListeners(); 
             setupBinaryGlitch();
             setupVideoBreathingEffect();
@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderLinks(p, 'favorites');
             } else {
                 p = chaosGridItems;
-                renderLinks(p, 'all');
+                renderLinks(p, 'all'); // This will call the simple list renderer
             }
         }
     }
@@ -151,6 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetInactivityTimer() {
         clearTimeout(inactivityTimer);
         const activeFilter = document.querySelector('#filter-nav .active');
+        // This logic is fine, but it reverts to 'all', which will show favs if any exist, or all if not. Correct.
         if (activeFilter && activeFilter.dataset.filter !== 'all') {
              inactivityTimer = setTimeout(revertToChaos, 10000); 
         }
@@ -268,8 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
         analyser.connect(audioCtx.destination); // Audio is routed through analyser
         analyser.fftSize = 256;
         
-        // === THIS LISTENER IS UPDATED ===
-        // This handles both leaving and returning to the page per your new request.
+        // This handles both leaving and returning to the page per your request
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'hidden') {
                 // --- User left the tab: Force VFX OFF
@@ -286,7 +286,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Visuals stay OFF until user manually taps logo.
             }
         });
-        // === END UPDATED LISTENER ===
         
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
@@ -520,14 +519,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (fi === 'all') {
                     if (tempFavorites.length > 0) {
                         // STATE 2: Show Favorites
-                        // Get the full data objects for the IDs in tempFavorites
                         p = chaosGridItems.filter(item => tempFavorites.includes(item.id));
-                        // Render this as a 'filtered' list, not chaos grid
-                        renderLinks(p, 'favorites'); // Pass a new, custom state 'favorites'
+                        renderLinks(p, 'favorites'); // Pass a 'favorites' state
                     } else {
-                        // STATE 1: Show Chaos Grid (default)
+                        // STATE 1: No Favorites, show ALL content in a list
                         p = chaosGridItems;
-                        renderLinks(p, 'all');
+                        renderLinks(p, 'all'); // Pass 'all' state
                     }
                 } else {
                     // This is the normal filter logic (e.g., show "VOID")
@@ -536,7 +533,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 
                 clearTimeout(inactivityTimer); 
-                if (fi !== 'all') {
+                if (fi !== 'all' && fi !== 'favorites') { // Only set timer if not on LTL/Favs
                     inactivityTimer = setTimeout(revertToChaos, 10000);
                 }
             } 
@@ -544,9 +541,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // === THIS FUNCTION IS REWRITTEN ===
-    // Removed all "chaos grid" logic. All content now renders as a simple list.
-    // This fixes the layout bug permanently.
-    function renderLinks(p, a) { 
+    // Removed all "chaos grid" logic. All content now renders as a simple, stable list.
+    function renderLinks(p, a) { // Note: 'a' is no longer needed but we pass it for consistency
         const s = document.getElementById('scroll-indicator'); 
         Array.from(anchorNav.children).forEach(c => { if (c.id !== 'scroll-indicator') anchorNav.removeChild(c); }); 
         dynamicField.innerHTML = ''; 
@@ -564,10 +560,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }); 
         
         // This is now the ONLY renderer. Chaos grid logic is gone.
-        // This renders 'all', 'favorites', 'VOID', etc. the same way.
         dynamicField.classList.add('filtered-view'); 
         document.getElementById('interaction-instructions').style.display = 'none'; // Hide instructions
-        stopChaosInterval(); // Stop any rogue chaos timers
+        // REMOVED call to stopChaosInterval()
         
         p.forEach(i => { 
             const linkText = i.type === 'track' ? i.title : i.id;
@@ -590,20 +585,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 100); 
     }
 
-    // === THIS FUNCTION IS DELETED ===
-    // function regenerateChaosGrid() { ... } 
-    
-    // === THIS FUNCTION IS DELETED ===
-    // function startChaosInterval() { ... } 
-    
-    // This function remains ONLY to clear timers, just in case.
-    function stopChaosInterval() { 
-        clearInterval(chaosInterval); 
-        chaosInterval = null; 
-    }
+    // === ALL CHAOS FUNCTIONS ARE NOW DELETED ===
+    // DELETED regenerateChaosGrid()
+    // DELETED startChaosInterval()
+    // DELETED stopChaosInterval()
     
     // === THIS FUNCTION IS REWRITTEN ===
-    // Removed ALL drag logic (dragTimeout, isDragging, pointermove)
+    // Removed ALL drag logic (dragTimeout, isDragging, pointerdown, pointermove, user-select-disabled)
     // Now ONLY handles single and double tap logic.
     function setupInteractionListeners() {
         // These track single vs double taps
@@ -611,10 +599,9 @@ document.addEventListener('DOMContentLoaded', () => {
         let lastTapTarget = null;
         let singleTapTimer;
         
-        // Removed pointerdown and pointermove listeners
-
+        // Only one listener is needed now: pointerup
         dynamicField.addEventListener('pointerup', e => { 
-            // This is now the primary interaction event
+            
             const target = e.target.closest('.nav-link'); 
             if (!target || !dynamicField.contains(target)) return; // Not a link, bail.
 
