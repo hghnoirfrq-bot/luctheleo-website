@@ -39,12 +39,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const visualizerOverlay = document.getElementById('visualizer-overlay');
     const visualizerCanvas = document.getElementById('visualizer-canvas');
     const vCtx = visualizerCanvas.getContext('2d');
+    const brandFilterOverlay = document.getElementById('brand-filter-overlay');
     
     // --- Rain Effect Elements ---
     const rainCanvas = document.getElementById('rain-canvas');
     const rainCtx = rainCanvas.getContext('2d');
     let rainParticles = [];
     const currencySymbols = ['$', '€', '£', '¥', '₩', '₹', '₽', '₿', 'Ξ'];
+
+    // === SVG ICON CONSTANTS ===
+    const svgPlayIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/></svg>`;
+    const svgPauseIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M5.5 3.5A1.5 1.5 0 0 1 7 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5zm5 0A1.5 1.5 0 0 1 12 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5z"/></svg>`;
+    
+    // === SET INITIAL BUTTON STATE ===
+    playPauseBtn.innerHTML = svgPlayIcon;
     
     // Track Library Lookup
     const trackLibrary = {
@@ -80,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
             contentData = [
                 {"id":"MNFST","type":"page","isAnchor":true,"content":"<h2>MNFST</h2><h3>LUCTHELEO | Audio.Alchemist</h3><p>Pleasantly lost in the space between signal and static.</p><p>I create from the overflow. Twenty-three years navigating the intersection of classical training and digital chaos, Louisiana soul and systematic precision. Central Louisiana roots run deep—music creation since 2007, formal production education, life coaching training.</p><p>Someone who knows a little about a lot and a lot about a little.</p><p>The problem isn't lack of creativity. The problem is creative abundance without systematic capture.</p><p>Most creative partnerships scatter brilliant ideas across sessions like seeds in the wind. Concepts emerge, energy builds, then everything disappears into the void between meetings. I solve creative overflow through systematic documentation, organized development, and shared ownership of unused collaborative assets.</p><h3>The Architecture</h3><p><b>HTML.</b> Core creative foundation. Your authentic message before market pressure shapes it.</p><p><b>CSS.</b> How you present yourself when the world is watching. Visual identity that serves the work, not ego.</p><p><b>JS.</b> Market function without compromise. Audience connection that maintains creative integrity.</p><p>Three layers. Each builds upon the previous. Complete creative architecture emerges through systematic development rather than creative chaos.</p><h3>The Process</h3><p>Sessions combine immediate creative work with transferable systematic methods. You leave with both completed material and organizational approaches that serve future projects. This isn't dependency creation—it's systematic capability building.</p><p>Documentation captures everything. Project folders organize by development layer. Session recordings preserve decisions and breakthroughs. Nothing gets lost. Everything builds upon everything.</p><p>Unused creative assets become shared catalog content. Your collaborative overflow generates ongoing revenue rather than disappearing into digital archives. Creative partnership becomes creative investment.</p><h3>The Foundation</h3><p>Louisiana spiritual tradition meets contemporary creative technology. Prayer and systematic organization. Ancestral wisdom and digital precision. The sacred and the professional occupy the same space without contradiction.</p><p>All decisions start from spiritual foundation, move through abstract glimpses, process through mind and memory, then manifest through systematic action. The heart determines application. The body executes with documentation.</p><p>Excellence is measured by commitment. What gets written becomes real. The work speaks for itself.</p><h3>The Practice</h3><p><b>Order Line Conversation.</b> Fifteen minutes. Creative alignment assessment without sales pressure.</p><p><b>REVERIE Foundation.</b> Two hours. Complete project architecture establishment. Systematic organization that supports long-term creative development.</p><p><b>RUMINATE Development.</b> Focused sessions. CSS and JS layer building through collaborative systematic approaches.</p><p>No ego. Just work. Systematic creative development for artists ready to invest in organized capability building rather than casual creative exploration.</p><h3>The Philosophy</h3><p>I don't explain the spaces. I invite you to wander them.</p><p>Creative development serves the work, not the worker. Systematic approaches honor both artistic authenticity and professional sustainability. Spiritual foundation supports rather than opposes technological precision.</p><p>We are signal through static. Analog intuition meets digital creation. Louisiana heritage informs contemporary creative architecture. The mysterious and the systematic coexist without contradiction.</p><h3>Contact Protocol</h3><p>Direct communication via Telegram @luctheleo. Systematic creative development begins with Order Line Conversation. Assessment precedes engagement. Alignment determines collaboration.</p><p><b>L-01001100 T-01010100 L-01001100</b></p><p>Transdisciplinary artist. Systematic creative development. Louisiana roots, Atlanta operations.</p><p>Signal through the static. Systematic transformation of creative potential into organized reality.</p><p>No ego. Just work.</p>"},
                 {"id":"CRTVDVLPMNT","type":"page","isAnchor":true,"content":"<h2>CRTVDVLPMNT</h2><h3>Systematic Creative Development Overview</h3><p>Every artist has three faces: the one they know themselves to be (your <b>HTML</b>), the one they present to the world (your <b>CSS</b>), and the one that interacts with reality (your <b>JS</b>).</p><p>Our process systematically aligns these faces, transforming creative overflow into a clear, unified signal. We build not just a project, but a cohesive creative identity.</p><p style=\"text-align:center; margin-top: 2rem; margin-bottom: 2rem;\"><a href=\"#\" onclick=\"event.preventDefault(); document.getElementById('full-guide-content').style.display='block'; this.parentElement.style.display='none';\" style=\"padding: 10px 20px; border: 1px solid var(--link-color); border-radius: 5px; text-decoration: none;\">View Full Guide & Pricing</a></p><div id=\"full-guide-content\" style=\"display:none;\"><h2>REVERIE | RVR Creative Development Guide</h2><h3>Systematic Creative Development Process</h3><p><b>Development Philosophy:</b> No ego. Just work.</p><p><b>Approach:</b> Systematic transformation of creative concepts into organized, tangible results.</p><hr><h3>Process Overview</h3><p>This guide outlines our systematic approach to creative development. Our methodology transforms creative overflow into organized, documented work through structured sessions and skill transfer.</p><p><b>Core Principle:</b> You're not just receiving creative services - you're learning systematic development methods you can apply independently throughout your creative career.</p><hr><h3>The Creative Identity Framework</h3><p>We develop your creative identity using a systematic three-component approach:</p><ul><li><b>HTML Foundation (Core Content):</b> Your authentic creative message and purpose.</li><li><b>CSS Presentation (Visual Interface):</b> How you present yourself creatively.</li><li><b>JS Function (Market Operation):</b> How you operate and connect with audiences.</li></ul><hr><h3>Session Structure & Pricing</h3><p><b>Order Line Conversation (15 minutes - No charge)</b><br>A direct conversation to determine creative alignment and demonstrate our systematic approach.</p><p><b>REVERIE Foundation Session ($120 - 2 hours)</b><br>Establish your complete creative development architecture, focusing on the HTML layer (core creative foundation). You receive an organized project folder system, session documentation, a clear roadmap, and permanent portal access.</p><p><b>RUMINATE Development Sessions ($65/hour)</b><br>Systematic building and refinement of your presentation (CSS) and function (JS) layers through focused work sessions that include skill transfer and methodology education.</p><p><i><b>Member Rates Available:</b> For ongoing partnerships, rates are $100 for a monthly REVERIE session and $55/hour for RUMINATE sessions.</i></p><hr><h3>Skills You'll Develop</h3><ul><li>Systematic Organization</li><li>Creative Problem-Solving</li><li>Documentation Mastery</li><li>Independent Development</li></ul><p>Direct contact: Telegram @luctheleo</p></div>"},
-                {"id":"RQST","type":"page","isAnchor":true,"content":"<h2>Booking & Contact</h2><h3>Free Consultation (Order Line Conversation)</h3><p>To begin, please request a free 15-minute consultation to determine creative alignment. This is the first step for all new projects.</p><p style=\"text-align:center; margin-top: 1rem; margin-bottom: 2rem;\"><a href=\"https://forms.gle/8S2BXZTp2qmWLoKo6\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"padding: 10px 20px; border: 1px solid var(--link-color); border-radius: 5px; text-decoration: none;\">Open Free Consultation Form</a></p><h3>Direct Booking & Socials</h3><p>For returning clients or other inquiries, use the links below.</p><ul><li><a href=\"https://calendly.com/hghnoirfrq/30min\" target=\"_blank\" rel=\"noopener noreferrer\">Book a Session (Calendly)</a></li><li><a href=\"https://linktr.ee/luctheleo\" target=\"_blank\" rel=\"noopener noreferrer\">View All Links (Linktree)</a></li></ul><h3>Contact & Payment</h3><p><b>Direct Communication:</b> Telegram @luctheleo</p><p><b>Payment for Services:</b> CashApp $NoEgoJustWork</p>"},
+                {"id":"RQST","type":"page","isAnchor":true,"content":"<h2>Booking & Contact</h2><h3>Free Consultation (Order Line Conversation)</h3><p>To begin, please request a free 15-minute consultation to determine creative alignment. This is the first step for all new projects.</p><p style=\"text-align:center; margin-top: 1rem; margin-bottom: 2rem;\"><a href=\"https://forms.gle/8S2BXZTp2qmWLoKo6\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"padding: 10px 20px; border: 1px solid var(--link-color); border-radius: 5px; text-decoration: none;\">Open Free Consultation Form</a></p><h3>Direct Booking & Socials</h3><p>For returning clients or other inquiries, use the links below.</p><ul><li><a href=\"httpshttps://calendly.com/hghnoirfrq/30min\" target=\"_blank\" rel=\"noopener noreferrer\">Book a Session (Calendly)</a></li><li><a href=\"https://linktr.ee/luctheleo\" target=\"_blank\" rel=\"noopener noreferrer\">View All Links (Linktree)</a></li></ul><h3>Contact & Payment</h3><p><b>Direct Communication:</b> Telegram @luctheleo</p><p><b>Payment for Services:</b> CashApp $NoEgoJustWork</p>"},
                 {"id":"VOID_017 - home_LA","type":"post","isAnchor":false,"content":"<h2>VOID_017 - home_LA</h2><div class='embed-container'><video style='width:100%;' controls><source src='videos/home_LA1.mp4' type='video/mp4'></video></div>"},
                 {"id":"SGNNL_004 - JAY Z","type":"post","isAnchor":false,"content":"<div class=\"soundcloud-embed\"><iframe width=\"100%\" height=\"300\" scrolling=\"no\" frameborder=\"no\" allow=\"autoplay\" src=\"https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1226734087&color=%23546464&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true\"></iframe></div>"},
                 {"id":"VOID_015 - INIKO | JERICHO","type":"post","isAnchor":false,"content":"<div class=\"embed-container\"><iframe src=\"https://www.youtube.com/embed/6bRsSLMzkIQ\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe></div>"},
@@ -88,6 +96,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 {"id":"SGNNL_003 - ARNOHOSE DOLLAR | PAN ME","type":"post","isAnchor":false,"content":"<div class=\"soundcloud-embed\"><iframe width=\"100%\" height=\"300\" scrolling=\"no\" frameborder=\"no\" allow=\"autoplay\" src=\"https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1241335237&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true\"></iframe></div>"},
                 {"id":"CRCLT_02 - INKLING","type":"post","isAnchor":false,"content":"<h2>CRCLT_02 - INKLING</h2><p style=\"font-size: 2rem; text-align: center; font-style: italic;\">\"Nothing ventured, nothing gained.\"</p>"},
                 
+                {"id":"CRCLT_03 - PRISON","type":"post","isAnchor":false,"content":"<h2>CRCLT_03 - PRISON</h2><p style=\"font-size: 2rem; text-align: center; font-style: italic;\">\"The most effective prison isn't built with bars but with beliefs.\"</p><hr><p style=\"text-align: center;\">Machiavelli saw the architecture of external power. The deepest architecture is the one you build around your own potential.</p><p style=\"text-align: center; font-style: italic;\">Your prison was always unlocked.</p>"},
+                {"id":"CRCLT_04 - AMBITION","type":"post","isAnchor":false,"content":"<h2>CRCLT_04 - AMBITION</h2><p style=\"font-size: 2rem; text-align: center; font-style: italic;\">\"Make mistakes of ambition, not sloth.\"</p><hr><p style=\"text-align: center;\">Mistakes of ambition generate data. Mistakes of sloth generate only regret.</p><p style=\"text-align: center; font-style: italic;\">Movement completes the circuit. Stagnation breaks it.</p>"},
+                {"id":"CRCLT_05 - STRENGTH","type":"post","isAnchor":false,"content":"<h2>CRCLT_05 - STRENGTH</h2><p style=\"font-size: 2rem; text-align: center; font-style: italic;\">\"Develop the strength to do bold things.\"</p><hr><p style=\"text-align: center;\">Machiavelli called it <em>virtù</em>—not virtue, but operational power. The capability to act decisively.</p><p style=\"text-align: center; font-style: italic;\">This strength isn't given. It is systematically developed by aligning all four weights: Spiritual, Emotional, Mental, and Physical.</p>"},
+
                 // === TRACK LINKS ===
                 {"id":"PLAY_BRAND_BEAT","type":"track","isAnchor":false,"title":"Brand Beat - LUCTHELEO"},
                 {"id":"PLAY_RUMINATE","type":"track","isAnchor":false,"title":"Ruminate - LUCTHELEO"}
@@ -103,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setupBinaryGlitch();
             setupVideoBreathingEffect();
             startChaosInterval(); 
-            setupMasterToggle(); 
+            setupMasterToggle(); // This is the function we are updating
             initializeAudioPlayer();
             
             document.getElementById('link-field').addEventListener('scroll', resetInactivityTimer);
@@ -143,6 +155,16 @@ document.addEventListener('DOMContentLoaded', () => {
     function hideVisualizer() {
         visualizerOverlay.style.opacity = '0';
     }
+
+    // === HELPER FUNCTION ===
+    // This central function controls the filter logic.
+    function setBrandFilter(trackId) {
+        if (trackId === "PLAY_BRAND_BEAT") {
+            brandFilterOverlay.style.opacity = '0.7'; 
+        } else {
+            brandFilterOverlay.style.opacity = '0';
+        }
+    }
     
     // MODIFIED: Added Media Session state update
     function playAudio() {
@@ -172,6 +194,9 @@ document.addEventListener('DOMContentLoaded', () => {
         track.src = trackData.path; 
         trackInfoEl.textContent = trackData.title; 
         
+        // === USE THE HELPER FUNCTION ===
+        setBrandFilter(trackId);
+        
         track.load();
         playAudio(); 
         
@@ -193,23 +218,42 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // REWRITTEN: Logo ONLY toggles VFX. All shuffle logic removed.
+    // === THIS ENTIRE FUNCTION IS REWRITTEN ===
     function setupMasterToggle() {
         logoContainer.addEventListener('click', () => {
-            // Action: Toggle VFX 
-            isVfxOn = !isVfxOn; 
-            logoContainer.classList.toggle('vfx-disabled', !isVfxOn); 
             
-            if (isVfxOn && !track.paused) {
-                showVisualizer(); 
+            if (track.paused) {
+                // --- NEW BEHAVIOR: Play a random track ---
+                
+                // 1. Get all available track IDs from the library
+                const trackIds = Object.keys(trackLibrary); 
+                
+                // 2. Pick a random index
+                const randomIndex = Math.floor(Math.random() * trackIds.length);
+                
+                // 3. Get the random track ID
+                const randomTrackId = trackIds[randomIndex];
+                
+                // 4. Load and play it using our existing function
+                loadAndPlayTrack(randomTrackId);
+
             } else {
-                hideVisualizer(); 
-                rainCtx.clearRect(0, 0, rainCanvas.width, rainCanvas.height);
-                vCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+                // --- EXISTING BEHAVIOR: Toggle VFX ---
+                
+                isVfxOn = !isVfxOn; 
+                logoContainer.classList.toggle('vfx-disabled', !isVfxOn); 
+                
+                if (isVfxOn) { // Simplified from (isVfxOn && !track.paused)
+                    showVisualizer(); 
+                } else {
+                    hideVisualizer(); 
+                    rainCtx.clearRect(0, 0, rainCanvas.width, rainCanvas.height);
+                    vCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+                }
             }
-            // All track shuffling logic has been removed from this function.
         });
     }
+    // === END OF REWRITTEN FUNCTION ===
 
     function initializeAudioPlayer() {
         if (isPlayerInitialized) return;
@@ -233,8 +277,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         
+        // === Using SVG constants in event listeners ===
         track.addEventListener('play', () => {
-            playPauseBtn.innerHTML = '&#10074;&#10074;';
+            playPauseBtn.innerHTML = svgPauseIcon;
             logoContainer.classList.add('experience-active');
             logoPromptContainer.style.opacity = '0';
             logoImage.style.animationPlayState = 'paused';
@@ -242,7 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         track.addEventListener('pause', () => {
-            playPauseBtn.innerHTML = '&#9658;';
+            playPauseBtn.innerHTML = svgPlayIcon;
             logoContainer.classList.remove('experience-active');
             logoPromptContainer.style.opacity = '1';
             logoImage.style.animationPlayState = 'running';
@@ -269,9 +314,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         track.addEventListener('ended', () => {
-            playPauseBtn.innerHTML = '&#9658;';
+            playPauseBtn.innerHTML = svgPlayIcon;
             track.currentTime = 0;
         });
+        // === END OF SECTION ===
 
         function formatTime(seconds) {
             const minutes = Math.floor(seconds / 60);
@@ -635,6 +681,10 @@ document.addEventListener('DOMContentLoaded', () => {
         player.style.display = 'flex';
 
         initializeSite(); 
+
+        // === CALL THE HELPER FUNCTION ON LOAD ===
+        setBrandFilter("PLAY_BRAND_BEAT");
+
         playAudio(); 
     });
     // === END ENTRY POINT ===

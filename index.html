@@ -53,7 +53,7 @@
                 <canvas id="rain-canvas"></canvas>
              </div>
              <div id="logo-prompt-container" class="prompt-container">
-                <p id="logo-prompt" class="prompt-text">TAP LTL TO [TOGGLE VFX] &nbsp;|&nbsp; TAP LTL TO [TOGGLE VFX] &nbsp;|&nbsp; </p>
+                <p id="logo-prompt" class="prompt-text">TAP LTL TO [ALTER SIGNAL] &nbsp;|&nbsp; TAP LTL TO [ALTER SIGNAL] &nbsp;|&nbsp; </p>
              </div>
             <h1>LUCTHELEO | Audio.Alchemist</h1>
             <p>Pleasantly lost...</p>
@@ -86,7 +86,7 @@
 
     <div id="persistent-audio-player" style="display: none;">
         <div class="player-wrapper">
-            <button id="play-pause-btn">&#9658;</button> 
+            <button id="play-pause-btn"></button> 
             <div class="player-center">
                 <div class="track-info">Brand Beat - LUCTHELEO</div>
                 <div class="progress-wrapper">
@@ -108,6 +108,8 @@
         </div>
         <audio id="track" src="music/Brand_Beat.wav" crossOrigin="anonymous"></audio>
     </div>
+
+    <div id="brand-filter-overlay"></div>
 
     <script type="module" src="script.js"></script>
 </body>
