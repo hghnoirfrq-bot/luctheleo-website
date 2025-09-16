@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // === MODIFIED: Splash selector is now the content div ===
     const splashScreen = document.getElementById('splash-screen');
-    const splashContent = document.querySelector('.splash-content'); // This is the new entry button
+    const splashContent = document.querySelector('.splash-graphic-container'); // <-- THIS LINE IS UPDATED
     const mainContainer = document.querySelector('.container');
     // === END NEW SELECTORS ===
 
