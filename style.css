@@ -729,32 +729,32 @@ input[type="range"]:hover::-moz-range-thumb {
 /* NEW: Animation for the BACKGROUND image flicker */
 @keyframes image-flicker {
     0%, 70% {
-        background-image: url('/public/img/smiley1.png');
+        background-image: url('/img/smiley1.png');
         filter: invert(100%); /* White on black */
         opacity: 0.15; /* Faded */
     }
     71% {
-        background-image: url('/public/img/smiley2.png');
+        background-image: url('/img/smiley2.png');
         filter: invert(100%) brightness(1.5); /* Inverted color glitch */
         opacity: 0.8; /* Bright flash */
     }
     72% {
-        background-image: url('/public/img/smiley1.png');
+        background-image: url('/img/smiley1.png');
         filter: invert(100%);
         opacity: 0.15;
     }
     73%, 85% {
-        background-image: url('/public/img/smiley1.png');
+        background-image: url('/img/smiley1.png');
         filter: invert(100%);
         opacity: 0.15;
     }
     86% {
-        background-image: url('/public/img/smiley2.png');
+        background-image: url('/img/smiley2.png');
         filter: invert(100%) brightness(1.8) contrast(1.5); /* Intense flash */
         opacity: 1;
     }
     87%, 100% {
-        background-image: url('/public/img/smiley1.png');
+        background-image: url('/img/smiley1.png');
         filter: invert(100%);
         opacity: 0.15;
     }
