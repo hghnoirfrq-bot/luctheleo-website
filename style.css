@@ -686,7 +686,7 @@ input[type="range"]:hover::-moz-range-thumb {
     width: 500px;  /* Made bigger */
     height: 500px; /* Made bigger */
     object-fit: contain; /* Don't stretch logo */
-    opacity: 0.30; /* Made clear */
+    opacity: 0.7; /* Made clear */
     /* Animation Removed to let GIF play */
 }
 
