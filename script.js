@@ -27,7 +27,50 @@ document.addEventListener('DOMContentLoaded', () => {
     const logoContainer = document.getElementById('logo-container');
     const logoImage = document.querySelector('.logo-image');
     const logoPromptContainer = document.getElementById('logo-prompt-container');
-    const bgVideo = document.getElementById('bg-video');
+    const videoOverlay = document.getElementById('video-overlay'); // Get the overlay for the glitch
+    
+    // --- REMOVED SMILEY VISUALIZER VARS ---
+
+    
+    // --- SEAMLESS PLAYLIST LOGIC ---
+    const bgVideo1 = document.getElementById('bg-video-1');
+    const bgVideo2 = document.getElementById('bg-video-2');
+    
+    const videoPlaylist = [
+        "videos/home_LA1.mp4", 
+        "videos/bg2.mp4", 
+        "videos/bg3.mp4", 
+        "videos/bg4.mp4"
+    ];
+    let currentVideoIndex = 0; // Starts with home_LA1.mp4 (index 0)
+
+    /**
+     * Handles swapping players and preloading the next video.
+     * @param {HTMLVideoElement} playerWhoEnded - The player that just finished.
+     * @param {HTMLVideoElement} playerToStart - The player that is preloaded and ready.
+     */
+    function swapAndPreload(playerWhoEnded, playerToStart) {
+        // 1. Instantly swap visibility and play the preloaded video
+        playerWhoEnded.classList.remove('is-visible');
+        playerToStart.classList.add('is-visible');
+        playerToStart.currentTime = 0; // Ensure it starts from the beginning
+        playerToStart.play().catch(() => {});
+
+        // 2. Get the *next* video for the player that just ended
+        // We increment the index *after* getting the "next-next" video
+        const nextVideoIndex = (currentVideoIndex + 2) % videoPlaylist.length;
+        currentVideoIndex = (currentVideoIndex + 1) % videoPlaylist.length;
+
+        // 3. Load the *next* video into the now-hidden player
+        playerWhoEnded.src = videoPlaylist[nextVideoIndex];
+        playerWhoEnded.load();
+    }
+
+    // Attach the "ended" event listeners to each player to create the ping-pong effect
+    bgVideo1.addEventListener('ended', () => { swapAndPreload(bgVideo1, bgVideo2); });
+    bgVideo2.addEventListener('ended', () => { swapAndPreload(bgVideo2, bgVideo1); });
+    // --- End New Logic ---
+
     
     const player = document.getElementById('persistent-audio-player');
     const track = document.getElementById('track');
@@ -53,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     playPauseBtn.innerHTML = svgPlayIcon;
     
+    // --- UPDATED TRACK LIBRARY ---
     const trackLibrary = {
         "PLAY_BRAND_BEAT": {
             "path": "music/Brand_Beat.wav",
@@ -61,6 +105,14 @@ document.addEventListener('DOMContentLoaded', () => {
         "PLAY_RUMINATE": {
             "path": "music/ruminate.mp3",
             "title": "Ruminate - LUCTHELEO"
+        },
+        "PLAY_INSANITY": {
+            "path": "music/Project 38.wav",
+            "title": "Insanity - LUCTHELEO"
+        },
+        "SGNNL_DNSTY": {
+            "path": "music/DNSTY.wav",
+            "title": "SGNNL_DNSTY"
         }
     };
 
@@ -73,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let audioCtx;
     let analyser;
-    let source;
+    let source; // This will hold the MAIN persistent player source
     let isPlayerInitialized = false;
     let durationIsSet = false;
     let isVfxOn = true; 
@@ -88,10 +140,25 @@ document.addEventListener('DOMContentLoaded', () => {
         mainContainer.style.display = 'flex';
         player.style.display = 'flex'; // This is what shows the player
         
-        const playPromise = bgVideo.play();
+        // --- UPDATED: Start the first video and preload the second ---
+        
+        // Preload the *second* video (index 1)
+        bgVideo2.src = videoPlaylist[1];
+        bgVideo2.load();
+
+        // 1. Add a one-time listener for the 'playing' event on the *first* video
+        bgVideo1.addEventListener('playing', () => {
+            // 2. NOW make the video visible. This guarantees it's rendering.
+            bgVideo1.classList.add('is-visible'); 
+            // 3. NO TIMER NEEDED
+        }, { once: true }); // This listener removes itself after running
+
+        // 4. Now, tell the video to play. The listener above will handle the rest.
+        const playPromise = bgVideo1.play(); 
         if (playPromise !== undefined) {
             playPromise.catch(e => console.warn("Background video autoplay was blocked by browser."));
         }
+        // --- END UPDATE ---
 
         initializeSite();
         setBrandFilter("PLAY_BRAND_BEAT");
@@ -117,9 +184,14 @@ document.addEventListener('DOMContentLoaded', () => {
     fingerprintScanner.addEventListener('touchend', cancelHold);
     // --- END OF CORRECT ENTRY LOGIC ---
 
+    // --- REMOVED createSmileyPool() FUNCTION ---
+
 
     async function initializeSite() {
         try {
+            // --- UPDATED contentData ARRAY ---
+            // Removed SGNNL_005 and SGNNL_DNSTY from this array.
+            // Added simple "track" entries for them at the end.
             contentData = [
                 {"id":"MNFST","type":"page","isAnchor":true,"content":"<h2>MNFST</h2><h3>LUCTHELEO | Audio.Alchemist</h3><p>Pleasantly lost in the space between signal and static.</p><p>I create from the overflow. Twenty-three years navigating the intersection of classical training and digital chaos, Louisiana soul and systematic precision. Central Louisiana roots run deep—music creation since 2007, formal production education, life coaching training.</p><p>Someone who knows a little about a lot and a lot about a little.</p><p>The problem isn't lack of creativity. The problem is creative abundance without systematic capture.</p><p>Most creative partnerships scatter brilliant ideas across sessions like seeds in the wind. Concepts emerge, energy builds, then everything disappears into the void between meetings. I solve creative overflow through systematic documentation, organized development, and shared ownership of unused collaborative assets.</p><h3>The Architecture</h3><p><b>HTML.</b> Core creative foundation. Your authentic message before market pressure shapes it.</p><p><b>CSS.</b> How you present yourself when the world is watching. Visual identity that serves the work, not ego.</p><p><b>JS.</b> Market function without compromise. Audience connection that maintains creative integrity.</p><p>Three layers. Each builds upon the previous. Complete creative architecture emerges through systematic development rather than creative chaos.</p><h3>The Process</h3><p>Sessions combine immediate creative work with transferable systematic methods. You leave with both completed material and organizational approaches that serve future projects. This isn't dependency creation—it's systematic capability building.</p><p>Documentation captures everything. Project folders organize by development layer. Session recordings preserve decisions and breakthroughs. Nothing gets lost. Everything builds upon everything.</p><p>Unused creative assets become shared catalog content. Your collaborative overflow generates ongoing revenue rather than disappearing into digital archives. Creative partnership becomes creative investment.</p><h3>The Foundation</h3><p>Louisiana spiritual tradition meets contemporary creative technology. Prayer and systematic organization. Ancestral wisdom and digital precision. The sacred and the professional occupy the same space without contradiction.</p><p>All decisions start from spiritual foundation, move through abstract glimpses, process through mind and memory, then manifest through systematic action. The heart determines application. The body executes with documentation.</p><p>Excellence is measured by commitment. What gets written becomes real. The work speaks for itself.</p><h3>The Practice</h3><p><b>Order Line Conversation.</b> Fifteen minutes. Creative alignment assessment without sales pressure.</p><p><b>REVERIE Foundation.</b> Two hours. Complete project architecture establishment. Systematic organization that supports long-term creative development.</p><p><b>RUMINATE Development.</b> Focused sessions. CSS and JS layer building through collaborative systematic approaches.</p><p>No ego. Just work. Systematic creative development for artists ready to invest in organized capability building rather than casual creative exploration.</p><h3>The Philosophy</h3><p>I don't explain the spaces. I invite you to wander them.</p><p>Creative development serves the work, not the worker. Systematic approaches honor both artistic authenticity and professional sustainability. Spiritual foundation supports rather than opposes technological precision.</p><p>We are signal through static. Analog intuition meets digital creation. Louisiana heritage informs contemporary creative architecture. The mysterious and the systematic coexist without contradiction.</p><h3>Contact Protocol</h3><p>Direct communication via Telegram @luctheleo. Systematic creative development begins with Order Line Conversation. Assessment precedes engagement. Alignment determines collaboration.</p><p><b>L-01001100 T-01010100 L-01001100</b></p><p>Transdisciplinary artist. Systematic creative development. Louisiana roots, Atlanta operations.</p><p>Signal through the static. Systematic transformation of creative potential into organized reality.</p><p>No ego. Just work.</p>"},
                 {"id":"CRTVDVLPMNT","type":"page","isAnchor":true,"content":"<h2>CRTVDVLPMNT</h2><h3>Systematic Creative Development Overview</h3><p>Every artist has three faces: the one they know themselves to be (your <b>HTML</b>), the one they present to the world (your <b>CSS</b>), and the one that interacts with reality (your <b>JS</b>).</p><p>Our process systematically aligns these faces, transforming creative overflow into a clear, unified signal. We build not just a project, but a cohesive creative identity.</p><p style=\"text-align:center; margin-top: 2rem; margin-bottom: 2rem;\"><a href=\"#\" onclick=\"event.preventDefault(); document.getElementById('full-guide-content').style.display='block'; this.parentElement.style.display='none';\" style=\"padding: 10px 20px; border: 1px solid var(--link-color); border-radius: 5px; text-decoration: none;\">View Full Guide & Pricing</a></p><div id=\"full-guide-content\" style=\"display:none;\"><h2>REVERIE | RVR Creative Development Guide</h2><h3>Systematic Creative Development Process</h3><p><b>Development Philosophy:</b> No ego. Just work.</p><p><b>Approach:</b> Systematic transformation of creative concepts into organized, tangible results.</p><hr><h3>Process Overview</h3><p>This guide outlines our systematic approach to creative development. Our methodology transforms creative overflow into organized, documented work through structured sessions and skill transfer.</p><p><b>Core Principle:</b> You're not just receiving creative services - you're learning systematic development methods you can apply independently throughout your creative career.</p><hr><h3>The Creative Identity Framework</h3><p>We develop your creative identity using a systematic three-component approach:</p><ul><li><b>HTML Foundation (Core Content):</b> Your authentic creative message and purpose.</li><li><b>CSS Presentation (Visual Interface):</b> How you present yourself creatively.</li><li><b>JS Function (Market Operation):</b> How you operate and connect with audiences.</li></ul><hr><h3>Session Structure & Pricing</h3><p><b>Order Line Conversation (15 minutes - No charge)</b><br>A direct conversation to determine creative alignment and demonstrate our systematic approach.</p><p><b>REVERIE Foundation Session ($120 - 2 hours)</b><br>Establish your complete creative development architecture, focusing on the HTML layer (core creative foundation). You receive an organized project folder system, session documentation, a clear roadmap, and permanent portal access.</p><p><b>RUMINATE Development Sessions ($65/hour)</b><br>Systematic building and refinement of your presentation (CSS) and function (JS) layers through focused work sessions that include skill transfer and methodology education.</p><p><i><b>Member Rates Available:</b> For ongoing partnerships, rates are $100 for a monthly REVERIE session and $55/hour for RUMINATE sessions.</i></p><hr><h3>Skills You'll Develop</h3><ul><li>Systematic Organization</li><li>Creative Problem-Solving</li><li>Documentation Mastery</li><li>Independent Development</li></ul><p>Direct contact: Telegram @luctheleo</p></div>"},
@@ -127,6 +199,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 {"id":"RQST","type":"page","isAnchor":true,"content":"<h2>Booking & Contact</h2><h3>Free Consultation (Order Line Conversation)</h3><p>To begin, please request a free 15-minute consultation to determine creative alignment. This is the first step for all new projects.</p><p style=\"text-align:center; margin-top: 1rem; margin-bottom: 2rem;\"><a href=\"https://forms.gle/8S2BXZTp2qmWLoKo6\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"padding: 10px 20px; border: 1px solid var(--link-color); border-radius: 5px; text-decoration: none;\">Open Free Consultation Form</a></p><h3>Direct Booking & Socials</h3><p>For returning clients or other inquiries, use the links below.</p><ul><li><a href=\"https://calendly.com/hghnoirfrq/30min\" target=\"_blank\" rel=\"noopener noreferrer\">Book a Session (Calendly)</a></li><li><a href=\"https://linktr.ee/luctheleo\" target=\"_blank\" rel=\"noopener noreferrer\">View All Links (Linktree)</a></li></ul><h3>Contact & Payment</h3><p><b>Direct Communication:</b> Telegram @luctheleo</p><p><b>Payment for Services:</b> CashApp $NoEgoJustWork</p>"},
 
                 {"id":"VOID_017 - home_LA","type":"post","isAnchor":false,"content":"<h2>VOID_017 - home_LA</h2><div class='embed-container'><video style='width:100%;' controls><source src='videos/home_LA1.mp4' type='video/mp4'></video></div>"},
+                
+                {"id":"VOID_HVNLYWRDS","type":"post","isAnchor":false,"content":"<h2>VOID_HVNLYWRDS</h2><div class='embed-container-square'><video style='width:100%;' controls><source src='videos/hvnlywrds.mp4' type='video/mp4'></video></div>"},
+                {"id":"VOID_NTRNT","type":"post","isAnchor":false,"content":"<h2>VOID_NTRNT</h2><div class='embed-container-square'><video style='width:100%;' controls><source src='videos/internet.mp4' type='video/mp4'></video></div>"},
+                {"id":"VOID_MRNG","type":"post","isAnchor":false,"content":"<h2>VOID_MRNG</h2><div class='embed-container-square'><video style='width:100%;' controls><source src='videos/Morning_vid.mp4' type='video/mp4'></video></div>"},
+
                 {"id":"SGNNL_004 - JAY Z","type":"post","isAnchor":false,"content":"<div class=\"soundcloud-embed\"><iframe width=\"100%\" height=\"300\" scrolling=\"no\" frameborder=\"no\" allow=\"autoplay\" src=\"https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1226734087&color=%23546464&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true\"></iframe></div>"},
                 {"id":"VOID_015 - INIKO | JERICHO","type":"post","isAnchor":false,"content":"<div class=\"embed-container\"><iframe src=\"https://www.youtube.com/embed/6bRsSLMzkIQ\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe></div>"},
                 {"id":"VOID_008 - LTL | KARMA","type":"post","isAnchor":false,"content":"<div class=\"embed-container\"><iframe src=\"https://www.youtube.com/embed/IzjIBoWGJEI\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe></div>"},
@@ -136,14 +213,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 {"id":"CRCLT_03 - PRISON","type":"post","isAnchor":false,"content":"<h2>CRCLT_03 - PRISON</h2><p style=\"font-size: 2rem; text-align: center; font-style: italic;\">\"The most effective prison isn't built with bars but with beliefs.\"</p><hr><p style=\"text-align: center;\">Machiavelli saw the architecture of external power. The deepest architecture is the one you build around your own potential.</p><p style=\"text-align: center; font-style: italic;\">Your prison was always unlocked.</p>"},
                 {"id":"CRCLT_04 - AMBITION","type":"post","isAnchor":false,"content":"<h2>CRCLT_04 - AMBITION</h2><p style=\"font-size: 2rem; text-align: center; font-style: italic;\">\"Make mistakes of ambition, not sloth.\"</p><hr><p style=\"text-align: center;\">Mistakes of ambition generate data. Mistakes of sloth generate only regret.</p><p style=\"text-align: center; font-style: italic;\">Movement completes the circuit. Stagnation breaks it.</p>"},
                 {"id":"CRCLT_05 - STRENGTH","type":"post","isAnchor":false,"content":"<h2>CRCLT_05 - STRENGTH</h2><p style=\"font-size: 2rem; text-align: center; font-style: italic;\">\"Develop the strength to do bold things.\"</p><hr><p style=\"text-align: center;\">Machiavelli called it <em>virtù</em>—not virtue, but operational power. The capability to act decisively.</p><p style=\"text-align: center; font-style: italic;\">This strength isn't given. It is systematically developed by aligning all four weights: Spiritual, Emotional, Mental, and Physical.</p>"},
+                
+                // (REMOVED SGNNL_005 and SGNNL_DNSTY content blocks from here)
+
+                {
+                    "id": "CRCLT_06 - CONTRAST",
+                    "type": "post",
+                    "isAnchor": false,
+                    "content": "<h2>CRCLT_06 - CONTRAST</h2><div class='embed-container-square'><video controls><source src='videos/TMTVLR_33.mp4' type='video/mp4'></video></div><p style=\"font-size: 1.8rem; text-align: center; font-style: italic; margin-top: 1rem;\">\"I feel most colored when I am thrown against a sharp white background.\"</p><p style=\"text-align: center; margin-bottom: 2rem;\"><em>- Zora Neale Hurston</em></p>"
+                },
 
                 // === TRACK LINKS ===
+                // All playable audio tracks now live here.
                 {"id":"PLAY_BRAND_BEAT","type":"track","isAnchor":false,"title":"Brand Beat - LUCTHELEO"},
-                {"id":"PLAY_RUMINATE","type":"track","isAnchor":false,"title":"Ruminate - LUCTHELEO"}
+                {"id":"PLAY_RUMINATE","type":"track","isAnchor":false,"title":"Ruminate - LUCTHELEO"},
+                {"id":"PLAY_INSANITY","type":"track","isAnchor":false,"title":"Insanity - LUCTHELEO"},
+                {"id":"SGNNL_DNSTY","type":"track","isAnchor":false,"title":"SGNNL_DNSTY"}
             ];
             // --- END DATA FIX ---
 
             allPosts = contentData.filter(item => item.type === 'post');
+            // This filter now correctly includes all tracks (PLAY, SGNNL)
             chaosGridItems = contentData.filter(item => item.type === 'post' || item.type === 'track');
 
             renderFilterNav();
@@ -151,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setupInteractionListeners(); 
             setupBinaryGlitch();
             setupVideoBreathingEffect();
-            // REMOVED startChaosInterval(); 
+            // REMOVED createSmileyPool() call
             setupMasterToggle(); 
             initializeAudioPlayer();
             
@@ -299,7 +389,7 @@ document.addEventListener('DOMContentLoaded', () => {
         track.volume = 0.25;
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         analyser = audioCtx.createAnalyser();
-        source = audioCtx.createMediaElementSource(track);
+        source = audioCtx.createMediaElementSource(track); // This is the main track source
         source.connect(analyser);
         analyser.connect(audioCtx.destination); // Audio is routed through analyser
         analyser.fftSize = 256;
@@ -384,7 +474,8 @@ document.addEventListener('DOMContentLoaded', () => {
         function draw() {
             requestAnimationFrame(draw);
             
-            if (track.paused || !isVfxOn) {
+            // The visualizer loop should ONLY stop if VFX are manually turned off.
+            if (!isVfxOn) { 
                 if (rainParticles.length > 0) rainParticles = [];
                 rainCtx.clearRect(0, 0, rainCanvas.width, rainCanvas.height);
                 vCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
@@ -397,9 +488,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const freqData = new Uint8Array(analyser.frequencyBinCount);
             analyser.getByteFrequencyData(freqData);
             
+            // This is your ORIGINAL effect (reacts to mids/snares)
             const mids = freqData.slice(2, 21);
             const avg = (arr) => arr.reduce((sum, val) => sum + val, 0) / (arr.length || 1);
-            
             let rawMidBoost = avg(mids) / 255;
             const midBoost = Math.min(1.0, rawMidBoost * 1.5);
 
@@ -410,21 +501,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 drop-shadow(0 0 ${glowSize}px rgba(255, 255, 255, ${glowOpacity}))
             `;
             
-            drawBackgroundVisualizer(freqData, midBoost);
-            drawRain(midBoost);
+            // This is the wide-range bass (for the video filter)
+            const bassFrequencies = freqData.slice(0, Math.floor(freqData.length * 0.2));
+            const averageBass = bassFrequencies.reduce((a, b) => a + b, 0) / (bassFrequencies.length || 1);
+            const normalizedBass = averageBass / 255;
+
+            drawBackgroundVisualizer(freqData, midBoost, normalizedBass); // Video filter uses the wide bass
+            drawRain(midBoost); // Rain uses your original mid boost
+
+            // --- REMOVED Smiley Glitch Logic ---
         }
         
         draw();
         isPlayerInitialized = true;
     }
     
-    function drawBackgroundVisualizer(freqData, midBoost) {
-        const bassFrequencies = freqData.slice(0, Math.floor(freqData.length * 0.2));
-        const averageBass = bassFrequencies.reduce((a, b) => a + b, 0) / (bassFrequencies.length || 1);
-        const normalizedBass = averageBass / 255;
-
+    function drawBackgroundVisualizer(freqData, midBoost, normalizedBass) {
+        // This function now receives normalizedBass from draw()
         vCtx.globalAlpha = 0.1 + normalizedBass * 0.4;
-        bgVideo.style.filter = `grayscale(90%) contrast(150%) brightness(${0.4 + normalizedBass * 0.2})`;
+        
+        // --- UPDATED: Apply filter to BOTH players ---
+        const filterStyle = `grayscale(90%) contrast(150%) brightness(${0.4 + normalizedBass * 0.2})`;
+        bgVideo1.style.filter = filterStyle;
+        bgVideo2.style.filter = filterStyle;
+        // --- END UPDATE ---
 
         const now = Date.now();
         if (midBoost > midBoostThreshold && (now - lastRelocateTime > 100)) { 
@@ -684,6 +784,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function setupVideoBreathingEffect() { const videoContainer = document.getElementById('video-background-container'); if (!videoContainer) return; function breathe() { videoContainer.style.filter = 'blur(4px)'; setTimeout(() => { videoContainer.style.filter = 'blur(0px)'; }, 2500); const randomInterval = Math.random() * 6000 + 5000; setTimeout(breathe, randomInterval + 2500); } setTimeout(breathe, 4000); }
     function setupBinaryGlitch() { const o = binarySignature.textContent; let i = false; const t = () => { if (i) return; i = true; let g = setInterval(() => { binarySignature.textContent = o.split('').map(c => (c === '1' || c === '0') ? (Math.random() > 0.5 ? '1' : '0') : c).join(''); }, 50); setTimeout(() => { clearInterval(g); binarySignature.textContent = o; i = false; }, 1000); }; setInterval(t, 8000 + Math.random() * 5000); }
     
+    // --- UPDATED showModal FUNCTION ---
+    // This is now much simpler. It only handles media in the modal (like your VOID videos)
+    // and does NOT need to swap the audio analyser anymore.
     function showModal(contentId) {
         const item = contentData.find(d => d.id === contentId);
         if (item) {
@@ -692,49 +795,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 finalContent = `<h2>${item.id}</h2>` + item.content;
             }
             modalBody.innerHTML = finalContent;
+            
+            // This just handles any media left in modals (like your VOID videos)
+            const mediaInModal = modalBody.querySelectorAll('video, audio');
+            mediaInModal.forEach(media => {
+                // 1. Set the default volume as requested
+                media.volume = 0.25; 
+                
+                // 2. Add a listener to pause the MAIN track when this one plays
+                media.addEventListener('play', () => {
+                    pauseAudio(); // This pauses the main persistent player
+                });
+            });
+
             modal.style.display = 'flex';
         }
     }
 
+    // --- UPDATED hideModal FUNCTION ---
+    // This is now much simpler and no longer needs to manage audio connections.
     function hideModal() {
         modal.style.display = 'none';
-        modalBody.innerHTML = ''; 
+        modalBody.innerHTML = ''; // Clear content to stop all media playback
     }
 
     closeBtn.addEventListener('click', hideModal);
     modal.addEventListener('click', (e) => { if (e.target === modal) hideModal(); });
     
-    // === ENTRY POINT MODIFIED === (THIS IS THE BROKEN "TAP-TO-ENTER" LOGIC)
-    // Click listener is now on splashContent, not enterBtn
-    splashContent.addEventListener('click', () => {
-        
-        requestAppFullscreen(); 
-
-        splashScreen.style.opacity = '0';
-        splashScreen.addEventListener('transitionend', () => {
-            splashScreen.style.display = 'none';
-        });
-
-        mainContainer.style.display = 'flex';
-        player.style.display = 'flex';
-
-        // === THIS IS THE FIX FOR MOBILE VIDEO ===
-        // We must call .play() on the muted video *inside* the user tap event,
-        // before we initialize the audio context (which happens in initializeSite/playAudio)
-        const playPromise = bgVideo.play();
-        if (playPromise !== undefined) {
-            playPromise.catch(e => console.warn("Background video autoplay was blocked by browser."));
-        }
-        // === END FIX ===
-
-        initializeSite(); 
-
-        // === CALL THE HELPER FUNCTION ON LOAD ===
-        setBrandFilter("PLAY_BRAND_BEAT");
-
-        playAudio(); 
-    });
-    // === END ENTRY POINT ===
+    // === DELETED THE CONFLICTING "TAP-TO-ENTER" LOGIC ===
 
 });
 

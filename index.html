@@ -30,9 +30,13 @@
     <div id="splash-screen">
 
         <div id="splash-background-glitch">
-            <img id="glitch-image-1" class="glitch-image" src="img/smiley1.png" alt="Smiley 1 Glitch">
-           <!--<img id="glitch-image-2" class="glitch-image" src="img/smiley3.png" alt="Smiley 2 Glitch">-->
-        </div>
+            <video autoplay muted playsinline loop id="splash-bg-video">
+                <source src="videos/bg5.mp4" type="video/mp4">
+            </video>
+            
+            </div>
+
+        <div id="splash-video-overlay"></div>
 
         <div class="splash-graphic-container">
     
@@ -58,15 +62,17 @@
     </div>
     
     <div id="video-background-container">
-        <video autoplay loop muted playsinline id="bg-video">
+        <video muted playsinline class="bg-video-player" id="bg-video-1">
             <source src="videos/home_LA1.mp4" type="video/mp4">
         </video>
+        <video muted playsinline class="bg-video-player" id="bg-video-2">
+            </video>
         <div id="video-overlay"></div>
     </div>
 
     <div id="visualizer-overlay">
         <canvas id="visualizer-canvas"></canvas>
-    </div>
+        </div>
    
     <div class="container" style="display: none;">
         <header>

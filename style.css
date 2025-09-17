@@ -8,13 +8,24 @@
     z-index: 1; /* LAYER 1 (Bottom) */
     transition: filter 2s ease-in-out;
 }
-#bg-video {
+/* This class applies to BOTH video players */
+.bg-video-player {
+    position: absolute; /* Stack them on top of each other */
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: cover; 
+    /* This filter is the base state and will be controlled by JS for audio-reactivity */
     filter: grayscale(90%) contrast(150%) brightness(50%);
-    transition: filter 0.1s ease-in-out;
+    opacity: 0; /* Hidden by default */
+    /* NO TRANSITION = INSTANT HARD CUT */
 }
+/* This class is added by JS to show the active video */
+.bg-video-player.is-visible {
+    opacity: 1;
+}
+
 #video-overlay {
     position: absolute;
     top: 0;
@@ -23,7 +34,11 @@
     height: 100%;
     background-color: rgba(0, 0, 0, 0.4);
     z-index: 2;
+    /* Removed all transitions and glitch styles */
 }
+
+/* DELETED the .glitching class rule */
+
 #video-overlay::after {
     content: "";
     position: absolute;
@@ -147,6 +162,9 @@ body.user-select-disabled {
     height: 100%;
     z-index: 3; /* Canvas (lifelines/cells) sits on top of the shimmer texture */
 }
+
+/* --- REMOVED SMILEY GLITCH STYLES --- */
+
 
 #brand-filter-overlay {
     position: fixed;
@@ -391,7 +409,10 @@ footer {
     padding: 1rem; box-sizing: border-box;
 }
 .modal-content {
-    position: relative; background-color: var(--bg-color); padding: 2rem; border-radius: 8px; width: 100%; max-width: 800px; max-height: 100%; 
+    position: relative; background-color: var(--bg-color); padding: 2rem; border-radius: 8px; 
+    width: 100%; 
+    max-width: 750px; 
+    max-height: 85vh; 
     overflow-y: auto; 
     touch-action: pan-y; /* Allow scrolling inside the modal */
     color: var(--text-color); border: 1px solid #333;
@@ -415,6 +436,7 @@ footer {
 }
 .modal-body a { color: var(--hover-color); text-decoration: underline; }
 
+/* This is for 16:9 videos like YouTube */
 .modal-body .embed-container {
     position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; background: #000; margin-top: 1rem;
 }
@@ -422,6 +444,26 @@ footer {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;
 }
 .modal-body .soundcloud-embed iframe { position: relative; height: 300px; }
+
+
+/* This is for 1:1 square videos */
+.modal-body .embed-container-square {
+    position: relative;
+    padding-bottom: 100%; /* Creates a 1:1 Aspect Ratio */
+    height: 0;
+    overflow: hidden;
+    max-width: 100%;
+    background: #000;
+    margin-top: 1rem;
+}
+/* This targets the <video> tag INSIDE the square container */
+.embed-container-square video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
 
 
 /* === KEYFRAME ANIMATIONS FOR SPLASH === */
@@ -583,6 +625,28 @@ input[type="range"]:hover::-moz-range-thumb {
     }
 }
 
+/* STYLE FOR THE SPLASH SCREEN VIDEO */
+#splash-bg-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0; /* Sit behind the z-index: 1 overlay */
+}
+
+/* NEW OVERLAY STYLE FOR VISIBILITY */
+#splash-video-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* 50% black overlay */
+    z-index: 2; /* Sits between video (1) and content (3) */
+}
+
 
 /* === PREMIUM SPLASH SCREEN STYLES === */
 #splash-screen {
@@ -602,15 +666,14 @@ input[type="range"]:hover::-moz-range-thumb {
     cursor: default;
     overflow: hidden; 
     
-    /* === THIS IS THE FIX === */
+    /* === FIX: Disables text highlighting === */
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
-    /* === END OF FIX === */
 }
 
-/* NEW: Fullscreen background container */
+/* Fullscreen background container */
 #splash-background-glitch {
     position: fixed;
     top: 0;
@@ -628,7 +691,7 @@ input[type="range"]:hover::-moz-range-thumb {
     align-items: center;
     justify-content: center; /* Centered layout */
     text-align: center;
-    z-index: 3; /* Sits on top of the background */
+    z-index: 3; /* Sits on top of the background AND the new overlay */
     animation: fadeIn 2s ease-out 0.5s;
     animation-fill-mode: forwards;
     opacity: 0;
@@ -649,54 +712,18 @@ input[type="range"]:hover::-moz-range-thumb {
     margin-bottom: 4rem; /* Premium spacing */
 }
 
-/* === NEW STYLES FROM YOUR FILE === */
+/* === REMOVED GLITCH STYLES === */
 
-/* Glitch Image Style (for fullscreen background) */
-.glitch-image {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    object-fit: contain; 
-    opacity: 0;
-    transition: opacity 0.1s;
-    z-index: 1; /* Layered in the background */
-}
-
-/* Set base color for the SVG */
-#glitch-image-1 {
-    /* filter line removed to fix mobile bug */
-    animation: image-glitch 5s infinite steps(1, end);
-}
-
-#glitch-image-2 {
-    /* This is the pre-colored image, so we don't need to apply the filter */
-    animation: image-glitch 7s infinite steps(1, end);
-    animation-delay: 2s; /* Stagger the animation */
-}
-
-/* Glitch Animation */
-@keyframes image-glitch {
-    0%, 50% { opacity: 0; }
-    51%, 53% { opacity: 1; filter: hue-rotate(90deg) brightness(1.5); }
-    54% { opacity: 0; }
-    70%, 72% { opacity: 1; filter: hue-rotate(270deg) brightness(1.5); }
-    73% { opacity: 0; }
-    90%, 92% { opacity: 1; filter: hue-rotate(180deg) brightness(1.5); }
-    93% { opacity: 0; }
-    100% { opacity: 0; }
-}
 
 /* The Logo is the stable, central element */
 #splash-logo {
-    /* No longer absolute, centered by flexbox */
-    width: 500px;  /* Made bigger */
-    height: 500px; /* Made bigger */
+    width: 380px;  /* Made bigger */
+    height: 380px; /* Made bigger */
     object-fit: contain; /* Don't stretch logo */
     opacity: 1; /* Made clear */
     /* Animation Removed to let GIF play */
 }
 
-/* Kept this pulse animation for the logo */
 @keyframes logoPulse {
     0%, 100% {
         filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.1));
@@ -705,10 +732,7 @@ input[type="range"]:hover::-moz-range-thumb {
         filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 25px rgba(255, 255, 255, 0.2));
     }
 }
-/* === END NEW/MODIFIED STYLES === */
-
-
-/* === REMOVED .splash-binary-text and @keyframes glitch-text === */
+/* === END LOGO/GLITCH STYLES === */
 
 
 #splash-fingerprint-scanner {
@@ -778,4 +802,4 @@ input[type="range"]:hover::-moz-range-thumb {
     50% { text-shadow: 0 0 15px var(--link-color), 0 0 25px var(--link-color); opacity: 0.8; }
 }
 
-/* REMOVED the splash-sub-text rule */
+/* Rule for .splash-sub-text has been deleted */
