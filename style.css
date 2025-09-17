@@ -445,78 +445,6 @@ footer {
 /* === END KEYFRAMES === */
 
 
-/* === PREMIUM SPLASH SCREEN STYLES === */
-#splash-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    
-    /* --- UPDATED: Pure black background for the "void" vibe --- */
-    background: #000000; 
-    
-    z-index: 9999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    opacity: 1; 
-    transition: opacity 1s ease-out, visibility 1s ease-out;
-    visibility: visible;
-    cursor: pointer; /* Make the whole screen clickable */
-    
-    /* ADDED to match the reference */
-    overflow: hidden; 
-}
-
-/* GRAIN effect (layers on gradient) */
-#splash-screen::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiGAAAAA1BMVEX///+nxBvIAAAANElEQVR42u3BAQ0AAADCoPdPbQ8HFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPBgJ4QAAUe9F2sAAAAASUVORK5CYII=');
-    opacity: 0.05;
-    animation: grain 1s steps(2, end) infinite;
-    z-index: 1; 
-}
-
-/* STATIC SHIMMER effect (layers on grain) */
- /* THIS IS NOW REPLACED BY THE NEW SCANLINE EFFECT */
- #splash-screen::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    
-    /* NEW SCANLINE EFFECT from reference */
-    background-image: linear-gradient(
-        to bottom,
-        rgba(255, 255, 255, 0.05) 1px,
-        transparent 1px
-    );
-    background-size: 100% 3px;
-    animation: scanlines 0.2s linear infinite;
-    z-index: 2; 
-}
-
-/* NEW ANIMATION for scanlines */
-@keyframes scanlines {
-    0% { background-position: 0 0; }
-    100% { background-position: 0 3px; }
-}
-
-/* DELETED: Old .splash-content */
-/* DELETED: Old #splash-prompt-container */
-/* === END UPGRADED SPLASH SCREEN STYLES === */
-
-
 /* --- Premium Audio Player Styles --- */
 #persistent-audio-player {
     position: fixed;
@@ -527,7 +455,7 @@ footer {
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-top: 1px solid #333;
-    z-index: 900; /* This moves it BEHIND the filter (1000) */
+    z-index: 1001; /* <-- THIS IS THE FIX. Set to be > filter (1000) */
     display: none;
     padding: 15px 20px;
     box-sizing: border-box;
@@ -656,234 +584,192 @@ input[type="range"]:hover::-moz-range-thumb {
 }
 
 
-/* --- NEW SPLASH SCREEN GRAPHIC STYLES --- */
-/* (These styles combine all requests) */
+/* === PREMIUM SPLASH SCREEN STYLES === */
+#splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000000; 
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1; 
+    transition: opacity 1s ease-out, visibility 1s ease-out;
+    visibility: visible;
+    cursor: default;
+    overflow: hidden; 
+}
 
+/* NEW: Fullscreen background container */
+#splash-background-glitch {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1; /* Sits at the very back */
+    overflow: hidden;
+}
+
+/* Main content container for the splash page */
 .splash-graphic-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: center; /* THIS IS THE FIX */
     text-align: center;
-    z-index: 3;
+    z-index: 3; /* Sits on top of the background */
     animation: fadeIn 2s ease-out 0.5s;
     animation-fill-mode: forwards;
     opacity: 0;
-    cursor: pointer;
+    cursor: default;
     width: 100%;
     max-width: 400px;
-    position: relative; /* Container for stacking */
-}
-
-
-/* This is the LAYERED sigil element container */
-.svg-sigil-container {
-    width: 250px;
-    height: 250px;
     position: relative;
-    /* Master distortion animation on the whole container */
-    animation: svg-glitch 6s infinite steps(2, end);
+    /* Removed height and padding */
 }
 
-/* NEW: Background animated element (Layer 1) */
-#animated-sigil-background {
+/* This container now just holds the logo */
+#splash-graphic-inner {
+    position: relative;
+    width: 100%;
+    height: auto; /* Height is set by logo */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 4rem; /* THIS IS THE FIX */
+}
+
+/* === NEW STYLES FROM YOUR FILE === */
+
+/* Glitch Image Style (for fullscreen background) */
+.glitch-image {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* CHANGED: This fits the image, stops cropping */
+    opacity: 0;
+    transition: opacity 0.1s;
+    z-index: 1; /* Layered in the background */
+}
+
+/* Set base color for the SVG */
+#glitch-image-1 {
+    filter: brightness(0) invert(1); /* This inverts the colors for a white image */
+    animation: image-glitch 5s infinite steps(1, end);
+}
+
+#glitch-image-2 {
+    /* This is the pre-colored image, so we don't need to apply the filter */
+    animation: image-glitch 7s infinite steps(1, end);
+    animation-delay: 2s; /* Stagger the animation */
+}
+
+/* Glitch Animation */
+@keyframes image-glitch {
+    0%, 50% { opacity: 0; }
+    51%, 53% { opacity: 1; filter: hue-rotate(90deg) brightness(1.5); }
+    54% { opacity: 0; }
+    70%, 72% { opacity: 1; filter: hue-rotate(270deg) brightness(1.5); }
+    73% { opacity: 0; }
+    90%, 92% { opacity: 1; filter: hue-rotate(180deg) brightness(1.5); }
+    93% { opacity: 0; }
+    100% { opacity: 0; }
+}
+
+/* The Logo is the stable, central element */
+#splash-logo {
+    /* No longer absolute, centered by flexbox */
+    width: 500px;  /* Made bigger */
+    height: 500px; /* Made bigger */
+    object-fit: contain; /* Don't stretch logo */
+    opacity: 0.30; /* Made clear */
+    /* Animation Removed to let GIF play */
+}
+
+/* Kept this pulse animation for the logo */
+@keyframes logoPulse {
+    0%, 100% {
+        filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.1));
+    }
+    50% {
+        filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 25px rgba(255, 255, 255, 0.2));
+    }
+}
+/* === END NEW/MODIFIED STYLES === */
+
+
+/* === REMOVED .splash-binary-text and @keyframes glitch-text === */
+
+
+#splash-fingerprint-scanner {
+    position: relative;
+    z-index: 5;
+    margin-top: 0; /* THIS IS THE FIX */
+    cursor: pointer;
+    text-align: center;
+    pointer-events: auto;
+    opacity: 1;
+}
+
+#fingerprint-wrapper {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#fingerprint-progress-circle {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 1; /* Behind the SVG */
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
-    
-    /* Run the flicker animation */
-    animation: image-flicker 4s infinite steps(1, end);
+    border-radius: 50%;
+    box-sizing: border-box;
+    border: 2px solid transparent;
+    border-top-color: var(--link-color);
+    border-right-color: var(--link-color);
+    border-bottom-color: var(--link-color);
+    transform: rotate(-135deg);
+    opacity: 0.5;
+    transition: transform 1.5s linear;
 }
 
-/* This is the foreground SVG (Layer 2) */
-.svg-sigil {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    z-index: 2; /* On top of the background */
-    
-    /* Neon glow for the SVG */
-    filter: drop-shadow(0 0 8px var(--neon-accent)) drop-shadow(0 0 20px var(--neon-accent));
-    overflow: visible;
+#fingerprint-icon {
+    width: 50%;
+    height: 50%;
+    color: var(--link-color);
+    opacity: 0.8;
 }
 
-.sigil-shape {
-    transform-origin: center center;
-}
-.svg-sigil .sigil-circles {
-    animation: morph-circles-dissolve 12s infinite ease-in-out;
-}
-.svg-sigil .sigil-logo {
-    animation: morph-logo-dissolve 12s infinite ease-in-out;
-    transform-origin: center center;
+#splash-fingerprint-scanner:active #fingerprint-progress-circle {
+    transform: rotate(225deg);
 }
 
-/* --- ALL ANIMATIONS --- */
-
-/* NEW: Animation for the BACKGROUND image flicker */
-@keyframes image-flicker {
-    0%, 70% {
-        background-image: url('/img/smiley1.png');
-        filter: invert(100%); /* White on black */
-        opacity: 0.15; /* Faded */
-    }
-    71% {
-        background-image: url('/img/smiley2.png');
-        filter: invert(100%) brightness(1.5); /* Inverted color glitch */
-        opacity: 0.8; /* Bright flash */
-    }
-    72% {
-        background-image: url('/img/smiley1.png');
-        filter: invert(100%);
-        opacity: 0.15;
-    }
-    73%, 85% {
-        background-image: url('/img/smiley1.png');
-        filter: invert(100%);
-        opacity: 0.15;
-    }
-    86% {
-        background-image: url('/img/smiley2.png');
-        filter: invert(100%) brightness(1.8) contrast(1.5); /* Intense flash */
-        opacity: 1;
-    }
-    87%, 100% {
-        background-image: url('/img/smiley1.png');
-        filter: invert(100%);
-        opacity: 0.15;
-    }
-}
-
-
-/* SVG Morph Animations */
-@keyframes morph-circles-dissolve {
-    0%, 35%   { opacity: 1; filter: blur(0); }
-    40%       { opacity: 0; filter: blur(8px); } /* Dissolve out */
-    60%       { opacity: 0; filter: blur(8px); }
-    65%, 100% { opacity: 1; filter: blur(0); } /* Re-form */
-}
-@keyframes morph-logo-dissolve { 
-    0%, 35%   { opacity: 0; filter: blur(8px); transform: scale(0.9); }
-    40%       { opacity: 0.8; filter: blur(0); transform: scale(1); }  /* Form (Opacity 0.8) */
-    60%       { opacity: 0.8; filter: blur(0); transform: scale(1); }  /* Hold (Opacity 0.8) */
-    65%, 100% { opacity: 0; filter: blur(8px); transform: scale(0.9); } /* Dissolve out */
-}
-
-/* SVG Stroke styles */
-.svg-sigil .svg-eye, .svg-sigil .svg-mouth {
-    fill: none;
-    stroke: var(--neon-accent);
-    stroke-width: 2;
-    animation: neon-flicker 4s infinite ease-in-out;
-}
-.svg-sigil .svg-mouth {
-    animation-delay: -0.5s;
-}
-
-/* Neon flicker for SVG strokes */
-@keyframes neon-flicker {
-    0%, 100% {
-        opacity: 1;
-        stroke-width: 2;
-        filter: brightness(1.2);
-    }
-    50% {
-        opacity: 0.7;
-        stroke-width: 2.5;
-        filter: brightness(1.5);
-    }
-    52% { opacity: 0.5; }
-    54% { opacity: 1; }
-    70% { opacity: 1; }
-    72% { opacity: 0.8; stroke-width: 1.8; }
-    74% { opacity: 1; }
-}
-
-/* Master container glitch */
-@keyframes svg-glitch {
-    0%, 100% { transform: translate(0, 0) skew(0, 0); }
-    60% { transform: translate(0, 0) skew(0, 0); }
-    61% { transform: translate(-2px, 1px) skew(-1deg, 0); }
-    62% { transform: translate(3px, -2px) skew(0, 2deg); }
-    63% { transform: translate(0, 0) skew(0, 0); }
-    80% { transform: translate(0, 0) skew(0, 0); }
-    81% { transform: translate(4px, 3px) skew(3deg, 0); }
-    82% { transform: translate(-3px, -1px) skew(0, -2deg); }
-    83% { transform: translate(0, 0) skew(0, 0); }
-}
-
-
-/* Binary Text */
-.splash-binary-text {
+#splash-prompt-text {
     font-family: var(--font-mono);
-    font-size: 0.8rem;
-    color: var(--neon-accent); 
-    letter-spacing: 1px;
-    margin-bottom: 1.5rem; 
-    opacity: 0.7;
-    animation: glitch-text 7s infinite steps(1, end);
+    font-size: 1.1rem;
+    color: var(--link-color);
+    letter-spacing: 2px;
+    margin-top: 1rem;
+    animation: pulse-glow-text 2s infinite ease-in-out;
 }
 
-@keyframes glitch-text {
-    0%, 100% {
-        opacity: 0.7;
-        transform: translateX(0);
-        text-shadow: 0 0 5px var(--neon-accent);
-    }
-    10% { opacity: 0.8; transform: translateX(1px); }
-    11% { opacity: 0.4; transform: translateX(-1px); }
-    12% { opacity: 0.7; transform: translateX(0); }
-    25% { opacity: 0.7; text-shadow: 0 0 5px var(--neon-accent); }
-    26% { opacity: 0.5; text-shadow: 0 0 10px rgba(255, 255, 255, 0.7); }
-    27% { opacity: 0.7; text-shadow: 0 0 5px var(--neon-accent); }
+@keyframes pulse-scanner {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
 }
 
-
-/* Enter Button */
-#splash-enter-button {
-    font-family: var(--font-mono);
-    font-size: 1.2rem;
-    font-weight: 400; /* Thin */
-    color: var(--neon-accent);
-    letter-spacing: 3px;
-    padding: 10px 20px;
-    margin-top: 1.5rem;
-    border: none;
-    transition: all 0.3s ease;
-    white-space: nowrap; 
-    animation: fading-broadcast 4s infinite ease-in-out;
+@keyframes pulse-glow-text {
+    0%, 100% { text-shadow: 0 0 5px var(--link-color); opacity: 1; }
+    50% { text-shadow: 0 0 15px var(--link-color), 0 0 25px var(--link-color); opacity: 0.8; }
 }
 
-@keyframes fading-broadcast {
-    0%, 100% {
-        opacity: 1;
-        text-shadow: 0 0 15px var(--neon-accent), 0 0 25px var(--neon-accent);
-    }
-    50% {
-        opacity: 0.4;
-        text-shadow: 0 0 5px var(--neon-accent);
-    }
-}
-
-
-/* Sub-text */
-.splash-sub-text {
-    font-family: var(--font-mono);
-    font-size: 0.9rem;
-    color: var(--link-color); /* Kept this grey to be subtle */
-    letter-spacing: 1px;
-    margin-top: 0.5rem;
-    opacity: 0.6;
-}
-
-.splash-graphic-container:hover #splash-enter-button {
-    color: var(--hover-color); /* Hover to white */
-    text-shadow: 0 0 15px var(--hover-color); /* Add glow on hover */
-    animation: none; /* Pause animations on hover for a clean click */
-}
+/* REMOVED the splash-sub-text rule */

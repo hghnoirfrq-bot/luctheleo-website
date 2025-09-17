@@ -6,6 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const mainContainer = document.querySelector('.container');
     // === END NEW SELECTORS ===
 
+    // === DELETED OLD FINGERPRINT SCANNER VARIABLES ===
+
     let contentData = [];
     let allPosts = [];
     let chaosGridItems = []; // Holds posts AND tracks
@@ -83,6 +85,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let isPlayerInitialized = false;
     let durationIsSet = false;
     let isVfxOn = true; // Global state for logo VFX toggle
+
+    // === DELETED OLD FINGERPRINT SCANNER FUNCTIONS ===
 
     async function initializeSite() {
         try {

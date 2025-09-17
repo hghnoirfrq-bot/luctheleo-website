@@ -28,31 +28,35 @@
 <body>
 
     <div id="splash-screen">
+
+        <div id="splash-background-glitch">
+            <img id="glitch-image-1" class="glitch-image" src="img/smiley1.png" alt="Smiley 1 Glitch">
+            <img id="glitch-image-2" class="glitch-image" src="img/smiley3.png" alt="Smiley 2 Glitch">
+        </div>
+
         <div class="splash-graphic-container">
     
-            <div class="splash-binary-text">L-01001100 T-01010100 L-01001100</div>
+            <div id="splash-graphic-inner">
+                <img id="splash-logo" src="img/logo.gif" alt="LTL Logo">
+            </div>
 
-            <div class="svg-sigil-container">
-                
-                <div id="animated-sigil-background"></div>
-                
-                <svg class="svg-sigil" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <g class="sigil-shape sigil-circles">
-                        <circle class="svg-eye" cx="35" cy="38" r="8"/>
-                        <circle class="svg-eye" cx="65" cy="38" r="8"/>
-                        <circle class="svg-mouth" cx="50" cy="65" r="10"/>
-                    </g>
-                    <image class="sigil-shape sigil-logo" href="img/ltl_logo.PNG" x="10" y="10" width="80" height="80" />
-                </svg>
+            <div id="splash-fingerprint-scanner">
+                <div id="fingerprint-wrapper">
+                    <div id="fingerprint-progress-circle"></div>
+                    
+                    <svg id="fingerprint-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 21C12 21 15.6 21 18 18C20.4 15.6 21 12 21 12C21 12 21 8.4 18.6 6C16.2 3.6 12.6 3 12.6 3C12.6 3 9 3 6.6 5.4C4.2 7.8 3 11.4 3 11.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 16.5C12 16.5 14.7 16.5 16.2 15C17.7 13.5 18 12 18 12C18 12 18 9.3 16.5 7.8C15 6.3 12.3 6 12.3 6C12.3 6 9.6 6 8.1 7.5C6.6 9 6 10.5 6 10.5" stroke="currentColor" stroke-width="1.fs5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 12C12.7958 12 13.4375 11.3284 13.4375 10.5C13.4375 9.67157 12.7958 9 12 9C11.2042 9 10.5625 9.67157 10.5625 10.5C10.5625 11.3284 11.2042 12 12 12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+
+                </div>
+                <p id="splash-prompt-text" class="prompt-text">HOLD TO ENTER</p>
             </div>
             
-            <div id="splash-enter-button" class="prompt-text">
-                ENTER CREATIVE CHAOS
-            </div>
-            <div class="splash-sub-text">0i.exe</div>
-
         </div>
     </div>
+    
     <div id="video-background-container">
         <video autoplay loop muted playsinline id="bg-video">
             <source src="videos/home_LA1.mp4" type="video/mp4">
