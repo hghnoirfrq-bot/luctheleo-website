@@ -601,6 +601,13 @@ input[type="range"]:hover::-moz-range-thumb {
     visibility: visible;
     cursor: default;
     overflow: hidden; 
+    
+    /* === THIS IS THE FIX === */
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    /* === END OF FIX === */
 }
 
 /* NEW: Fullscreen background container */
@@ -619,7 +626,7 @@ input[type="range"]:hover::-moz-range-thumb {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center; /* THIS IS THE FIX */
+    justify-content: center; /* Centered layout */
     text-align: center;
     z-index: 3; /* Sits on top of the background */
     animation: fadeIn 2s ease-out 0.5s;
@@ -629,7 +636,6 @@ input[type="range"]:hover::-moz-range-thumb {
     width: 100%;
     max-width: 400px;
     position: relative;
-    /* Removed height and padding */
 }
 
 /* This container now just holds the logo */
@@ -640,7 +646,7 @@ input[type="range"]:hover::-moz-range-thumb {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 4rem; /* THIS IS THE FIX */
+    margin-bottom: 4rem; /* Premium spacing */
 }
 
 /* === NEW STYLES FROM YOUR FILE === */
@@ -650,7 +656,7 @@ input[type="range"]:hover::-moz-range-thumb {
     position: absolute;
     width: 100%;
     height: 100%;
-    object-fit: contain; /* CHANGED: This fits the image, stops cropping */
+    object-fit: contain; 
     opacity: 0;
     transition: opacity 0.1s;
     z-index: 1; /* Layered in the background */
@@ -658,7 +664,7 @@ input[type="range"]:hover::-moz-range-thumb {
 
 /* Set base color for the SVG */
 #glitch-image-1 {
-    filter: brightness(0) invert(1); /* This inverts the colors for a white image */
+    /* filter line removed to fix mobile bug */
     animation: image-glitch 5s infinite steps(1, end);
 }
 
@@ -686,7 +692,7 @@ input[type="range"]:hover::-moz-range-thumb {
     width: 500px;  /* Made bigger */
     height: 500px; /* Made bigger */
     object-fit: contain; /* Don't stretch logo */
-    opacity: 0.7; /* Made clear */
+    opacity: 1; /* Made clear */
     /* Animation Removed to let GIF play */
 }
 
@@ -708,7 +714,7 @@ input[type="range"]:hover::-moz-range-thumb {
 #splash-fingerprint-scanner {
     position: relative;
     z-index: 5;
-    margin-top: 0; /* THIS IS THE FIX */
+    margin-top: 0; /* Centered by parent flex container */
     cursor: pointer;
     text-align: center;
     pointer-events: auto;
