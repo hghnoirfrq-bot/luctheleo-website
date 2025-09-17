@@ -1,25 +1,25 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // === MODIFIED: Splash selector is now the content div ===
     const splashScreen = document.getElementById('splash-screen');
-    const splashContent = document.querySelector('.splash-graphic-container'); // <-- THIS LINE IS UPDATED
     const mainContainer = document.querySelector('.container');
-    // === END NEW SELECTORS ===
+    const splashGraphicInner = document.getElementById('splash-graphic-inner');
 
-    // === DELETED OLD FINGERPRINT SCANNER VARIABLES ===
+    // Hold to enter elements (THIS IS THE CORRECT ENTRY LOGIC)
+    const fingerprintScanner = document.getElementById('splash-fingerprint-scanner');
+    const progressBar = document.getElementById('fingerprint-progress-circle');
+    const holdProgressDuration = 2000; // 2 seconds to hold
+    let holdTimer;
 
     let contentData = [];
     let allPosts = [];
-    let chaosGridItems = []; // Holds posts AND tracks
-    // REMOVED chaosInterval variable
-    let inactivityTimer = null; // Timer for idle revert to chaos
-    let tempFavorites = ["PLAY_BRAND_BEAT"]; // <-- Pre-loads Brand Beat as a favorite
-
-    // --- Core Site Elements ---
+    let chaosGridItems = [];
+    let inactivityTimer = null;
+    let tempFavorites = ["PLAY_BRAND_BEAT"];
+    
     const anchorNav = document.getElementById('anchor-nav');
     const filterNav = document.getElementById('filter-nav');
     const dynamicField = document.getElementById('dynamic-field');
-    const mainScrollArea = document.getElementById('link-field'); // Scrolling container
+    const mainScrollArea = document.getElementById('link-field');
     const modal = document.getElementById('content-modal');
     const modalBody = document.getElementById('modal-body');
     const closeBtn = document.getElementById('modal-close-btn');
@@ -29,7 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const logoPromptContainer = document.getElementById('logo-prompt-container');
     const bgVideo = document.getElementById('bg-video');
     
-    // --- Audio Player Elements ---
     const player = document.getElementById('persistent-audio-player');
     const track = document.getElementById('track');
     const playPauseBtn = document.getElementById('play-pause-btn');
@@ -39,26 +38,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const durationEl = document.getElementById('duration');
     const trackInfoEl = document.querySelector('.track-info'); 
     
-    // --- Visualizer Elements & State ---
     const visualizerOverlay = document.getElementById('visualizer-overlay');
     const visualizerCanvas = document.getElementById('visualizer-canvas');
     const vCtx = visualizerCanvas.getContext('2d');
     const brandFilterOverlay = document.getElementById('brand-filter-overlay');
     
-    // --- Rain Effect Elements ---
     const rainCanvas = document.getElementById('rain-canvas');
     const rainCtx = rainCanvas.getContext('2d');
     let rainParticles = [];
     const currencySymbols = ['$', '€', '£', '¥', '₩', '₹', '₽', '₿', 'Ξ'];
 
-    // === SVG ICON CONSTANTS ===
     const svgPlayIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/></svg>`;
     const svgPauseIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M5.5 3.5A1.5 1.5 0 0 1 7 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5zm5 0A1.5 1.5 0 0 1 12 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5z"/></svg>`;
     
-    // === SET INITIAL BUTTON STATE ===
     playPauseBtn.innerHTML = svgPlayIcon;
     
-    // Track Library Lookup
     const trackLibrary = {
         "PLAY_BRAND_BEAT": {
             "path": "music/Brand_Beat.wav",
@@ -70,8 +64,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-
-    // --- Simplified Visualizer Variables ---
     const brandedText = "LUCTHELEO LTL";
     let brandedCells = [];
     const midBoostThreshold = 0.3;
@@ -84,13 +76,50 @@ document.addEventListener('DOMContentLoaded', () => {
     let source;
     let isPlayerInitialized = false;
     let durationIsSet = false;
-    let isVfxOn = true; // Global state for logo VFX toggle
+    let isVfxOn = true; 
 
-    // === DELETED OLD FINGERPRINT SCANNER FUNCTIONS ===
+    // Function to handle the transition to the main site
+    function enterMainSite() {
+        splashScreen.style.opacity = '0';
+        splashScreen.addEventListener('transitionend', () => {
+            splashScreen.style.display = 'none';
+        }, { once: true });
+
+        mainContainer.style.display = 'flex';
+        player.style.display = 'flex'; // This is what shows the player
+        
+        const playPromise = bgVideo.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(e => console.warn("Background video autoplay was blocked by browser."));
+        }
+
+        initializeSite();
+        setBrandFilter("PLAY_BRAND_BEAT");
+        playAudio();
+    }
+
+    // --- THIS IS YOUR CORRECT ENTRY LOGIC ---
+    function startHold() {
+        progressBar.style.transition = `transform ${holdProgressDuration}ms linear`;
+        progressBar.style.transform = 'rotate(225deg)';
+        holdTimer = setTimeout(enterMainSite, holdProgressDuration);
+    }
+
+    function cancelHold() {
+        clearTimeout(holdTimer);
+        progressBar.style.transition = 'transform 0.3s ease-out';
+        progressBar.style.transform = 'rotate(-135deg)';
+    }
+
+    fingerprintScanner.addEventListener('mousedown', startHold);
+    fingerprintScanner.addEventListener('mouseup', cancelHold);
+    fingerprintScanner.addEventListener('touchstart', startHold);
+    fingerprintScanner.addEventListener('touchend', cancelHold);
+    // --- END OF CORRECT ENTRY LOGIC ---
+
 
     async function initializeSite() {
         try {
-            // --- DATA IS NOW CORRECT AND COMPLETE ---
             contentData = [
                 {"id":"MNFST","type":"page","isAnchor":true,"content":"<h2>MNFST</h2><h3>LUCTHELEO | Audio.Alchemist</h3><p>Pleasantly lost in the space between signal and static.</p><p>I create from the overflow. Twenty-three years navigating the intersection of classical training and digital chaos, Louisiana soul and systematic precision. Central Louisiana roots run deep—music creation since 2007, formal production education, life coaching training.</p><p>Someone who knows a little about a lot and a lot about a little.</p><p>The problem isn't lack of creativity. The problem is creative abundance without systematic capture.</p><p>Most creative partnerships scatter brilliant ideas across sessions like seeds in the wind. Concepts emerge, energy builds, then everything disappears into the void between meetings. I solve creative overflow through systematic documentation, organized development, and shared ownership of unused collaborative assets.</p><h3>The Architecture</h3><p><b>HTML.</b> Core creative foundation. Your authentic message before market pressure shapes it.</p><p><b>CSS.</b> How you present yourself when the world is watching. Visual identity that serves the work, not ego.</p><p><b>JS.</b> Market function without compromise. Audience connection that maintains creative integrity.</p><p>Three layers. Each builds upon the previous. Complete creative architecture emerges through systematic development rather than creative chaos.</p><h3>The Process</h3><p>Sessions combine immediate creative work with transferable systematic methods. You leave with both completed material and organizational approaches that serve future projects. This isn't dependency creation—it's systematic capability building.</p><p>Documentation captures everything. Project folders organize by development layer. Session recordings preserve decisions and breakthroughs. Nothing gets lost. Everything builds upon everything.</p><p>Unused creative assets become shared catalog content. Your collaborative overflow generates ongoing revenue rather than disappearing into digital archives. Creative partnership becomes creative investment.</p><h3>The Foundation</h3><p>Louisiana spiritual tradition meets contemporary creative technology. Prayer and systematic organization. Ancestral wisdom and digital precision. The sacred and the professional occupy the same space without contradiction.</p><p>All decisions start from spiritual foundation, move through abstract glimpses, process through mind and memory, then manifest through systematic action. The heart determines application. The body executes with documentation.</p><p>Excellence is measured by commitment. What gets written becomes real. The work speaks for itself.</p><h3>The Practice</h3><p><b>Order Line Conversation.</b> Fifteen minutes. Creative alignment assessment without sales pressure.</p><p><b>REVERIE Foundation.</b> Two hours. Complete project architecture establishment. Systematic organization that supports long-term creative development.</p><p><b>RUMINATE Development.</b> Focused sessions. CSS and JS layer building through collaborative systematic approaches.</p><p>No ego. Just work. Systematic creative development for artists ready to invest in organized capability building rather than casual creative exploration.</p><h3>The Philosophy</h3><p>I don't explain the spaces. I invite you to wander them.</p><p>Creative development serves the work, not the worker. Systematic approaches honor both artistic authenticity and professional sustainability. Spiritual foundation supports rather than opposes technological precision.</p><p>We are signal through static. Analog intuition meets digital creation. Louisiana heritage informs contemporary creative architecture. The mysterious and the systematic coexist without contradiction.</p><h3>Contact Protocol</h3><p>Direct communication via Telegram @luctheleo. Systematic creative development begins with Order Line Conversation. Assessment precedes engagement. Alignment determines collaboration.</p><p><b>L-01001100 T-01010100 L-01001100</b></p><p>Transdisciplinary artist. Systematic creative development. Louisiana roots, Atlanta operations.</p><p>Signal through the static. Systematic transformation of creative potential into organized reality.</p><p>No ego. Just work.</p>"},
                 {"id":"CRTVDVLPMNT","type":"page","isAnchor":true,"content":"<h2>CRTVDVLPMNT</h2><h3>Systematic Creative Development Overview</h3><p>Every artist has three faces: the one they know themselves to be (your <b>HTML</b>), the one they present to the world (your <b>CSS</b>), and the one that interacts with reality (your <b>JS</b>).</p><p>Our process systematically aligns these faces, transforming creative overflow into a clear, unified signal. We build not just a project, but a cohesive creative identity.</p><p style=\"text-align:center; margin-top: 2rem; margin-bottom: 2rem;\"><a href=\"#\" onclick=\"event.preventDefault(); document.getElementById('full-guide-content').style.display='block'; this.parentElement.style.display='none';\" style=\"padding: 10px 20px; border: 1px solid var(--link-color); border-radius: 5px; text-decoration: none;\">View Full Guide & Pricing</a></p><div id=\"full-guide-content\" style=\"display:none;\"><h2>REVERIE | RVR Creative Development Guide</h2><h3>Systematic Creative Development Process</h3><p><b>Development Philosophy:</b> No ego. Just work.</p><p><b>Approach:</b> Systematic transformation of creative concepts into organized, tangible results.</p><hr><h3>Process Overview</h3><p>This guide outlines our systematic approach to creative development. Our methodology transforms creative overflow into organized, documented work through structured sessions and skill transfer.</p><p><b>Core Principle:</b> You're not just receiving creative services - you're learning systematic development methods you can apply independently throughout your creative career.</p><hr><h3>The Creative Identity Framework</h3><p>We develop your creative identity using a systematic three-component approach:</p><ul><li><b>HTML Foundation (Core Content):</b> Your authentic creative message and purpose.</li><li><b>CSS Presentation (Visual Interface):</b> How you present yourself creatively.</li><li><b>JS Function (Market Operation):</b> How you operate and connect with audiences.</li></ul><hr><h3>Session Structure & Pricing</h3><p><b>Order Line Conversation (15 minutes - No charge)</b><br>A direct conversation to determine creative alignment and demonstrate our systematic approach.</p><p><b>REVERIE Foundation Session ($120 - 2 hours)</b><br>Establish your complete creative development architecture, focusing on the HTML layer (core creative foundation). You receive an organized project folder system, session documentation, a clear roadmap, and permanent portal access.</p><p><b>RUMINATE Development Sessions ($65/hour)</b><br>Systematic building and refinement of your presentation (CSS) and function (JS) layers through focused work sessions that include skill transfer and methodology education.</p><p><i><b>Member Rates Available:</b> For ongoing partnerships, rates are $100 for a monthly REVERIE session and $55/hour for RUMINATE sessions.</i></p><hr><h3>Skills You'll Develop</h3><ul><li>Systematic Organization</li><li>Creative Problem-Solving</li><li>Documentation Mastery</li><li>Independent Development</li></ul><p>Direct contact: Telegram @luctheleo</p></div>"},
@@ -675,7 +704,7 @@ document.addEventListener('DOMContentLoaded', () => {
     closeBtn.addEventListener('click', hideModal);
     modal.addEventListener('click', (e) => { if (e.target === modal) hideModal(); });
     
-    // === ENTRY POINT MODIFIED ===
+    // === ENTRY POINT MODIFIED === (THIS IS THE BROKEN "TAP-TO-ENTER" LOGIC)
     // Click listener is now on splashContent, not enterBtn
     splashContent.addEventListener('click', () => {
         
