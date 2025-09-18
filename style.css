@@ -784,7 +784,7 @@ body.user-select-disabled {
 #splash-title-text {
     font-family: 'Homemade Apple', cursive;
     font-weight: 400;
-    font-size: clamp(3rem, 10vw, 5rem);
+    font-size: clamp(2.2rem, 10vw, 5rem); /* <-- FIXED: Lowered minimum size */
     line-height: 1;
     color: transparent; /* Makes the original text invisible */
     margin: 0 auto 2rem auto;
@@ -804,7 +804,7 @@ body.user-select-disabled {
     transform: translateX(-50%);
     font-family: 'Homemade Apple', cursive;
     font-weight: 400;
-    font-size: clamp(3rem, 10vw, 5rem);
+    font-size: clamp(2.2rem, 10vw, 5rem); /* <-- FIXED: Lowered minimum size */
     color: rgba(0, 0, 0, 0.4);
     text-shadow: none;
     animation: binary-glitch-and-fade 10s infinite ease-in-out;
@@ -866,6 +866,8 @@ body.user-select-disabled {
     transition: transform 0.3s ease-out; /* <-- UPDATED: Matches JS cancelHold */
 }
 
+/* === DELETED OLD #fingerprint-icon RULE === */
+
 /* === REPLACED WITH CROWN IMAGE STYLE === */
 #scanner-central-icon {
     width: 30px !important;  /* FORCED: Set to a small 30px size */
@@ -873,7 +875,13 @@ body.user-select-disabled {
     object-fit: contain;
     opacity: 0.4 !important; /* FORCED: Matches title transparency */
     filter: invert(1) !important; /* FORCED: Makes your black PNG show up as white */
+    
+    /* --- NEW FIX: Prevents "Save Image" popup --- */
+    pointer-events: none;
+    -webkit-touch-callout: none;
+    user-select: none;
 }
+
 
 /* === DELETED CONFLICTING CSS RULE === */
 /* This rule was fighting with the JavaScript timer:
