@@ -110,9 +110,9 @@ document.addEventListener('DOMContentLoaded', () => {
             "path": "music/Project 38.wav",
             "title": "Insanity - LUCTHELEO"
         },
-        "SGNNL_DNSTY": {
+        "PLAY_DNSTY": { // <-- CHANGED ID
             "path": "music/DNSTY.wav",
-            "title": "SGNNL_DNSTY"
+            "title": "DNSTY - LUCTHELEO" 
         }
     };
 
@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 {"id":"PLAY_BRAND_BEAT","type":"track","isAnchor":false,"title":"Brand Beat - LUCTHELEO"},
                 {"id":"PLAY_RUMINATE","type":"track","isAnchor":false,"title":"Ruminate - LUCTHELEO"},
                 {"id":"PLAY_INSANITY","type":"track","isAnchor":false,"title":"Insanity - LUCTHELEO"},
-                {"id":"SGNNL_DNSTY","type":"track","isAnchor":false,"title":"SGNNL_DNSTY"}
+                {"id":"PLAY_DNSTY","type":"track","isAnchor":false,"title":"DNSTY - LUCTHELEO"} // <-- CHANGED ID
             ];
             // --- END DATA FIX ---
 
