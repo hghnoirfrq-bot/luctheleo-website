@@ -760,25 +760,33 @@ body.user-select-disabled {
     text-align: center;
 }
 
-/* This container just holds the logo to maintain its aspect ratio */
+/* === UPDATED: Logo Container === */
 #splash-graphic-inner {
     position: relative;
     width: 100%;
-    height: auto;
+    /* This container is now a "spacer" that keeps the OLD logo size */
+    height: clamp(200px, 50vw, 300px); 
     display: flex;
     justify-content: center;
     align-items: center;
     margin-bottom: 2rem;
 }
 
-/* The Logo is the stable, central element */
+/* === UPDATED: Logo === */
 #splash-logo {
-    width: clamp(200px, 50vw, 300px);
+    /* Logo is now "floating" inside its container */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
+    /* This is the NEW, bigger size */
+    width: clamp(250px, 65vw, 400px);
     height: auto; 
     object-fit: contain; 
     opacity: 1; 
-    /* Animation Removed to let GIF play */
 }
+
 
 /* The title text */
 #splash-title-text {
