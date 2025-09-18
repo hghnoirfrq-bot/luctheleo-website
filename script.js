@@ -50,21 +50,31 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {HTMLVideoElement} playerToStart - The player that is preloaded and ready.
      */
     function swapAndPreload(playerWhoEnded, playerToStart) {
-        // 1. Instantly swap visibility and play the preloaded video
-        playerWhoEnded.classList.remove('is-visible');
-        playerToStart.classList.add('is-visible');
-        playerToStart.currentTime = 0; // Ensure it starts from the beginning
-        playerToStart.play().catch(() => {});
+        
+        // --- NEW LOGIC TO PREVENT FLASH ---
+        // 1. Add a one-time 'playing' listener to the player that is ABOUT to start.
+        playerToStart.addEventListener('playing', () => {
+            // 3. This runs ONLY when the video has data and is rendering.
+            // NOW we make it visible and hide the old one.
+            playerToStart.classList.add('is-visible');
+            playerWhoEnded.classList.remove('is-visible');
+        }, { once: true }); // This listener removes itself after running
 
-        // 2. Get the *next* video for the player that just ended
-        // We increment the index *after* getting the "next-next" video
+        // 2. Tell the preloaded player to play. The listener above will handle the swap.
+        playerToStart.currentTime = 0; 
+        playerToStart.play().catch(() => {});
+        // --- END NEW LOGIC ---
+
+
+        // --- The preload logic for the *next* video remains the same ---
         const nextVideoIndex = (currentVideoIndex + 2) % videoPlaylist.length;
         currentVideoIndex = (currentVideoIndex + 1) % videoPlaylist.length;
 
-        // 3. Load the *next* video into the now-hidden player
+        // Load the *next* video into the now-hidden player
         playerWhoEnded.src = videoPlaylist[nextVideoIndex];
         playerWhoEnded.load();
     }
+
 
     // Attach the "ended" event listeners to each player to create the ping-pong effect
     bgVideo1.addEventListener('ended', () => { swapAndPreload(bgVideo1, bgVideo2); });
