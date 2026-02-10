@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let chaosGridItems = [];
     let inactivityTimer = null;
     let tempFavorites = ["PLAY_BRAND_BEAT"];
-    
+
     const anchorNav = document.getElementById('anchor-nav');
     const filterNav = document.getElementById('filter-nav');
     const dynamicField = document.getElementById('dynamic-field');
@@ -28,18 +28,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const logoImage = document.querySelector('.logo-image');
     const logoPromptContainer = document.getElementById('logo-prompt-container');
     const videoOverlay = document.getElementById('video-overlay'); // Get the overlay for the glitch
-    
+
     // --- REMOVED SMILEY VISUALIZER VARS ---
 
-    
+
     // --- SEAMLESS PLAYLIST LOGIC ---
     const bgVideo1 = document.getElementById('bg-video-1');
     const bgVideo2 = document.getElementById('bg-video-2');
-    
+
     const videoPlaylist = [
-        "videos/home_LA1.mp4", 
-        "videos/bg2.mp4", 
-        "videos/bg3.mp4", 
+        "videos/home_LA1.mp4",
+        "videos/bg2.mp4",
+        "videos/bg3.mp4",
         "videos/bg4.mp4"
     ];
     let currentVideoIndex = 0; // Starts with home_LA1.mp4 (index 0)
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {HTMLVideoElement} playerToStart - The player that is preloaded and ready.
      */
     function swapAndPreload(playerWhoEnded, playerToStart) {
-        
+
         // --- NEW LOGIC TO PREVENT FLASH ---
         // 1. Add a one-time 'playing' listener to the player that is ABOUT to start.
         playerToStart.addEventListener('playing', () => {
@@ -61,8 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { once: true }); // This listener removes itself after running
 
         // 2. Tell the preloaded player to play. The listener above will handle the swap.
-        playerToStart.currentTime = 0; 
-        playerToStart.play().catch(() => {});
+        playerToStart.currentTime = 0;
+        playerToStart.play().catch(() => { });
         // --- END NEW LOGIC ---
 
 
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
     bgVideo2.addEventListener('ended', () => { swapAndPreload(bgVideo2, bgVideo1); });
     // --- End New Logic ---
 
-    
+
     const player = document.getElementById('persistent-audio-player');
     const track = document.getElementById('track');
     const playPauseBtn = document.getElementById('play-pause-btn');
@@ -89,13 +89,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const seekBar = document.getElementById('seek-bar');
     const currentTimeEl = document.getElementById('current-time');
     const durationEl = document.getElementById('duration');
-    const trackInfoEl = document.querySelector('.track-info'); 
-    
+    const trackInfoEl = document.querySelector('.track-info');
+
     const visualizerOverlay = document.getElementById('visualizer-overlay');
     const visualizerCanvas = document.getElementById('visualizer-canvas');
     const vCtx = visualizerCanvas.getContext('2d');
     const brandFilterOverlay = document.getElementById('brand-filter-overlay');
-    
+
     const rainCanvas = document.getElementById('rain-canvas');
     const rainCtx = rainCanvas.getContext('2d');
     let rainParticles = [];
@@ -103,9 +103,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const svgPlayIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/></svg>`;
     const svgPauseIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M5.5 3.5A1.5 1.5 0 0 1 7 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5zm5 0A1.5 1.5 0 0 1 12 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5z"/></svg>`;
-    
+
     playPauseBtn.innerHTML = svgPlayIcon;
-    
+
     // --- UPDATED TRACK LIBRARY ---
     const trackLibrary = {
         "PLAY_BRAND_BEAT": {
@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         "PLAY_DNSTY": { // <-- CHANGED ID
             "path": "music/DNSTY.wav",
-            "title": "DNSTY - LUCTHELEO" 
+            "title": "DNSTY - LUCTHELEO"
         }
     };
 
@@ -130,15 +130,15 @@ document.addEventListener('DOMContentLoaded', () => {
     let brandedCells = [];
     const midBoostThreshold = 0.3;
     let lifelineOpacity = 0.0;
-    let lastRelocateTime = 0; 
+    let lastRelocateTime = 0;
     const charSize = 12;
-    
+
     let audioCtx;
     let analyser;
     let source; // This will hold the MAIN persistent player source
     let isPlayerInitialized = false;
     let durationIsSet = false;
-    let isVfxOn = true; 
+    let isVfxOn = true;
 
     // Function to handle the transition to the main site
     function enterMainSite() {
@@ -149,9 +149,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         mainContainer.style.display = 'flex';
         player.style.display = 'flex'; // This is what shows the player
-        
+
         // --- UPDATED: Start the first video and preload the second ---
-        
+
         // Preload the *second* video (index 1)
         bgVideo2.src = videoPlaylist[1];
         bgVideo2.load();
@@ -159,12 +159,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // 1. Add a one-time listener for the 'playing' event on the *first* video
         bgVideo1.addEventListener('playing', () => {
             // 2. NOW make the video visible. This guarantees it's rendering.
-            bgVideo1.classList.add('is-visible'); 
+            bgVideo1.classList.add('is-visible');
             // 3. NO TIMER NEEDED
         }, { once: true }); // This listener removes itself after running
 
         // 4. Now, tell the video to play. The listener above will handle the rest.
-        const playPromise = bgVideo1.play(); 
+        const playPromise = bgVideo1.play();
         if (playPromise !== undefined) {
             playPromise.catch(e => console.warn("Background video autoplay was blocked by browser."));
         }
@@ -203,42 +203,42 @@ document.addEventListener('DOMContentLoaded', () => {
             // Removed SGNNL_005 and SGNNL_DNSTY from this array.
             // Added simple "track" entries for them at the end.
             contentData = [
-                {"id":"MNFST","type":"page","isAnchor":true,"content":"<h2>MNFST</h2><h3>LUCTHELEO | Audio.Alchemist</h3><p>Pleasantly lost in the space between signal and static.</p><p>I create from the overflow. Twenty-three years navigating the intersection of classical training and digital chaos, Louisiana soul and systematic precision. Central Louisiana roots run deep—music creation since 2007, formal production education, life coaching training.</p><p>Someone who knows a little about a lot and a lot about a little.</p><p>The problem isn't lack of creativity. The problem is creative abundance without systematic capture.</p><p>Most creative partnerships scatter brilliant ideas across sessions like seeds in the wind. Concepts emerge, energy builds, then everything disappears into the void between meetings. I solve creative overflow through systematic documentation, organized development, and shared ownership of unused collaborative assets.</p><h3>The Architecture</h3><p><b>HTML.</b> Core creative foundation. Your authentic message before market pressure shapes it.</p><p><b>CSS.</b> How you present yourself when the world is watching. Visual identity that serves the work, not ego.</p><p><b>JS.</b> Market function without compromise. Audience connection that maintains creative integrity.</p><p>Three layers. Each builds upon the previous. Complete creative architecture emerges through systematic development rather than creative chaos.</p><h3>The Process</h3><p>Sessions combine immediate creative work with transferable systematic methods. You leave with both completed material and organizational approaches that serve future projects. This isn't dependency creation—it's systematic capability building.</p><p>Documentation captures everything. Project folders organize by development layer. Session recordings preserve decisions and breakthroughs. Nothing gets lost. Everything builds upon everything.</p><p>Unused creative assets become shared catalog content. Your collaborative overflow generates ongoing revenue rather than disappearing into digital archives. Creative partnership becomes creative investment.</p><h3>The Foundation</h3><p>Louisiana spiritual tradition meets contemporary creative technology. Prayer and systematic organization. Ancestral wisdom and digital precision. The sacred and the professional occupy the same space without contradiction.</p><p>All decisions start from spiritual foundation, move through abstract glimpses, process through mind and memory, then manifest through systematic action. The heart determines application. The body executes with documentation.</p><p>Excellence is measured by commitment. What gets written becomes real. The work speaks for itself.</p><h3>The Practice</h3><p><b>Order Line Conversation.</b> Fifteen minutes. Creative alignment assessment without sales pressure.</p><p><b>REVERIE Foundation.</b> Two hours. Complete project architecture establishment. Systematic organization that supports long-term creative development.</p><p><b>RUMINATE Development.</b> Focused sessions. CSS and JS layer building through collaborative systematic approaches.</p><p>No ego. Just work. Systematic creative development for artists ready to invest in organized capability building rather than casual creative exploration.</p><h3>The Philosophy</h3><p>I don't explain the spaces. I invite you to wander them.</p><p>Creative development serves the work, not the worker. Systematic approaches honor both artistic authenticity and professional sustainability. Spiritual foundation supports rather than opposes technological precision.</p><p>We are signal through static. Analog intuition meets digital creation. Louisiana heritage informs contemporary creative architecture. The mysterious and the systematic coexist without contradiction.</p><h3>Contact Protocol</h3><p>Direct communication via Telegram @luctheleo. Systematic creative development begins with Order Line Conversation. Assessment precedes engagement. Alignment determines collaboration.</p><p><b>L-01001100 T-01010100 L-01001100</b></p><p>Transdisciplinary artist. Systematic creative development. Louisiana roots, Atlanta operations.</p><p>Signal through the static. Systematic transformation of creative potential into organized reality.</p><p>No ego. Just work.</p>"},
-                {"id":"CRTVDVLPMNT","type":"page","isAnchor":true,"content":"<h2>CRTVDVLPMNT</h2><h3>Systematic Creative Development Overview</h3><p>Every artist has three faces: the one they know themselves to be (your <b>HTML</b>), the one they present to the world (your <b>CSS</b>), and the one that interacts with reality (your <b>JS</b>).</p><p>Our process systematically aligns these faces, transforming creative overflow into a clear, unified signal. We build not just a project, but a cohesive creative identity.</p><p style=\"text-align:center; margin-top: 2rem; margin-bottom: 2rem;\"><a href=\"#\" onclick=\"event.preventDefault(); document.getElementById('full-guide-content').style.display='block'; this.parentElement.style.display='none';\" style=\"padding: 10px 20px; border: 1px solid var(--link-color); border-radius: 5px; text-decoration: none;\">View Full Guide & Pricing</a></p><div id=\"full-guide-content\" style=\"display:none;\"><h2>REVERIE | RVR Creative Development Guide</h2><h3>Systematic Creative Development Process</h3><p><b>Development Philosophy:</b> No ego. Just work.</p><p><b>Approach:</b> Systematic transformation of creative concepts into organized, tangible results.</p><hr><h3>Process Overview</h3><p>This guide outlines our systematic approach to creative development. Our methodology transforms creative overflow into organized, documented work through structured sessions and skill transfer.</p><p><b>Core Principle:</b> You're not just receiving creative services - you're learning systematic development methods you can apply independently throughout your creative career.</p><hr><h3>The Creative Identity Framework</h3><p>We develop your creative identity using a systematic three-component approach:</p><ul><li><b>HTML Foundation (Core Content):</b> Your authentic creative message and purpose.</li><li><b>CSS Presentation (Visual Interface):</b> How you present yourself creatively.</li><li><b>JS Function (Market Operation):</b> How you operate and connect with audiences.</li></ul><hr><h3>Session Structure & Pricing</h3><p><b>Order Line Conversation (15 minutes - No charge)</b><br>A direct conversation to determine creative alignment and demonstrate our systematic approach.</p><p><b>REVERIE Foundation Session ($120 - 2 hours)</b><br>Establish your complete creative development architecture, focusing on the HTML layer (core creative foundation). You receive an organized project folder system, session documentation, a clear roadmap, and permanent portal access.</p><p><b>RUMINATE Development Sessions ($65/hour)</b><br>Systematic building and refinement of your presentation (CSS) and function (JS) layers through focused work sessions that include skill transfer and methodology education.</p><p><i><b>Member Rates Available:</b> For ongoing partnerships, rates are $100 for a monthly REVERIE session and $55/hour for RUMINATE sessions.</i></p><hr><h3>Skills You'll Develop</h3><ul><li>Systematic Organization</li><li>Creative Problem-Solving</li><li>Documentation Mastery</li><li>Independent Development</li></ul><p>Direct contact: Telegram @luctheleo</p></div>"},
-                
-                {"id":"RQST","type":"page","isAnchor":true,"content":"<h2>Booking & Contact</h2><h3>Free Consultation (Order Line Conversation)</h3><p>To begin, please request a free 15-minute consultation to determine creative alignment. This is the first step for all new projects.</p><p style=\"text-align:center; margin-top: 1rem; margin-bottom: 2rem;\"><a href=\"https://forms.gle/8S2BXZTp2qmWLoKo6\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"padding: 10px 20px; border: 1px solid var(--link-color); border-radius: 5px; text-decoration: none;\">Open Free Consultation Form</a></p><h3>Direct Booking & Socials</h3><p>For returning clients or other inquiries, use the links below.</p><ul><li><a href=\"https://calendly.com/hghnoirfrq/30min\" target=\"_blank\" rel=\"noopener noreferrer\">Book a Session (Calendly)</a></li><li><a href=\"https://linktr.ee/luctheleo\" target=\"_blank\" rel=\"noopener noreferrer\">View All Links (Linktree)</a></li></ul><h3>Contact & Payment</h3><p><b>Direct Communication:</b> Telegram @luctheleo</p><p><b>Payment for Services:</b> CashApp $NoEgoJustWork</p>"},
+                { "id": "MNFST", "type": "page", "isAnchor": true, "content": "<h2>MNFST</h2><h3>LUCTHELEO | Audio.Alchemist</h3><p>Pleasantly lost in the space between signal and static.</p><p>I create from the overflow. Twenty-three years navigating the intersection of classical training and digital chaos, Louisiana soul and systematic precision. Central Louisiana roots run deep—music creation since 2007, formal production education, life coaching training.</p><p>Someone who knows a little about a lot and a lot about a little.</p><p>The problem isn't lack of creativity. The problem is creative abundance without systematic capture.</p><p>Most creative partnerships scatter brilliant ideas across sessions like seeds in the wind. Concepts emerge, energy builds, then everything disappears into the void between meetings. I solve creative overflow through systematic documentation, organized development, and shared ownership of unused collaborative assets.</p><h3>The Architecture</h3><p><b>HTML.</b> Core creative foundation. Your authentic message before market pressure shapes it.</p><p><b>CSS.</b> How you present yourself when the world is watching. Visual identity that serves the work, not ego.</p><p><b>JS.</b> Market function without compromise. Audience connection that maintains creative integrity.</p><p>Three layers. Each builds upon the previous. Complete creative architecture emerges through systematic development rather than creative chaos.</p><h3>The Process</h3><p>Sessions combine immediate creative work with transferable systematic methods. You leave with both completed material and organizational approaches that serve future projects. This isn't dependency creation—it's systematic capability building.</p><p>Documentation captures everything. Project folders organize by development layer. Session recordings preserve decisions and breakthroughs. Nothing gets lost. Everything builds upon everything.</p><p>Unused creative assets become shared catalog content. Your collaborative overflow generates ongoing revenue rather than disappearing into digital archives. Creative partnership becomes creative investment.</p><h3>The Foundation</h3><p>Louisiana spiritual tradition meets contemporary creative technology. Prayer and systematic organization. Ancestral wisdom and digital precision. The sacred and the professional occupy the same space without contradiction.</p><p>All decisions start from spiritual foundation, move through abstract glimpses, process through mind and memory, then manifest through systematic action. The heart determines application. The body executes with documentation.</p><p>Excellence is measured by commitment. What gets written becomes real. The work speaks for itself.</p><h3>The Practice</h3><p><b>REVERIE Foundation.</b> Two hours. Complete project architecture establishment. Systematic organization that supports long-term creative development.</p><p><b>RUMINATE Development.</b> Focused sessions. CSS and JS layer building through collaborative systematic approaches.</p><h3>The Philosophy</h3><p>I don't explain the spaces. I invite you to wander them.</p><p>Creative development serves the work, not the worker. Systematic approaches honor both artistic authenticity and professional sustainability. Spiritual foundation supports rather than opposes technological precision.</p><p>We are signal through static. Analog intuition meets digital creation. Louisiana heritage informs contemporary creative architecture. The mysterious and the systematic coexist without contradiction.</p><h3>Contact Protocol</h3><p>Direct communication via Telegram @luctheleo. Assessment precedes engagement. Alignment determines collaboration.</p><p><b>Portfolio:</b> <a href=\"https://portfolio-cfra8189.netlify.app/\" target=\"_blank\" rel=\"noopener noreferrer\">View Portfolio</a></p><p><b>L-01001100 T-01010100 L-01001100</b></p><p>Transdisciplinary artist. Systematic creative development. Louisiana roots, Atlanta operations.</p><p>Signal through the static. Systematic transformation of creative potential into organized reality.</p><p>No ego. Just work.</p>" },
+                { "id": "CRTVDVLPMNT", "type": "page", "isAnchor": true, "content": "<h2>CRTVDVLPMNT</h2><h3>Systematic Creative Development Overview</h3><p>Every artist has three faces: the one they know themselves to be (your <b>HTML</b>), the one they present to the world (your <b>CSS</b>), and the one that interacts with reality (your <b>JS</b>).</p><p>Our process systematically aligns these faces, transforming creative overflow into a clear, unified signal. We build not just a project, but a cohesive creative identity.</p><p style=\"text-align:center; margin-top: 2rem; margin-bottom: 2rem;\"><a href=\"#\" onclick=\"event.preventDefault(); document.getElementById('full-guide-content').style.display='block'; this.parentElement.style.display='none';\" style=\"padding: 10px 20px; border: 1px solid var(--link-color); border-radius: 5px; text-decoration: none;\">View Full Guide & Pricing</a></p><div id=\"full-guide-content\" style=\"display:none;\"><h2>REVERIE | RVR Creative Development Guide</h2><h3>Systematic Creative Development Process</h3><p><b>Development Philosophy:</b> No ego. Just work.</p><p><b>Approach:</b> Systematic transformation of creative concepts into organized, tangible results.</p><hr><h3>Process Overview</h3><p>This guide outlines our systematic approach to creative development. Our methodology transforms creative overflow into organized, documented work through structured sessions and skill transfer.</p><p><b>Core Principle:</b> You're not just receiving creative services - you're learning systematic development methods you can apply independently throughout your creative career.</p><hr><h3>The Creative Identity Framework</h3><p>We develop your creative identity using a systematic three-component approach:</p><ul><li><b>HTML Foundation (Core Content):</b> Your authentic creative message and purpose.</li><li><b>CSS Presentation (Visual Interface):</b> How you present yourself creatively.</li><li><b>JS Function (Market Operation):</b> How you operate and connect with audiences.</li></ul><hr><h3>Session Structure & Pricing</h3><p><b>REVERIE Foundation Session ($120 - 2 hours)</b><br>Establish your complete creative development architecture, focusing on the HTML layer (core creative foundation). You receive an organized project folder system, session documentation, a clear roadmap, and permanent portal access.</p><p><b>RUMINATE Development Sessions ($65/hour)</b><br>Systematic building and refinement of your presentation (CSS) and function (JS) layers through focused work sessions that include skill transfer and methodology education.</p><p><i><b>Member Rates Available:</b> For ongoing partnerships, rates are $100 for a monthly REVERIE session and $55/hour for RUMINATE sessions.</i></p><hr><h3>Skills You'll Develop</h3><ul><li>Systematic Organization</li><li>Creative Problem-Solving</li><li>Documentation Mastery</li><li>Independent Development</li></ul><p>Direct contact: Telegram @luctheleo</p></div>" },
 
-                {"id":"VOID_017 - home_LA","type":"post","isAnchor":false,"content":"<h2>VOID_017 - home_LA</h2><div class='embed-container'><video style='width:100%;' controls><source src='videos/home_LA1.mp4' type='video/mp4'></video></div>"},
-                
-                {"id":"VOID_HVNLYWRDS","type":"post","isAnchor":false,"content":"<h2>VOID_HVNLYWRDS</h2><div class='embed-container-square'><video style='width:100%;' controls><source src='videos/hvnlywrds.mp4' type='video/mp4'></video></div>"},
-                {"id":"VOID_NTRNT","type":"post","isAnchor":false,"content":"<h2>VOID_NTRNT</h2><div class='embed-container-square'><video style='width:100%;' controls><source src='videos/internet.mp4' type='video/mp4'></video></div>"},
-                {"id":"VOID_MRNG","type":"post","isAnchor":false,"content":"<h2>VOID_MRNG</h2><div class='embed-container-square'><video style='width:100%;' controls><source src='videos/Morning_vid.mp4' type='video/mp4'></video></div>"},
+                { "id": "RQST", "type": "page", "isAnchor": true, "content": "<h2>Booking & Contact</h2><h3>Free Consultation</h3><p>To begin, please request a free consultation to determine creative alignment. This is the first step for all new projects.</p><p style=\"text-align:center; margin-top: 1rem; margin-bottom: 2rem;\"><a href=\"https://forms.gle/8S2BXZTp2qmWLoKo6\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"padding: 10px 20px; border: 1px solid var(--link-color); border-radius: 5px; text-decoration: none;\">Open Free Consultation Form</a></p><h3>Direct Booking & Socials</h3><p>For returning clients or other inquiries, use the links below.</p><ul><li><a href=\"https://portfolio-cfra8189.netlify.app/\" target=\"_blank\" rel=\"noopener noreferrer\">View Portfolio</a></li><li><a href=\"https://linktr.ee/luctheleo\" target=\"_blank\" rel=\"noopener noreferrer\">View All Links (Linktree)</a></li></ul><h3>Contact & Payment</h3><p><b>Direct Communication:</b> Telegram @luctheleo</p><p><b>Payment for Services:</b> CashApp $NoEgoJustWork</p>" },
 
-                {"id":"SGNNL_004 - JAY Z","type":"post","isAnchor":false,"content":"<div class=\"soundcloud-embed\"><iframe width=\"100%\" height=\"300\" scrolling=\"no\" frameborder=\"no\" allow=\"autoplay\" src=\"https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1226734087&color=%23546464&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true\"></iframe></div>"},
-                {"id":"VOID_015 - INIKO | JERICHO","type":"post","isAnchor":false,"content":"<div class=\"embed-container\"><iframe src=\"https://www.youtube.com/embed/6bRsSLMzkIQ\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe></div>"},
-                {"id":"VOID_008 - LTL | KARMA","type":"post","isAnchor":false,"content":"<div class=\"embed-container\"><iframe src=\"https://www.youtube.com/embed/IzjIBoWGJEI\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe></div>"},
-                {"id":"SGNNL_003 - ARNOHOSE DOLLAR | PAN ME","type":"post","isAnchor":false,"content":"<div class=\"soundcloud-embed\"><iframe width=\"100%\" height=\"300\" scrolling=\"no\" frameborder=\"no\" allow=\"autoplay\" src=\"https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1241335237&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true\"></iframe></div>"},
-                {"id":"CRCLT_02 - INKLING","type":"post","isAnchor":false,"content":"<h2>CRCLT_02 - INKLING</h2><p style=\"font-size: 2rem; text-align: center; font-style: italic;\">\"Nothing ventured, nothing gained.\"</p>"},
-                
-                {"id":"CRCLT_03 - PRISON","type":"post","isAnchor":false,"content":"<h2>CRCLT_03 - PRISON</h2><p style=\"font-size: 2rem; text-align: center; font-style: italic;\">\"The most effective prison isn't built with bars but with beliefs.\"</p><hr><p style=\"text-align: center;\">Machiavelli saw the architecture of external power. The deepest architecture is the one you build around your own potential.</p><p style=\"text-align: center; font-style: italic;\">Your prison was always unlocked.</p>"},
-                {"id":"CRCLT_04 - AMBITION","type":"post","isAnchor":false,"content":"<h2>CRCLT_04 - AMBITION</h2><p style=\"font-size: 2rem; text-align: center; font-style: italic;\">\"Make mistakes of ambition, not sloth.\"</p><hr><p style=\"text-align: center;\">Mistakes of ambition generate data. Mistakes of sloth generate only regret.</p><p style=\"text-align: center; font-style: italic;\">Movement completes the circuit. Stagnation breaks it.</p>"},
-                {"id":"CRCLT_05 - STRENGTH","type":"post","isAnchor":false,"content":"<h2>CRCLT_05 - STRENGTH</h2><p style=\"font-size: 2rem; text-align: center; font-style: italic;\">\"Develop the strength to do bold things.\"</p><hr><p style=\"text-align: center;\">Machiavelli called it <em>virtù</em>—not virtue, but operational power. The capability to act decisively.</p><p style=\"text-align: center; font-style: italic;\">This strength isn't given. It is systematically developed by aligning all four weights: Spiritual, Emotional, Mental, and Physical.</p>"},
-                
+                { "id": "VOID_017 - home_LA", "type": "post", "isAnchor": false, "content": "<h2>VOID_017 - home_LA</h2><div class='embed-container'><video style='width:100%;' controls><source src='videos/home_LA1.mp4' type='video/mp4'></video></div>" },
+
+                { "id": "VOID_HVNLYWRDS", "type": "post", "isAnchor": false, "content": "<h2>VOID_HVNLYWRDS</h2><div class='embed-container-square'><video style='width:100%;' controls><source src='videos/hvnlywrds.mp4' type='video/mp4'></video></div>" },
+                { "id": "VOID_NTRNT", "type": "post", "isAnchor": false, "content": "<h2>VOID_NTRNT</h2><div class='embed-container-square'><video style='width:100%;' controls><source src='videos/internet.mp4' type='video/mp4'></video></div>" },
+                { "id": "VOID_MRNG", "type": "post", "isAnchor": false, "content": "<h2>VOID_MRNG</h2><div class='embed-container-square'><video style='width:100%;' controls><source src='videos/Morning_vid.mp4' type='video/mp4'></video></div>" },
+
+                { "id": "SGNNL_004 - JAY Z", "type": "post", "isAnchor": false, "content": "<div class=\"soundcloud-embed\"><iframe width=\"100%\" height=\"300\" scrolling=\"no\" frameborder=\"no\" allow=\"autoplay\" src=\"https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1226734087&color=%23546464&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true\"></iframe></div>" },
+                { "id": "VOID_015 - INIKO | JERICHO", "type": "post", "isAnchor": false, "content": "<div class=\"embed-container\"><iframe src=\"https://www.youtube.com/embed/6bRsSLMzkIQ\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe></div>" },
+                { "id": "VOID_008 - LTL | KARMA", "type": "post", "isAnchor": false, "content": "<div class=\"embed-container\"><iframe src=\"https://www.youtube.com/embed/IzjIBoWGJEI\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe></div>" },
+                { "id": "SGNNL_003 - ARNOHOSE DOLLAR | PAN ME", "type": "post", "isAnchor": false, "content": "<div class=\"soundcloud-embed\"><iframe width=\"100%\" height=\"300\" scrolling=\"no\" frameborder=\"no\" allow=\"autoplay\" src=\"https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1241335237&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true\"></iframe></div>" },
+                { "id": "CRCLT_02 - INKLING", "type": "post", "isAnchor": false, "content": "<h2>CRCLT_02 - INKLING</h2><p style=\"font-size: 2rem; text-align: center; font-style: italic;\">\"Nothing ventured, nothing gained.\"</p>" },
+
+                { "id": "CRCLT_03 - PRISON", "type": "post", "isAnchor": false, "content": "<h2>CRCLT_03 - PRISON</h2><p style=\"font-size: 2rem; text-align: center; font-style: italic;\">\"The most effective prison isn't built with bars but with beliefs.\"</p><hr><p style=\"text-align: center;\">Machiavelli saw the architecture of external power. The deepest architecture is the one you build around your own potential.</p><p style=\"text-align: center; font-style: italic;\">Your prison was always unlocked.</p>" },
+                { "id": "CRCLT_04 - AMBITION", "type": "post", "isAnchor": false, "content": "<h2>CRCLT_04 - AMBITION</h2><p style=\"font-size: 2rem; text-align: center; font-style: italic;\">\"Make mistakes of ambition, not sloth.\"</p><hr><p style=\"text-align: center;\">Mistakes of ambition generate data. Mistakes of sloth generate only regret.</p><p style=\"text-align: center; font-style: italic;\">Movement completes the circuit. Stagnation breaks it.</p>" },
+                { "id": "CRCLT_05 - STRENGTH", "type": "post", "isAnchor": false, "content": "<h2>CRCLT_05 - STRENGTH</h2><p style=\"font-size: 2rem; text-align: center; font-style: italic;\">\"Develop the strength to do bold things.\"</p><hr><p style=\"text-align: center;\">Machiavelli called it <em>virtù</em>—not virtue, but operational power. The capability to act decisively.</p><p style=\"text-align: center; font-style: italic;\">This strength isn't given. It is systematically developed by aligning all four weights: Spiritual, Emotional, Mental, and Physical.</p>" },
+
                 // (REMOVED SGNNL_005 and SGNNL_DNSTY content blocks from here)
 
                 {
-                    "id": "CRCLT_06 - CONTRAST",
-                    "type": "post",
-                    "isAnchor": false,
-                    "content": "<h2>CRCLT_06 - CONTRAST</h2><div class='embed-container-square'><video controls><source src='videos/TMTVLR_33.mp4' type='video/mp4'></video></div><p style=\"font-size: 1.8rem; text-align: center; font-style: italic; margin-top: 1rem;\">\"I feel most colored when I am thrown against a sharp white background.\"</p><p style=\"text-align: center; margin-bottom: 2rem;\"><em>- Zora Neale Hurston</em></p>"
+                    "id": "CRCLT_06 - CONTRAST",
+                    "type": "post",
+                    "isAnchor": false,
+                    "content": "<h2>CRCLT_06 - CONTRAST</h2><div class='embed-container-square'><video controls><source src='videos/TMTVLR_33.mp4' type='video/mp4'></video></div><p style=\"font-size: 1.8rem; text-align: center; font-style: italic; margin-top: 1rem;\">\"I feel most colored when I am thrown against a sharp white background.\"</p><p style=\"text-align: center; margin-bottom: 2rem;\"><em>- Zora Neale Hurston</em></p>"
                 },
 
                 // === TRACK LINKS ===
                 // All playable audio tracks now live here.
-                {"id":"PLAY_BRAND_BEAT","type":"track","isAnchor":false,"title":"Brand Beat - LUCTHELEO"},
-                {"id":"PLAY_RUMINATE","type":"track","isAnchor":false,"title":"Ruminate - LUCTHELEO"},
-                {"id":"PLAY_INSANITY","type":"track","isAnchor":false,"title":"Insanity - LUCTHELEO"},
-                {"id":"PLAY_DNSTY","type":"track","isAnchor":false,"title":"DNSTY - LUCTHELEO"} // <-- CHANGED ID
+                { "id": "PLAY_BRAND_BEAT", "type": "track", "isAnchor": false, "title": "Brand Beat - LUCTHELEO" },
+                { "id": "PLAY_RUMINATE", "type": "track", "isAnchor": false, "title": "Ruminate - LUCTHELEO" },
+                { "id": "PLAY_INSANITY", "type": "track", "isAnchor": false, "title": "Insanity - LUCTHELEO" },
+                { "id": "PLAY_DNSTY", "type": "track", "isAnchor": false, "title": "DNSTY - LUCTHELEO" } // <-- CHANGED ID
             ];
             // --- END DATA FIX ---
 
@@ -248,13 +248,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             renderFilterNav();
             renderLinks(chaosGridItems, 'all'); // This will now call the simple list renderer
-            setupInteractionListeners(); 
+            setupInteractionListeners();
             setupBinaryGlitch();
             setupVideoBreathingEffect();
             // REMOVED createSmileyPool() call
-            setupMasterToggle(); 
+            setupMasterToggle();
             initializeAudioPlayer();
-            
+
             document.getElementById('link-field').addEventListener('scroll', resetInactivityTimer);
 
         } catch (error) {
@@ -266,7 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // === IDLE TIMER FUNCTIONS ===
     function revertToChaos() {
         const activeFilter = document.querySelector('#filter-nav .active');
-        if (activeFilter && activeFilter.dataset.filter !== 'all') { 
+        if (activeFilter && activeFilter.dataset.filter !== 'all') {
             activeFilter.classList.remove('active');
             const ltlLink = document.querySelector('#filter-nav [data-filter="all"]');
             if (ltlLink) ltlLink.classList.add('active');
@@ -288,14 +288,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const activeFilter = document.querySelector('#filter-nav .active');
         // This logic is fine, but it reverts to 'all', which will show favs if any exist, or all if not. Correct.
         if (activeFilter && activeFilter.dataset.filter !== 'all') {
-             inactivityTimer = setTimeout(revertToChaos, 10000); 
+            inactivityTimer = setTimeout(revertToChaos, 10000);
         }
     }
     // === END IDLE TIMER FUNCTIONS ===
 
 
     function showVisualizer() {
-        if (!isVfxOn) return; 
+        if (!isVfxOn) return;
         visualizerOverlay.style.opacity = '1';
     }
 
@@ -307,18 +307,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // This central function controls the filter logic.
     function setBrandFilter(trackId) {
         if (trackId === "PLAY_BRAND_BEAT") {
-            brandFilterOverlay.style.opacity = '0.7'; 
+            brandFilterOverlay.style.opacity = '0.7';
         } else {
             brandFilterOverlay.style.opacity = '0';
         }
     }
-    
+
     // MODIFIED: Added Media Session state update
     function playAudio() {
         if (!isPlayerInitialized) initializeAudioPlayer();
         if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
         track.play().catch(error => console.error("Error playing audio:", error));
-        
+
         if ('mediaSession' in navigator) {
             navigator.mediaSession.playbackState = 'playing';
         }
@@ -331,25 +331,25 @@ document.addEventListener('DOMContentLoaded', () => {
             navigator.mediaSession.playbackState = 'paused';
         }
     }
-    
+
     // MODIFIED: Added Media Session API for background audio/lock screen controls
     function loadAndPlayTrack(trackId) {
-        if (!trackLibrary[trackId]) return; 
+        if (!trackLibrary[trackId]) return;
 
         const trackData = trackLibrary[trackId];
-        
-        track.src = trackData.path; 
-        trackInfoEl.textContent = trackData.title; 
-        
+
+        track.src = trackData.path;
+        trackInfoEl.textContent = trackData.title;
+
         // === USE THE HELPER FUNCTION ===
         setBrandFilter(trackId);
-        
+
         track.load();
-        playAudio(); 
-        
+        playAudio();
+
         seekBar.value = 0;
         currentTimeEl.textContent = '0:00';
-        durationIsSet = false; 
+        durationIsSet = false;
 
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
@@ -359,7 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     { src: 'img/ltl_logo.PNG', sizes: '300x150', type: 'image/png' }
                 ]
             });
-            
+
             navigator.mediaSession.setActionHandler('play', playAudio);
             navigator.mediaSession.setActionHandler('pause', pauseAudio);
         }
@@ -368,23 +368,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // === This is the updated function from the last request ===
     function setupMasterToggle() {
         logoContainer.addEventListener('click', () => {
-            
+
             if (track.paused) {
                 // --- NEW BEHAVIOR: Play a random track ---
-                const trackIds = Object.keys(trackLibrary); 
+                const trackIds = Object.keys(trackLibrary);
                 const randomIndex = Math.floor(Math.random() * trackIds.length);
                 const randomTrackId = trackIds[randomIndex];
                 loadAndPlayTrack(randomTrackId);
 
             } else {
                 // --- EXISTING BEHAVIOR: Toggle VFX ---
-                isVfxOn = !isVfxOn; 
-                logoContainer.classList.toggle('vfx-disabled', !isVfxOn); 
-                
-                if (isVfxOn) { 
-                    showVisualizer(); 
+                isVfxOn = !isVfxOn;
+                logoContainer.classList.toggle('vfx-disabled', !isVfxOn);
+
+                if (isVfxOn) {
+                    showVisualizer();
                 } else {
-                    hideVisualizer(); 
+                    hideVisualizer();
                     rainCtx.clearRect(0, 0, rainCanvas.width, rainCanvas.height);
                     vCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
                 }
@@ -395,7 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function initializeAudioPlayer() {
         if (isPlayerInitialized) return;
-        
+
         track.volume = 0.25;
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         analyser = audioCtx.createAnalyser();
@@ -403,14 +403,14 @@ document.addEventListener('DOMContentLoaded', () => {
         source.connect(analyser);
         analyser.connect(audioCtx.destination); // Audio is routed through analyser
         analyser.fftSize = 256;
-        
+
         // This handles both leaving and returning to the page per your request
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'hidden') {
                 // --- User left the tab: Force VFX OFF
-                isVfxOn = false; 
-                logoContainer.classList.add('vfx-disabled'); 
-                hideVisualizer(); 
+                isVfxOn = false;
+                logoContainer.classList.add('vfx-disabled');
+                hideVisualizer();
                 rainCtx.clearRect(0, 0, rainCanvas.width, rainCanvas.height);
                 vCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
             } else if (document.visibilityState === 'visible') {
@@ -421,10 +421,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Visuals stay OFF until user manually taps logo.
             }
         });
-        
+
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
-        
+
         playPauseBtn.addEventListener('click', () => {
             if (track.paused) {
                 playAudio();
@@ -432,7 +432,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 pauseAudio();
             }
         });
-        
+
         // === Using SVG constants in event listeners ===
         track.addEventListener('play', () => {
             playPauseBtn.innerHTML = svgPauseIcon;
@@ -441,7 +441,7 @@ document.addEventListener('DOMContentLoaded', () => {
             logoImage.style.animationPlayState = 'paused';
             logoImage.style.filter = '';
         });
-        
+
         track.addEventListener('pause', () => {
             playPauseBtn.innerHTML = svgPlayIcon;
             logoContainer.classList.remove('experience-active');
@@ -449,7 +449,7 @@ document.addEventListener('DOMContentLoaded', () => {
             logoImage.style.animationPlayState = 'running';
             logoImage.style.filter = '';
         });
-        
+
         volumeBar.addEventListener('input', (e) => track.volume = e.target.value);
         seekBar.addEventListener('input', (e) => track.currentTime = e.target.value);
 
@@ -480,24 +480,24 @@ document.addEventListener('DOMContentLoaded', () => {
             const secs = Math.floor(seconds % 60);
             return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
         }
-        
+
         function draw() {
             requestAnimationFrame(draw);
-            
+
             // The visualizer loop should ONLY stop if VFX are manually turned off.
-            if (!isVfxOn) { 
+            if (!isVfxOn) {
                 if (rainParticles.length > 0) rainParticles = [];
                 rainCtx.clearRect(0, 0, rainCanvas.width, rainCanvas.height);
                 vCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
                 hideVisualizer();
                 return;
             }
-            
-            showVisualizer(); 
+
+            showVisualizer();
 
             const freqData = new Uint8Array(analyser.frequencyBinCount);
             analyser.getByteFrequencyData(freqData);
-            
+
             // This is your ORIGINAL effect (reacts to mids/snares)
             const mids = freqData.slice(2, 21);
             const avg = (arr) => arr.reduce((sum, val) => sum + val, 0) / (arr.length || 1);
@@ -510,7 +510,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 brightness(${1 + midBoost * 0.5}) 
                 drop-shadow(0 0 ${glowSize}px rgba(255, 255, 255, ${glowOpacity}))
             `;
-            
+
             // This is the wide-range bass (for the video filter)
             const bassFrequencies = freqData.slice(0, Math.floor(freqData.length * 0.2));
             const averageBass = bassFrequencies.reduce((a, b) => a + b, 0) / (bassFrequencies.length || 1);
@@ -521,15 +521,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // --- REMOVED Smiley Glitch Logic ---
         }
-        
+
         draw();
         isPlayerInitialized = true;
     }
-    
+
     function drawBackgroundVisualizer(freqData, midBoost, normalizedBass) {
         // This function now receives normalizedBass from draw()
         vCtx.globalAlpha = 0.1 + normalizedBass * 0.4;
-        
+
         // --- UPDATED: Apply filter to BOTH players ---
         const filterStyle = `grayscale(90%) contrast(150%) brightness(${0.4 + normalizedBass * 0.2})`;
         bgVideo1.style.filter = filterStyle;
@@ -537,16 +537,16 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- END UPDATE ---
 
         const now = Date.now();
-        if (midBoost > midBoostThreshold && (now - lastRelocateTime > 100)) { 
-             relocateBrandedChars();
-             lastRelocateTime = now;
+        if (midBoost > midBoostThreshold && (now - lastRelocateTime > 100)) {
+            relocateBrandedChars();
+            lastRelocateTime = now;
         }
 
         vCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-        
+
         if (midBoost > midBoostThreshold) lifelineOpacity = Math.min(0.6, lifelineOpacity + midBoost * 0.8);
         else lifelineOpacity = Math.max(0.0, lifelineOpacity - 0.01);
-        
+
         if (brandedCells.length > 1) {
             vCtx.lineWidth = 1.0;
             let allLineCoords = [];
@@ -560,7 +560,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     allLineCoords.push({ start, end });
                 }
             }
-            
+
             for (const line of allLineCoords) {
                 vCtx.beginPath();
                 vCtx.moveTo(line.start.x + charSize / 2, line.start.y + charSize / 2);
@@ -569,7 +569,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 vCtx.stroke();
             }
         }
-        
+
         brandedCells.forEach(cell => {
             let vocalIntensity = midBoost * 2;
             let finalOpacity = Math.min(1, vocalIntensity * 1.5);
@@ -584,7 +584,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function drawRain(midBoost) {
         rainCtx.clearRect(0, 0, rainCanvas.width, rainCanvas.height);
-        
+
         if (Math.random() < midBoost * 0.5) {
             rainParticles.push({
                 x: Math.random() * rainCanvas.width,
@@ -596,12 +596,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 size: 8 + Math.random() * 4,
             });
         }
-        
+
         for (let i = rainParticles.length - 1; i >= 0; i--) {
             const p = rainParticles[i];
             p.y += p.speed;
             p.x += Math.sin(p.y * 0.05) * p.drift;
-            
+
             if (p.y > rainCanvas.height) {
                 rainParticles.splice(i, 1);
             } else {
@@ -644,22 +644,22 @@ document.addEventListener('DOMContentLoaded', () => {
             brandedCells.splice(Math.floor(Math.random() * brandedCells.length), 1);
         }
     }
-    
+
     function getContentType(id) { return id.split('_')[0]; }
-    
+
     // === THIS FUNCTION IS UPDATED (FILTER LOGIC) ===
-    function renderFilterNav() { 
-        const c = [...new Set(chaosGridItems.map(p => getContentType(p.id)))]; 
-        let f = `<a href="#" class="filter-link active" data-filter="all">LTL</a>`; 
-        c.sort().forEach(t => f += `<a href="#" class="filter-link" data-filter="${t}">${t}</a>`); 
-        filterNav.innerHTML = f; 
-        filterNav.addEventListener('click', e => { 
-            e.preventDefault(); 
-            if (e.target.classList.contains('filter-link')) { 
-                const fi = e.target.dataset.filter; 
-                document.querySelector('#filter-nav .active').classList.remove('active'); 
-                e.target.classList.add('active'); 
-                
+    function renderFilterNav() {
+        const c = [...new Set(chaosGridItems.map(p => getContentType(p.id)))];
+        let f = `<a href="#" class="filter-link active" data-filter="all">LTL</a>`;
+        c.sort().forEach(t => f += `<a href="#" class="filter-link" data-filter="${t}">${t}</a>`);
+        filterNav.innerHTML = f;
+        filterNav.addEventListener('click', e => {
+            e.preventDefault();
+            if (e.target.classList.contains('filter-link')) {
+                const fi = e.target.dataset.filter;
+                document.querySelector('#filter-nav .active').classList.remove('active');
+                e.target.classList.add('active');
+
                 let p; // Define p
                 if (fi === 'all') {
                     if (tempFavorites.length > 0) {
@@ -673,68 +673,68 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 } else {
                     // This is the normal filter logic (e.g., show "VOID")
-                    p = chaosGridItems.filter(po => getContentType(po.id) === fi); 
-                    renderLinks(p, fi); 
+                    p = chaosGridItems.filter(po => getContentType(po.id) === fi);
+                    renderLinks(p, fi);
                 }
-                
-                clearTimeout(inactivityTimer); 
+
+                clearTimeout(inactivityTimer);
                 if (fi !== 'all' && fi !== 'favorites') { // Only set timer if not on LTL/Favs
                     inactivityTimer = setTimeout(revertToChaos, 10000);
                 }
-            } 
-        }); 
+            }
+        });
     }
-    
+
     // === THIS FUNCTION IS REWRITTEN ===
     // Removed all "chaos grid" logic. All content now renders as a simple, stable list.
     function renderLinks(p, a) { // Note: 'a' no longer needed but helps logic
-        const s = document.getElementById('scroll-indicator'); 
-        Array.from(anchorNav.children).forEach(c => { if (c.id !== 'scroll-indicator') anchorNav.removeChild(c); }); 
-        dynamicField.innerHTML = ''; 
-        
-        contentData.filter(i => i.isAnchor).forEach(an => { 
-            const link = document.createElement('a'); 
-            link.textContent = an.id; 
-            link.className = 'nav-link'; 
-            link.dataset.id = an.id; 
+        const s = document.getElementById('scroll-indicator');
+        Array.from(anchorNav.children).forEach(c => { if (c.id !== 'scroll-indicator') anchorNav.removeChild(c); });
+        dynamicField.innerHTML = '';
+
+        contentData.filter(i => i.isAnchor).forEach(an => {
+            const link = document.createElement('a');
+            link.textContent = an.id;
+            link.className = 'nav-link';
+            link.dataset.id = an.id;
             anchorNav.appendChild(link);
-            link.addEventListener('click', e => { 
+            link.addEventListener('click', e => {
                 e.preventDefault();
                 showModal(an.id);
-            }); 
-        }); 
-        
+            });
+        });
+
         // This is now the ONLY renderer. Chaos grid logic is gone.
-        dynamicField.classList.add('filtered-view'); 
+        dynamicField.classList.add('filtered-view');
         document.getElementById('interaction-instructions').style.display = 'none'; // Hide instructions
         // REMOVED call to stopChaosInterval()
-        
-        p.forEach(i => { 
+
+        p.forEach(i => {
             const linkText = i.type === 'track' ? i.title : i.id;
-            const link = document.createElement('a'); link.textContent = linkText; link.className = 'nav-link'; link.dataset.id = i.id; 
+            const link = document.createElement('a'); link.textContent = linkText; link.className = 'nav-link'; link.dataset.id = i.id;
 
             // Add the favorite class if the item is in the array
             if (tempFavorites.includes(i.id)) {
                 link.classList.add('is-favorite');
             }
 
-            dynamicField.appendChild(link); 
-        }); 
-        
+            dynamicField.appendChild(link);
+        });
+
         // === UPDATED INDICATOR LOGIC ===
-        setTimeout(() => { 
+        setTimeout(() => {
             const s = document.getElementById('scroll-indicator');
             // This now correctly checks the main scroll area (mainScrollArea), not the body
             if (s && mainScrollArea.scrollHeight > mainScrollArea.clientHeight) s.style.opacity = '0.8'; // Set to 0.8 for a good pulse
-            else if (s) s.style.opacity = '0'; 
-        }, 100); 
+            else if (s) s.style.opacity = '0';
+        }, 100);
     }
 
     // === ALL CHAOS FUNCTIONS ARE NOW DELETED ===
     // DELETED regenerateChaosGrid()
     // DELETED startChaosInterval()
     // DELETED stopChaosInterval() function definition
-    
+
     // === THIS FUNCTION IS REWRITTEN ===
     // Removed ALL drag logic (dragTimeout, isDragging, pointerdown, pointermove, user-select-disabled)
     // Now ONLY handles single and double tap logic.
@@ -743,11 +743,11 @@ document.addEventListener('DOMContentLoaded', () => {
         let lastTap = 0;
         let lastTapTarget = null;
         let singleTapTimer;
-        
+
         // Only one listener is needed now: pointerup
-        dynamicField.addEventListener('pointerup', e => { 
-            
-            const target = e.target.closest('.nav-link'); 
+        dynamicField.addEventListener('pointerup', e => {
+
+            const target = e.target.closest('.nav-link');
             if (!target || !dynamicField.contains(target)) return; // Not a link, bail.
 
             const now = new Date().getTime();
@@ -769,7 +769,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     tempFavorites.push(linkId);
                     target.classList.add('is-favorite');
                 }
-                
+
                 lastTap = 0; // Reset tap tracker
                 lastTapTarget = null;
 
@@ -779,13 +779,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 singleTapTimer = setTimeout(() => {
                     const linkId = target.dataset.id;
                     if (trackLibrary[linkId]) {
-                        loadAndPlayTrack(linkId); 
+                        loadAndPlayTrack(linkId);
                     } else {
-                        showModal(linkId); 
+                        showModal(linkId);
                     }
                 }, 300);
             }
-            
+
             lastTap = now;
             lastTapTarget = target;
         });
@@ -793,7 +793,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setupVideoBreathingEffect() { const videoContainer = document.getElementById('video-background-container'); if (!videoContainer) return; function breathe() { videoContainer.style.filter = 'blur(4px)'; setTimeout(() => { videoContainer.style.filter = 'blur(0px)'; }, 2500); const randomInterval = Math.random() * 6000 + 5000; setTimeout(breathe, randomInterval + 2500); } setTimeout(breathe, 4000); }
     function setupBinaryGlitch() { const o = binarySignature.textContent; let i = false; const t = () => { if (i) return; i = true; let g = setInterval(() => { binarySignature.textContent = o.split('').map(c => (c === '1' || c === '0') ? (Math.random() > 0.5 ? '1' : '0') : c).join(''); }, 50); setTimeout(() => { clearInterval(g); binarySignature.textContent = o; i = false; }, 1000); }; setInterval(t, 8000 + Math.random() * 5000); }
-    
+
     // --- UPDATED showModal FUNCTION ---
     // This is now much simpler. It only handles media in the modal (like your VOID videos)
     // and does NOT need to swap the audio analyser anymore.
@@ -805,13 +805,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 finalContent = `<h2>${item.id}</h2>` + item.content;
             }
             modalBody.innerHTML = finalContent;
-            
+
             // This just handles any media left in modals (like your VOID videos)
             const mediaInModal = modalBody.querySelectorAll('video, audio');
             mediaInModal.forEach(media => {
                 // 1. Set the default volume as requested
-                media.volume = 0.25; 
-                
+                media.volume = 0.25;
+
                 // 2. Add a listener to pause the MAIN track when this one plays
                 media.addEventListener('play', () => {
                     pauseAudio(); // This pauses the main persistent player
@@ -831,14 +831,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     closeBtn.addEventListener('click', hideModal);
     modal.addEventListener('click', (e) => { if (e.target === modal) hideModal(); });
-    
+
     // === DELETED THE CONFLICTING "TAP-TO-ENTER" LOGIC ===
 
 });
 
 
 function requestAppFullscreen() {
-    const el = document.documentElement; 
+    const el = document.documentElement;
 
     if (el.requestFullscreen) {
         el.requestFullscreen().catch(err => console.error(`Fullscreen Error: ${err.message}`));
