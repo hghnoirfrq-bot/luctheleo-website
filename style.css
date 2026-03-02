@@ -330,7 +330,7 @@ main::-webkit-scrollbar {
 #scroll-indicator {
     position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); 
     width: 1px; height: 20px; background-color: var(--link-color); 
-    opacity: 0; /* JS will change this to 0.8 or 0 */
+    opacity: 0.4; /* Base visible state; JS brightens to 0.8 when scrollable */
     transition: opacity 0.5s ease; 
     animation: pulse 2s infinite ease-in-out;
 }
@@ -795,7 +795,7 @@ body.user-select-disabled {
 #splash-title-text {
     font-family: 'Homemade Apple', cursive;
     font-weight: 400;
-    font-size: clamp(2.2rem, 10vw, 5rem); /* <-- FIXED: Lowered minimum size */
+    font-size: clamp(1.2rem, 7.5vw, 5rem);
     line-height: 1;
     color: transparent; /* Makes the original text invisible */
     margin: 0 auto 2rem auto;
@@ -804,6 +804,7 @@ body.user-select-disabled {
     text-shadow: none;
     white-space: nowrap; /* Forces text onto a single line */
     position: relative;
+    width: 100%;
 }
 
 /* Pseudo-element to display the animated content */
@@ -815,7 +816,7 @@ body.user-select-disabled {
     transform: translateX(-50%);
     font-family: 'Homemade Apple', cursive;
     font-weight: 400;
-    font-size: clamp(2.2rem, 10vw, 5rem); /* <-- FIXED: Lowered minimum size */
+    font-size: clamp(1.2rem, 7.5vw, 5rem);
     color: rgba(0, 0, 0, 0.4);
     text-shadow: none;
     animation: binary-glitch-and-fade 10s infinite ease-in-out;

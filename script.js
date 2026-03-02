@@ -730,8 +730,8 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             const s = document.getElementById('scroll-indicator');
             // This now correctly checks the main scroll area (mainScrollArea), not the body
-            if (s && mainScrollArea.scrollHeight > mainScrollArea.clientHeight) s.style.opacity = '0.8'; // Set to 0.8 for a good pulse
-            else if (s) s.style.opacity = '0';
+            if (s && mainScrollArea.scrollHeight > mainScrollArea.clientHeight) s.style.opacity = '0.8';
+            else if (s) s.style.opacity = '0.4';
         }, 100);
     }
 
