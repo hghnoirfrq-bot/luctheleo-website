@@ -1,5 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+    const DEFAULT_PORTFOLIO_URL = 'https://portfolio-rust-psi-87.vercel.app/';
+    const configuredPortfolioUrl = window.LUCTHELEO_CONFIG?.PORTFOLIO_URL?.trim();
+    const portfolioUrl = configuredPortfolioUrl || DEFAULT_PORTFOLIO_URL;
+
     const splashScreen = document.getElementById('splash-screen');
     const mainContainer = document.querySelector('.container');
     const splashGraphicInner = document.getElementById('splash-graphic-inner');
@@ -242,6 +246,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 { "id": "PLAY_DNSTY", "type": "track", "isAnchor": false, "title": "DNSTY - LUCTHELEO" } // <-- CHANGED ID
             ];
             // --- END DATA FIX ---
+
+            contentData = contentData.map(item => ({
+                ...item,
+                url: item.url === DEFAULT_PORTFOLIO_URL ? portfolioUrl : item.url,
+                content: typeof item.content === 'string'
+                    ? item.content.replaceAll(DEFAULT_PORTFOLIO_URL, portfolioUrl)
+                    : item.content
+            }));
 
             allPosts = contentData.filter(item => item.type === 'post');
             // This filter now correctly includes all tracks (PLAY, SGNNL)
