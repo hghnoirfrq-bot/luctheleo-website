@@ -180,6 +180,52 @@ body.user-select-disabled {
     z-index: 1000; /* Filter layer */
 }
 
+/* --- CIRCA 25 return control ---
+   Always rendered, never toggled by script.js. Sits below #splash-screen
+   (9999) and #content-modal (2000), so both naturally cover and block it
+   while active — no JS visibility logic needed — and above every other
+   layer (video background, visualizer, filter overlay, audio player) so it
+   stays reachable across the whole homepage once the splash completes. */
+#sklg-return-link {
+    position: fixed;
+    top: 1.25rem;
+    right: 1.5rem;
+    z-index: 1002;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--link-color);
+    text-decoration: none;
+    padding: 0.5rem 0.9rem;
+    border: 1px solid var(--link-color);
+    border-radius: 3px;
+    background-color: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.3s ease, border-color 0.3s ease, text-shadow 0.3s ease;
+}
+#sklg-return-link:hover,
+#sklg-return-link:focus-visible {
+    color: var(--hover-color);
+    border-color: var(--neon-accent);
+    text-shadow: 0 0 8px var(--neon-accent);
+}
+#sklg-return-link:focus-visible {
+    outline: 2px solid var(--neon-accent);
+    outline-offset: 2px;
+}
+@media (max-width: 480px) {
+    #sklg-return-link {
+        top: 0.75rem;
+        right: 0.75rem;
+        font-size: 0.7rem;
+        padding: 0.4rem 0.7rem;
+    }
+}
+
 
 /* --- Main Site Styles --- */
 header, footer {

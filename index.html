@@ -136,6 +136,13 @@
 
     <div id="brand-filter-overlay"></div>
 
+    <!-- CIRCA 25 return control. Always present in the DOM (not toggled by
+         script.js) — z-indexed above every layer except #splash-screen and
+         #content-modal, so it stays reachable across the whole homepage
+         once the splash completes, without depending on the site's own
+         state machine. -->
+    <a href="https://luctheleo.com/" id="sklg-return-link" target="_blank" rel="noopener noreferrer" aria-label="Return to the current LUCTHELEO site">SKLG</a>
+
     <script src="config.js"></script>
     <script type="module" src="script.js"></script>
 </body>
