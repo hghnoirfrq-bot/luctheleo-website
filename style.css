@@ -180,50 +180,200 @@ body.user-select-disabled {
     z-index: 1000; /* Filter layer */
 }
 
-/* --- CIRCA 25 return control ---
-   Always rendered, never toggled by script.js. Sits below #splash-screen
-   (9999) and #content-modal (2000), so both naturally cover and block it
-   while active — no JS visibility logic needed — and above every other
+/* --- SYSTEM ---
+   Connects CIRCA 25 back into the LUCTHELEO system. Trigger is always
+   rendered, never toggled by script.js. Sits below #splash-screen (9999)
+   and #content-modal (2000), so both naturally cover and block it while
+   active — no JS visibility logic needed there — and above every other
    layer (video background, visualizer, filter overlay, audio player) so it
-   stays reachable across the whole homepage once the splash completes. */
-#sklg-return-link {
+   stays reachable across the whole homepage once the splash completes.
+   Supersedes the earlier bare #sklg-return-link (a plain new-tab link) —
+   same corner, same restrained text-only vocabulary, now an actual menu
+   with same-tab navigation. */
+#ltl-system-trigger {
     position: fixed;
     top: 1.25rem;
     right: 1.5rem;
-    z-index: 1002;
+    z-index: 1900;
     font-family: var(--font-mono);
     font-size: 0.8rem;
     font-weight: 700;
     letter-spacing: 2px;
     color: var(--link-color);
-    text-decoration: none;
-    padding: 0.5rem 0.9rem;
-    border: 1px solid var(--link-color);
-    border-radius: 3px;
     background-color: rgba(0, 0, 0, 0.35);
     backdrop-filter: blur(2px);
     -webkit-backdrop-filter: blur(2px);
+    border: 1px solid var(--link-color);
+    border-radius: 3px;
+    padding: 0.5rem 0.9rem;
     cursor: pointer;
     user-select: none;
     transition: color 0.3s ease, border-color 0.3s ease, text-shadow 0.3s ease;
 }
-#sklg-return-link:hover,
-#sklg-return-link:focus-visible {
+#ltl-system-trigger:hover,
+#ltl-system-trigger:focus-visible {
     color: var(--hover-color);
     border-color: var(--neon-accent);
     text-shadow: 0 0 8px var(--neon-accent);
 }
-#sklg-return-link:focus-visible {
+#ltl-system-trigger:focus-visible {
     outline: 2px solid var(--neon-accent);
     outline-offset: 2px;
 }
 @media (max-width: 480px) {
-    #sklg-return-link {
+    #ltl-system-trigger {
         top: 0.75rem;
         right: 0.75rem;
         font-size: 0.7rem;
         padding: 0.4rem 0.7rem;
     }
+}
+
+/* Decorative-only cue toward SYSTEM, shown once per session (see
+   system.js) — real interaction happens on SYSTEM itself, never on this
+   element. Positioned just under the trigger, pointing up into it. */
+#ltl-system-hint {
+    position: fixed;
+    top: 3.4rem;
+    right: 1.75rem;
+    z-index: 1899;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    pointer-events: none;
+    font-family: var(--font-mono);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--link-color);
+    text-shadow: 0 0 6px rgba(0, 0, 0, 0.6);
+    animation: ltlSystemHintPulse 2.2s ease-in-out infinite;
+}
+#ltl-system-hint[hidden] {
+    display: none;
+}
+#ltl-system-hint-arrow {
+    font-size: 0.9rem;
+    line-height: 1;
+}
+#ltl-system-hint-label {
+    font-size: 0.6rem;
+    white-space: nowrap;
+}
+@keyframes ltlSystemHintPulse {
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 0.95; }
+}
+@media (max-width: 480px) {
+    #ltl-system-hint {
+        top: 2.85rem;
+        right: 0.9rem;
+    }
+}
+
+/* Overlay + panel — same restrained vocabulary as the trigger, not a
+   generic modal. Positioned top-right, under the trigger, matching where
+   SKIALGIA's own equivalent SYSTEM panel opens. */
+#ltl-system-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1950;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 4.6rem 1.5rem 1.5rem;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    cursor: pointer;
+}
+#ltl-system-overlay[hidden] {
+    display: none;
+}
+#ltl-system-menu {
+    width: min(100%, 340px);
+    padding: 1.1rem;
+    background-color: var(--bg-color);
+    border: 1px solid #333;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+    cursor: default;
+    font-family: var(--font-mono);
+}
+#ltl-system-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0 0.15rem 0.9rem;
+    border-bottom: 1px solid #333;
+    color: var(--link-color);
+    font-size: 0.6rem;
+    letter-spacing: 1.5px;
+}
+#ltl-system-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+}
+.ltl-system-link {
+    display: grid;
+    grid-template-columns: 26px minmax(0, 1fr);
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.95rem 0.4rem;
+    border: 0;
+    border-bottom: 1px solid #262626;
+    background: transparent;
+    color: var(--link-color);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+a.ltl-system-link:hover,
+a.ltl-system-link:focus-visible {
+    color: var(--hover-color);
+    background-color: rgba(255, 255, 255, 0.04);
+}
+a.ltl-system-link:focus-visible {
+    outline: 2px solid var(--neon-accent);
+    outline-offset: -2px;
+}
+.ltl-system-link:last-child {
+    border-bottom: 0;
+}
+.ltl-system-link > span:first-child {
+    font-size: 0.65rem;
+    color: var(--link-color);
+    opacity: 0.7;
+}
+.ltl-system-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+.ltl-system-copy strong {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+.ltl-system-copy small {
+    font-size: 0.62rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--link-color);
+    opacity: 0.75;
+}
+.ltl-system-link.is-current {
+    cursor: default;
+    color: var(--hover-color);
+}
+.ltl-system-link.is-current strong {
+    text-shadow: 0 0 8px var(--neon-accent);
+}
+.ltl-system-link.is-current > span:first-child {
+    color: var(--neon-accent);
+    opacity: 1;
 }
 
 

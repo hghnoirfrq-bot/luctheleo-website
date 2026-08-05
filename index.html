@@ -136,14 +136,46 @@
 
     <div id="brand-filter-overlay"></div>
 
-    <!-- CIRCA 25 return control. Always present in the DOM (not toggled by
-         script.js) — z-indexed above every layer except #splash-screen and
-         #content-modal, so it stays reachable across the whole homepage
-         once the splash completes, without depending on the site's own
-         state machine. -->
-    <a href="https://luctheleo.com/" id="sklg-return-link" target="_blank" rel="noopener noreferrer" aria-label="Return to the current LUCTHELEO site">SKLG</a>
+    <!-- SYSTEM — connects CIRCA 25 back into the LUCTHELEO system
+         (DESTINATIONS / SKIALGIA / CIRCA 25 — CURRENT). Always present in
+         the DOM (not toggled by script.js) — z-indexed above every layer
+         except #splash-screen and #content-modal, so it stays reachable
+         across the whole homepage once the splash completes, without
+         depending on the site's own state machine. See system.js, an
+         isolated module with no dependency on (and no dependents in)
+         script.js. -->
+    <button type="button" id="ltl-system-trigger" aria-expanded="false" aria-controls="ltl-system-overlay" aria-label="Open SYSTEM menu">◆ SYSTEM</button>
+
+    <div id="ltl-system-hint" aria-hidden="true" hidden>
+        <span id="ltl-system-hint-arrow">↑</span>
+        <span id="ltl-system-hint-label">CLICK FOR MENU</span>
+    </div>
+
+    <div id="ltl-system-overlay" hidden>
+        <nav id="ltl-system-menu" aria-label="LUCTHELEO workspaces">
+            <div id="ltl-system-heading">
+                <span>LUCTHELEO</span>
+                <span>SELECT SIGNAL</span>
+            </div>
+            <div id="ltl-system-grid">
+                <a class="ltl-system-link" href="https://luctheleo.com/?destinations=1">
+                    <span>01</span>
+                    <span class="ltl-system-copy"><strong>DESTINATIONS</strong><small>RETURN TO SELECT</small></span>
+                </a>
+                <a class="ltl-system-link" href="https://luctheleo.com/">
+                    <span>02</span>
+                    <span class="ltl-system-copy"><strong>SKIALGIA</strong><small>NEW SIGNAL</small></span>
+                </a>
+                <div class="ltl-system-link is-current" aria-current="true">
+                    <span>03</span>
+                    <span class="ltl-system-copy"><strong>CIRCA 25</strong><small>CURRENT</small></span>
+                </div>
+            </div>
+        </nav>
+    </div>
 
     <script src="config.js"></script>
     <script type="module" src="script.js"></script>
+    <script src="system.js"></script>
 </body>
 </html>
