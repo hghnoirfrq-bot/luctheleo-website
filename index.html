@@ -141,22 +141,56 @@
 
     <div id="brand-filter-overlay"></div>
 
-    <!-- SYSTEM — a single, direct control back into the LUCTHELEO system.
-         Always present in the DOM — z-indexed above every layer except
+    <!-- SYSTEM — connects CIRCA 25 back into the LUCTHELEO system. Always
+         present in the DOM — z-indexed above every layer except
          #splash-screen and #content-modal, so it stays reachable across the
          whole homepage once the splash completes, without depending on the
-         site's own state machine. Not a menu: one tap takes the visitor
-         straight to SKIALGIA's actual Destinations picker in this same
-         tab — ?destinations=1 bypasses SKIALGIA's own BIOS/entry sequence
-         entirely (see luctheleo-ecosystem/skialgia's entrySession.ts),
-         landing directly on the destination screen rather than the initial
-         SIGNAL/ENTER page. -->
-    <a id="ltl-system-trigger" href="https://luctheleo.com/?destinations=1" aria-label="Return to Destinations">
+         site's own state machine. Every link is same-tab and lands the
+         visitor directly on real content, never SKIALGIA's SIGNAL/BIOS
+         entry screen — ?destinations=1 and ?home=1 both bypass that
+         sequence entirely (see luctheleo-ecosystem/skialgia's
+         entrySession.ts); /terminal and /broadcast are direct routes that
+         were never gated by it in the first place. See system.js, an
+         isolated module with no dependency on (and no dependents in)
+         script.js. -->
+    <button type="button" id="ltl-system-trigger" aria-expanded="false" aria-controls="ltl-system-overlay" aria-label="Open SYSTEM menu">
         <span aria-hidden="true"></span>
         <span id="ltl-system-trigger-label">SYSTEM</span>
-    </a>
+    </button>
+
+    <div id="ltl-system-overlay" hidden>
+        <nav id="ltl-system-menu" aria-label="LUCTHELEO workspaces">
+            <div id="ltl-system-heading">
+                <span>LUCTHELEO</span>
+                <span>SELECT SIGNAL</span>
+            </div>
+            <div id="ltl-system-grid">
+                <a class="ltl-system-link" href="https://luctheleo.com/?destinations=1">
+                    <span>01</span>
+                    <span class="ltl-system-copy"><strong>DESTINATIONS</strong><small>RETURN TO SELECT</small></span>
+                </a>
+                <a class="ltl-system-link" href="https://luctheleo.com/?home=1">
+                    <span>02</span>
+                    <span class="ltl-system-copy"><strong>SKIALGIA</strong><small>NEW SIGNAL</small></span>
+                </a>
+                <a class="ltl-system-link" href="https://luctheleo.com/broadcast">
+                    <span>03</span>
+                    <span class="ltl-system-copy"><strong>BROADCAST</strong><small>CURRENT TRANSMISSION</small></span>
+                </a>
+                <a class="ltl-system-link" href="https://luctheleo.com/terminal">
+                    <span>04</span>
+                    <span class="ltl-system-copy"><strong>TERMINAL</strong><small>QUERY PUBLIC RECORDS</small></span>
+                </a>
+                <div class="ltl-system-link is-current" aria-current="true">
+                    <span>05</span>
+                    <span class="ltl-system-copy"><strong>CIRCA 25</strong><small>CURRENT</small></span>
+                </div>
+            </div>
+        </nav>
+    </div>
 
     <script src="config.js"></script>
     <script type="module" src="script.js"></script>
+    <script src="system.js"></script>
 </body>
 </html>
