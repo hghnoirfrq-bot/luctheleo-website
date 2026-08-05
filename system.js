@@ -12,10 +12,11 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     var trigger = document.getElementById('ltl-system-trigger');
+    var triggerLabel = document.getElementById('ltl-system-trigger-label');
     var overlay = document.getElementById('ltl-system-overlay');
     var menu = document.getElementById('ltl-system-menu');
     var hint = document.getElementById('ltl-system-hint');
-    if (!trigger || !overlay || !menu) return;
+    if (!trigger || !triggerLabel || !overlay || !menu) return;
 
     var open = false;
 
@@ -46,7 +47,7 @@
       open = true;
       overlay.removeAttribute('hidden');
       trigger.setAttribute('aria-expanded', 'true');
-      trigger.textContent = 'CLOSE';
+      triggerLabel.textContent = 'CLOSE';
       dismissHint();
       var firstLink = menu.querySelector('a, button');
       if (firstLink) firstLink.focus();
@@ -57,7 +58,7 @@
       open = false;
       overlay.setAttribute('hidden', '');
       trigger.setAttribute('aria-expanded', 'false');
-      trigger.textContent = '◆ SYSTEM';
+      triggerLabel.textContent = 'SYSTEM';
       trigger.focus();
     }
 

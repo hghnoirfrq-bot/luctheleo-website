@@ -13,6 +13,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Homemade+Apple&display=swap" rel="stylesheet">
+    <!-- SYSTEM control match — SKIALGIA's own SYSTEM trigger uses Special
+         Elite as its primary typeface (see luctheleo-ecosystem/skialgia's
+         PublicWorkspaceShell.css); loaded here so #ltl-system-trigger
+         renders in the same face instead of falling back to Courier New. -->
+    <link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="style.css">
     
@@ -144,7 +149,10 @@
          depending on the site's own state machine. See system.js, an
          isolated module with no dependency on (and no dependents in)
          script.js. -->
-    <button type="button" id="ltl-system-trigger" aria-expanded="false" aria-controls="ltl-system-overlay" aria-label="Open SYSTEM menu">◆ SYSTEM</button>
+    <button type="button" id="ltl-system-trigger" aria-expanded="false" aria-controls="ltl-system-overlay" aria-label="Open SYSTEM menu">
+        <span aria-hidden="true"></span>
+        <span id="ltl-system-trigger-label">SYSTEM</span>
+    </button>
 
     <div id="ltl-system-hint" aria-hidden="true" hidden>
         <span id="ltl-system-hint-arrow">↑</span>

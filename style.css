@@ -187,60 +187,114 @@ body.user-select-disabled {
    active — no JS visibility logic needed there — and above every other
    layer (video background, visualizer, filter overlay, audio player) so it
    stays reachable across the whole homepage once the splash completes.
-   Supersedes the earlier bare #sklg-return-link (a plain new-tab link) —
-   same corner, same restrained text-only vocabulary, now an actual menu
-   with same-tab navigation. */
+   Supersedes the earlier bare #sklg-return-link (a plain new-tab link).
+
+   Trigger markup/position/size/dot/glow/idle-flicker are a direct port of
+   SKIALGIA's own .workspace-nav-trigger (see luctheleo-ecosystem/skialgia's
+   PublicWorkspaceShell.tsx/.css) — same box (top:19px, right offset, 88x44),
+   same SYSTEM/CLOSE text swap, same rotated-diamond signal dot, same dying-
+   neon idle animation, same hover "fault" flicker, same steady glow while
+   open. Values here are that component's resolved DARK-theme output only —
+   CIRCA 25 has no theme switch, so there is no light-mode branch to port.
+   --neon-accent (#9040ff) already matches SKIALGIA's --ltl-accent exactly;
+   the glow rgba() values below are that same color at SKIALGIA's own alphas. */
 #ltl-system-trigger {
     position: fixed;
-    top: 1.25rem;
-    right: 1.5rem;
+    top: 19px;
+    right: clamp(24px, 4vw, 44px);
     z-index: 1900;
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-    color: var(--link-color);
-    background-color: rgba(0, 0, 0, 0.35);
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
-    border: 1px solid var(--link-color);
-    border-radius: 3px;
-    padding: 0.5rem 0.9rem;
+    width: 88px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 0;
+    border-radius: 0;
+    outline: 0;
+    box-shadow: none;
+    background: transparent;
+    color: rgba(240, 238, 232, 0.9);
     cursor: pointer;
     user-select: none;
-    transition: color 0.3s ease, border-color 0.3s ease, text-shadow 0.3s ease;
+    font-family: 'Special Elite', 'Courier New', monospace;
+    font-size: 9px;
+    letter-spacing: 1.9px;
+    text-shadow: 0 0 2px rgba(255, 255, 255, 0.52), 0 0 6px rgba(144, 64, 255, 0.44), 0 0 14px rgba(144, 64, 255, 0.24);
+    transition: color 0.16s ease, text-shadow 0.16s ease, opacity 0.16s ease;
+    animation: ltlSystemSignalIdle 9.7s linear infinite;
 }
-#ltl-system-trigger:hover,
-#ltl-system-trigger:focus-visible {
+#ltl-system-trigger > span:first-child {
+    width: 4px;
+    height: 4px;
+    border: 0;
+    background: var(--neon-accent);
+    box-shadow: 0 0 7px rgba(144, 64, 255, 0.28);
+    transform: rotate(45deg);
+    opacity: 0.66;
+    transition: opacity 0.16s ease, box-shadow 0.16s ease;
+}
+#ltl-system-trigger:hover {
     color: var(--hover-color);
-    border-color: var(--neon-accent);
-    text-shadow: 0 0 8px var(--neon-accent);
+    text-shadow: 0 0 3px currentColor, 0 0 10px rgba(144, 64, 255, 0.28);
+    animation: ltlSystemSignalFault 0.38s steps(2, end) 1;
+}
+#ltl-system-trigger[aria-expanded='true'] {
+    color: var(--hover-color);
+    opacity: 1;
+    text-shadow: 0 0 2px currentColor, 0 0 8px rgba(144, 64, 255, 0.28), 0 0 16px rgba(144, 64, 255, 0.28);
+    animation: none;
+}
+#ltl-system-trigger[aria-expanded='true'] > span:first-child {
+    opacity: 1;
+    box-shadow: 0 0 10px var(--neon-accent);
 }
 #ltl-system-trigger:focus-visible {
-    outline: 2px solid var(--neon-accent);
-    outline-offset: 2px;
+    outline: 1px solid currentColor;
+    outline-offset: -8px;
+    box-shadow: none;
 }
-@media (max-width: 480px) {
-    #ltl-system-trigger {
-        top: 0.75rem;
-        right: 0.75rem;
-        font-size: 0.7rem;
-        padding: 0.4rem 0.7rem;
-    }
+@keyframes ltlSystemSignalFault {
+    0%, 100% { opacity: 1; }
+    28% { opacity: 0.72; }
+    34% { opacity: 1; }
+    58% { opacity: 0.84; }
+    64% { opacity: 1; }
+}
+@keyframes ltlSystemSignalIdle {
+    0%, 48%, 50.4%, 82%, 84.3%, 100% { opacity: 1; filter: none; }
+    48.7% { opacity: 0.68; filter: brightness(0.74); }
+    49.2% { opacity: 0.94; filter: none; }
+    82.7% { opacity: 0.78; filter: brightness(0.82); }
+    83.15% { opacity: 1; filter: none; }
+}
+@media (max-width: 1023px) {
+    #ltl-system-trigger { top: 11px; right: clamp(18px, 4vw, 32px); }
+}
+@media (max-width: 599px) {
+    #ltl-system-trigger { right: 8px; width: 78px; height: 44px; font-size: 7px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    #ltl-system-trigger,
+    #ltl-system-trigger > span:first-child { transition: none; }
+    #ltl-system-trigger { animation: none !important; }
 }
 
 /* Decorative-only cue toward SYSTEM, shown once per session (see
    system.js) — real interaction happens on SYSTEM itself, never on this
-   element. Positioned just under the trigger, pointing up into it. */
+   element. Positioned just under the trigger (19px top + 44px height =
+   63px, plus a tight connecting gap), pointing up into it — mirrors
+   SKIALGIA's own .workspace-hint-menu placement relative to its trigger. */
 #ltl-system-hint {
     position: fixed;
-    top: 3.4rem;
-    right: 1.75rem;
+    top: 67px;
+    right: clamp(24px, 4vw, 44px);
     z-index: 1899;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 2px;
+    width: 88px;
     pointer-events: none;
     font-family: var(--font-mono);
     letter-spacing: 1.5px;
@@ -251,6 +305,12 @@ body.user-select-disabled {
 }
 #ltl-system-hint[hidden] {
     display: none;
+}
+@media (max-width: 1023px) {
+    #ltl-system-hint { top: 59px; right: clamp(18px, 4vw, 32px); }
+}
+@media (max-width: 599px) {
+    #ltl-system-hint { width: 78px; }
 }
 #ltl-system-hint-arrow {
     font-size: 0.9rem;
@@ -263,12 +323,6 @@ body.user-select-disabled {
 @keyframes ltlSystemHintPulse {
     0%, 100% { opacity: 0.55; }
     50% { opacity: 0.95; }
-}
-@media (max-width: 480px) {
-    #ltl-system-hint {
-        top: 2.85rem;
-        right: 0.9rem;
-    }
 }
 
 /* Overlay + panel — same restrained vocabulary as the trigger, not a
