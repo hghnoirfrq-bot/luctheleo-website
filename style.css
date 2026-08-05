@@ -181,23 +181,26 @@ body.user-select-disabled {
 }
 
 /* --- SYSTEM ---
-   Connects CIRCA 25 back into the LUCTHELEO system. Trigger is always
-   rendered, never toggled by script.js. Sits below #splash-screen (9999)
-   and #content-modal (2000), so both naturally cover and block it while
-   active — no JS visibility logic needed there — and above every other
-   layer (video background, visualizer, filter overlay, audio player) so it
-   stays reachable across the whole homepage once the splash completes.
-   Supersedes the earlier bare #sklg-return-link (a plain new-tab link).
+   A single, direct control back into the LUCTHELEO system — not a menu.
+   One tap takes the visitor straight to SKIALGIA's Destinations picker
+   (see index.html's href), same tab. Always rendered. Sits below
+   #splash-screen (9999) and #content-modal (2000), so both naturally cover
+   and block it while active, and above every other layer (video
+   background, visualizer, filter overlay, audio player) so it stays
+   reachable across the whole homepage once the splash completes.
+   Supersedes both the earlier bare #sklg-return-link (a plain new-tab
+   link) and this control's own prior menu-opening version.
 
-   Trigger markup/position/size/dot/glow/idle-flicker are a direct port of
-   SKIALGIA's own .workspace-nav-trigger (see luctheleo-ecosystem/skialgia's
-   PublicWorkspaceShell.tsx/.css) — same box (top:19px, right offset, 88x44),
-   same SYSTEM/CLOSE text swap, same rotated-diamond signal dot, same dying-
-   neon idle animation, same hover "fault" flicker, same steady glow while
-   open. Values here are that component's resolved DARK-theme output only —
-   CIRCA 25 has no theme switch, so there is no light-mode branch to port.
-   --neon-accent (#9040ff) already matches SKIALGIA's --ltl-accent exactly;
-   the glow rgba() values below are that same color at SKIALGIA's own alphas. */
+   Position/size/dot/glow/idle-flicker are a direct port of SKIALGIA's own
+   .workspace-nav-trigger (see luctheleo-ecosystem/skialgia's
+   PublicWorkspaceShell.tsx/.css) — same box (top:19px, right offset,
+   88x44), same rotated-diamond signal dot, same dying-neon idle animation,
+   same hover "fault" flicker. No open/expanded state here — this is a
+   plain link, not a toggle, so SKIALGIA's own [aria-expanded] variants
+   don't apply. Values are that component's resolved DARK-theme output
+   only — CIRCA 25 has no theme switch. --neon-accent (#9040ff) already
+   matches SKIALGIA's --ltl-accent exactly; the glow rgba() values below
+   are that same color at SKIALGIA's own alphas. */
 #ltl-system-trigger {
     position: fixed;
     top: 19px;
@@ -217,6 +220,7 @@ body.user-select-disabled {
     color: rgba(240, 238, 232, 0.9);
     cursor: pointer;
     user-select: none;
+    text-decoration: none;
     font-family: 'Special Elite', 'Courier New', monospace;
     font-size: 9px;
     letter-spacing: 1.9px;
@@ -238,16 +242,6 @@ body.user-select-disabled {
     color: var(--hover-color);
     text-shadow: 0 0 3px currentColor, 0 0 10px rgba(144, 64, 255, 0.28);
     animation: ltlSystemSignalFault 0.38s steps(2, end) 1;
-}
-#ltl-system-trigger[aria-expanded='true'] {
-    color: var(--hover-color);
-    opacity: 1;
-    text-shadow: 0 0 2px currentColor, 0 0 8px rgba(144, 64, 255, 0.28), 0 0 16px rgba(144, 64, 255, 0.28);
-    animation: none;
-}
-#ltl-system-trigger[aria-expanded='true'] > span:first-child {
-    opacity: 1;
-    box-shadow: 0 0 10px var(--neon-accent);
 }
 #ltl-system-trigger:focus-visible {
     outline: 1px solid currentColor;
@@ -278,156 +272,6 @@ body.user-select-disabled {
     #ltl-system-trigger,
     #ltl-system-trigger > span:first-child { transition: none; }
     #ltl-system-trigger { animation: none !important; }
-}
-
-/* Decorative-only cue toward SYSTEM, shown once per session (see
-   system.js) — real interaction happens on SYSTEM itself, never on this
-   element. Positioned just under the trigger (19px top + 44px height =
-   63px, plus a tight connecting gap), pointing up into it — mirrors
-   SKIALGIA's own .workspace-hint-menu placement relative to its trigger. */
-#ltl-system-hint {
-    position: fixed;
-    top: 67px;
-    right: clamp(24px, 4vw, 44px);
-    z-index: 1899;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    width: 88px;
-    pointer-events: none;
-    font-family: var(--font-mono);
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--link-color);
-    text-shadow: 0 0 6px rgba(0, 0, 0, 0.6);
-    animation: ltlSystemHintPulse 2.2s ease-in-out infinite;
-}
-#ltl-system-hint[hidden] {
-    display: none;
-}
-@media (max-width: 1023px) {
-    #ltl-system-hint { top: 59px; right: clamp(18px, 4vw, 32px); }
-}
-@media (max-width: 599px) {
-    #ltl-system-hint { width: 78px; }
-}
-#ltl-system-hint-arrow {
-    font-size: 0.9rem;
-    line-height: 1;
-}
-#ltl-system-hint-label {
-    font-size: 0.6rem;
-    white-space: nowrap;
-}
-@keyframes ltlSystemHintPulse {
-    0%, 100% { opacity: 0.55; }
-    50% { opacity: 0.95; }
-}
-
-/* Overlay + panel — same restrained vocabulary as the trigger, not a
-   generic modal. Positioned top-right, under the trigger, matching where
-   SKIALGIA's own equivalent SYSTEM panel opens. */
-#ltl-system-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 1950;
-    display: flex;
-    align-items: flex-start;
-    justify-content: flex-end;
-    padding: 4.6rem 1.5rem 1.5rem;
-    background: rgba(0, 0, 0, 0.55);
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
-    cursor: pointer;
-}
-#ltl-system-overlay[hidden] {
-    display: none;
-}
-#ltl-system-menu {
-    width: min(100%, 340px);
-    padding: 1.1rem;
-    background-color: var(--bg-color);
-    border: 1px solid #333;
-    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
-    cursor: default;
-    font-family: var(--font-mono);
-}
-#ltl-system-heading {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0 0.15rem 0.9rem;
-    border-bottom: 1px solid #333;
-    color: var(--link-color);
-    font-size: 0.6rem;
-    letter-spacing: 1.5px;
-}
-#ltl-system-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-}
-.ltl-system-link {
-    display: grid;
-    grid-template-columns: 26px minmax(0, 1fr);
-    align-items: center;
-    gap: 0.6rem;
-    padding: 0.95rem 0.4rem;
-    border: 0;
-    border-bottom: 1px solid #262626;
-    background: transparent;
-    color: var(--link-color);
-    text-decoration: none;
-    cursor: pointer;
-    transition: color 0.2s ease, background-color 0.2s ease;
-}
-a.ltl-system-link:hover,
-a.ltl-system-link:focus-visible {
-    color: var(--hover-color);
-    background-color: rgba(255, 255, 255, 0.04);
-}
-a.ltl-system-link:focus-visible {
-    outline: 2px solid var(--neon-accent);
-    outline-offset: -2px;
-}
-.ltl-system-link:last-child {
-    border-bottom: 0;
-}
-.ltl-system-link > span:first-child {
-    font-size: 0.65rem;
-    color: var(--link-color);
-    opacity: 0.7;
-}
-.ltl-system-copy {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    min-width: 0;
-}
-.ltl-system-copy strong {
-    font-size: 0.85rem;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-}
-.ltl-system-copy small {
-    font-size: 0.62rem;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--link-color);
-    opacity: 0.75;
-}
-.ltl-system-link.is-current {
-    cursor: default;
-    color: var(--hover-color);
-}
-.ltl-system-link.is-current strong {
-    text-shadow: 0 0 8px var(--neon-accent);
-}
-.ltl-system-link.is-current > span:first-child {
-    color: var(--neon-accent);
-    opacity: 1;
 }
 
 
